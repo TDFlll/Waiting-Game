@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f4efe5" />
+<title>WAITING DICE v0.1</title>
+<style>
+:root{--bg:#f4efe5;--ink:#222522;--muted:#6f746f;--panel:#fffaf0;--line:#d7d0c2;--p1:#1f6a5b;--p2:#a34a3f;--gold:#b58a35;--shadow:0 8px 22px rgba(0,0,0,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100dvh}button,input{font:inherit}button{cursor:pointer}#app{min-height:100dvh;display:flex;align-items:stretch;justify-content:center;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}.shell{width:min(100%,520px);min-height:100dvh;display:flex;flex-direction:column;gap:10px;padding:10px 0 14px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px}.brand{font-weight:900;letter-spacing:.08em}.version{font-size:12px;color:var(--muted);font-weight:700}.scorebar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.score{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow)}.score strong{display:block;font-size:13px;letter-spacing:.06em}.score .pts{font-size:22px;font-weight:900;margin-top:2px}.score.p1 strong,.score.p1 .pts{color:var(--p1)}.score.p2 strong,.score.p2 .pts{color:var(--p2)}.main{flex:1;display:flex;flex-direction:column;justify-content:center}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.center{text-align:center}.kicker{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.1em}.title{font-size:28px;font-weight:950;line-height:1.15;margin:6px 0}.subtitle{color:var(--muted);font-size:14px;line-height:1.5}.playerTag{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:13px;font-weight:900;margin-bottom:10px}.playerTag.p1{background:rgba(31,106,91,.11);color:var(--p1)}.playerTag.p2{background:rgba(163,74,63,.11);color:var(--p2)}.diceRow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0}.die{width:56px;height:56px;border:2px solid var(--ink);border-radius:14px;background:#fff;display:grid;place-items:center;font-size:28px;font-weight:900}.total{font-size:18px;font-weight:900;margin:6px 0 16px}.bigValue{font-size:54px;font-weight:950;line-height:1;margin:12px 0}.declareBox{display:flex;gap:8px;margin-top:10px}.declareBox input{flex:1;min-width:0;border:2px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;font-size:24px;font-weight:900;text-align:center}.declareBox input:focus{outline:none;border-color:var(--ink)}.btn{width:100%;border:0;border-radius:15px;padding:14px 16px;font-weight:900;background:var(--ink);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}.btn.p1{background:var(--p1)}.btn.p2{background:var(--p2)}.btnRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}.btnRow.two{grid-template-columns:1fr 1fr}.btn.call{background:#4f6b7a}.btn.doubt{background:#8d5c28}.btn.challenge{background:#823e53}.history{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.historyTitle{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.08em;margin-bottom:8px}.historyGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hbox{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}.hbox strong{display:block;font-size:12px;margin-bottom:4px}.hbox.p1 strong{color:var(--p1)}.hbox.p2 strong{color:var(--p2)}.hvals{font-size:14px;line-height:1.7;min-height:25px}.handoff{padding:28px 18px}.handoff .title{font-size:31px}.resultGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.resultBox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px}.resultBox .who{font-size:12px;font-weight:900;margin-bottom:6px}.resultBox .sum{font-size:26px;font-weight:950}.resultMsg{font-size:24px;font-weight:950;margin:10px 0}.notice{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.5}.footer{display:flex;gap:8px}.footer button{flex:1;border:1px solid var(--line);background:transparent;border-radius:12px;padding:10px;color:var(--muted);font-weight:800}
+.rollStage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:126px;margin:10px 0 14px}
+.rollingDie{width:74px;height:74px;border:3px solid var(--ink);border-radius:18px;background:#fff;display:grid;place-items:center;font-size:40px;font-weight:950;box-shadow:0 8px 16px rgba(0,0,0,.14)}
+.rollingDie.isRolling{animation:diceTumble .18s linear infinite}
+@keyframes diceTumble{
+  0%{transform:translate(-2px,-2px) rotate(-9deg) scale(.96)}
+  25%{transform:translate(5px,-6px) rotate(8deg) scale(1.05)}
+  50%{transform:translate(2px,3px) rotate(14deg) scale(.98)}
+  75%{transform:translate(-5px,1px) rotate(-7deg) scale(1.03)}
+  100%{transform:translate(-2px,-2px) rotate(-9deg) scale(.96)}
+}
+.rollText{margin-top:10px;font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:900}
+.countdownCard{text-align:center;padding:30px 18px;overflow:hidden}
+.countdownType{font-size:14px;font-weight:950;letter-spacing:.14em;color:var(--muted)}
+.countdownNumber{font-size:94px;line-height:1;font-weight:950;margin:18px 0 12px;animation:countPop .72s cubic-bezier(.18,.75,.25,1)}
+@keyframes countPop{0%{transform:scale(.42);opacity:0}35%{transform:scale(1.16);opacity:1}100%{transform:scale(1);opacity:1}}
+.countdownBar{width:min(80%,260px);height:7px;margin:14px auto 0;border-radius:999px;overflow:hidden;background:#ded7ca}
+.countdownBar>div{height:100%;width:100%;background:var(--ink);transform-origin:left;animation:countBar .82s linear forwards}
+@keyframes countBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion: reduce){.rollingDie.isRolling,.countdownNumber,.countdownBar>div{animation:none}}
+
+
+.btn small{display:block;font-size:10px;font-weight:800;letter-spacing:.02em;margin-top:3px;opacity:.88}
+
+
+.resultBox.good{border-color:#7cae9a;background:#f1f8f5}
+.resultBox.bad{border-color:#c98c84;background:#fbf2f0}
+.resultBox.neutral{border-color:#d6bf82;background:#fbf7ea}
+.resultBox.good .who,.resultBox.good .sum{color:var(--p1)}
+.resultBox.bad .who,.resultBox.bad .sum{color:var(--p2)}
+.resultOutcome{
+  margin:14px auto 4px;
+  padding:11px 14px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:900;
+  line-height:1.45;
+}
+.resultOutcome.success{background:#e9f4ef;color:#1f6a5b;border:1px solid #b9d7cb}
+.resultOutcome.fail{background:#f8e9e6;color:#9b443a;border:1px solid #dfbbb5}
+
+
+.celebrationOverlay{
+  position:fixed;
+  left:0;
+  top:0;
+  width:100vw;
+  height:100vh;
+  z-index:9999;
+  pointer-events:none;
+  overflow:hidden;
+}
+.screenConfetti{
+  position:absolute;
+  top:-28px;
+  left:var(--left);
+  width:9px;
+  height:20px;
+  border-radius:2px;
+  opacity:0;
+  animation:screenFall var(--dur) ease-in var(--delay) forwards;
+}
+.screenConfetti:nth-child(4n+1){background:#e85d4a}
+.screenConfetti:nth-child(4n+2){background:#f0b648}
+.screenConfetti:nth-child(4n+3){background:#4f9d86}
+.screenConfetti:nth-child(4n){background:#7a6bb7}
+@keyframes screenFall{
+  0%{transform:translate(0,-30px) rotate(0deg);opacity:0}
+  8%{opacity:1}
+  45%{transform:translate(var(--midX),48vh) rotate(var(--spin1))}
+  100%{transform:translate(var(--endX),105vh) rotate(var(--spin2));opacity:.95}
+}
+.cannon{
+  position:absolute;
+  bottom:18px;
+  width:42px;
+  height:58px;
+}
+.cannon.left{left:18px;transform:rotate(-18deg)}
+.cannon.right{right:18px;transform:scaleX(-1) rotate(-18deg)}
+.cannon .tube{
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  width:20px;
+  height:42px;
+  border-radius:8px 8px 4px 4px;
+  background:#3b4040;
+  transform:rotate(-15deg);
+  transform-origin:bottom;
+}
+.cannon .base{
+  position:absolute;
+  left:5px;
+  bottom:0;
+  width:34px;
+  height:18px;
+  border-radius:8px 8px 4px 4px;
+  background:#a96a36;
+}
+.winnerBurst{
+  font-size:30px;
+  font-weight:950;
+  margin:2px 0 4px;
+}
+@media (prefers-reduced-motion: reduce){
+  .confetti{animation:none;opacity:1;top:45px}
+}
+
+@media(max-height:720px){.shell{gap:7px;padding-top:6px}.card{padding:14px}.title{font-size:24px}.die{width:48px;height:48px;font-size:24px}.bigValue{font-size:44px}.btn{padding:12px}}
+.wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:30;border:1px solid rgba(207,200,186,.85);border-radius:999px;background:rgba(255,250,241,.82);color:#202522;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+</style>
+</head>
+<body>
+<a class="wg-home" href="../index.html" aria-label="WAITING GAMESへ戻る">← GAMES</a>
+<div id="app"></div>
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const state = {score:[0,0],round:1,starter:0,current:0,dice:[[],[]],declarations:[[],[]],phase:'roundStart',handoffTo:null,afterHandoff:null,winner:null,resultType:null,resultData:null,_rolledThisTurn:false,rolling:false,rollingFace:1,pendingResolution:null,countdownValue:3};
+  const names=['PLAYER 1','PLAYER 2'];
+  const pClass=p=>p===0?'p1':'p2'; const other=p=>1-p; const total=p=>state.dice[p].reduce((a,b)=>a+b,0); const dieGlyph=n=>['','⚀','⚁','⚂','⚃','⚄','⚅'][n]||n;
+
+  function resetMatch(){state.score=[0,0];state.round=1;state.starter=0;setupRound()}
+  function setupRound(){state.current=state.starter;state.dice=[[],[]];state.declarations=[[],[]];state.phase='roundStart';state.handoffTo=null;state.afterHandoff=null;state.winner=null;state.resultType=null;state.resultData=null;state._rolledThisTurn=false;state.rolling=false;state.rollingFace=1;state.pendingResolution=null;state.countdownValue=3;render()}
+  function scoreHtml(){return `<div class="scorebar"><div class="score p1"><strong>PLAYER 1</strong><div class="pts">${'●'.repeat(state.score[0])}${'○'.repeat(3-state.score[0])} ${state.score[0]}</div></div><div class="score p2"><strong>PLAYER 2</strong><div class="pts">${'●'.repeat(state.score[1])}${'○'.repeat(3-state.score[1])} ${state.score[1]}</div></div></div>`}
+  function historyHtml(){const fmt=p=>state.declarations[p].length?state.declarations[p].map((v,i)=>`${i+1}投目：${v}`).join('<br>'):'まだ宣言なし';return `<div class="history"><div class="historyTitle">宣言履歴</div><div class="historyGrid"><div class="hbox p1"><strong>PLAYER 1</strong><div class="hvals">${fmt(0)}</div></div><div class="hbox p2"><strong>PLAYER 2</strong><div class="hvals">${fmt(1)}</div></div></div></div>`}
+  function shell(inner){return `<div class="shell"><div class="topbar"><div class="brand">WAITING DICE</div><div class="version">v0.3.2</div></div>${scoreHtml()}<div class="main">${inner}</div><div class="footer"><button id="rulesBtn">RULES</button><button id="resetBtn">RESET</button></div></div>`}
+  function bindBase(){document.getElementById('resetBtn')?.addEventListener('click',()=>{if(confirm('試合を最初からやり直しますか？'))resetMatch()});document.getElementById('rulesBtn')?.addEventListener('click',showRules)}
+  function showRules(){alert(`WAITING DICE v0.1\n\n・3ポイント先取\n・各プレイヤーは最大3個までサイコロを振る\n・宣言値は実際の値と同じでも違ってもよい\n・過去の宣言との整合性も不要\n・先攻1投目 → 後攻1投目 → 先攻2投目までは強制進行\n・その後は CALL / DOUBT / CHALLENGE\n\nCALL：自分のサイコロを1個追加して続行\nDOUBT：相手の直前宣言と現在の実合計を比較\nCHALLENGE：双方の現在の実合計を比較\n同点はCHALLENGEした側の負け\n・DOUBT / CHALLENGEは3カウント後に結果公開\n\n3個目を振った相手に対してはCALL不可。`)}
+  function render(){({roundStart:renderRoundStart,privateRoll:renderPrivateRoll,handoff:renderHandoff,decision:renderDecision,countdown:renderCountdown,result:renderResult,matchEnd:renderMatchEnd}[state.phase])()}
+
+  function renderRoundStart(){const s=state.starter;app.innerHTML=shell(`<div class="card center"><div class="kicker">ROUND ${state.round}</div><div class="title">${names[s]} STARTS</div><div class="subtitle">このラウンドの先攻は ${names[s]} です。</div><div style="height:14px"></div><button class="btn ${pClass(s)}" id="startRound">START ROUND</button></div>`);bindBase();document.getElementById('startRound').onclick=()=>{state.phase='privateRoll';render()}}
+
+  function renderPrivateRoll(){const p=state.current,rolled=state.dice[p].length,dice=state.dice[p].map(n=>`<div class="die">${dieGlyph(n)}</div>`).join('');const rollingView=state.rolling?`<div class="rollStage"><div class="rollingDie isRolling" id="rollingDie">${dieGlyph(state.rollingFace)}</div><div class="rollText">ROLLING...</div></div>`:'';app.innerHTML=shell(`<div class="card center"><div class="playerTag ${pClass(p)}">${names[p]} PRIVATE</div><div class="title">${state.rolling?'ROLLING...':(state._rolledThisTurn?'DECLARE':'ROLL DICE')}</div><div class="subtitle">この画面は ${names[p]} だけが見てください。</div>${rollingView}${!state.rolling&&dice?`<div class="diceRow">${dice}</div><div class="total">ACTUAL TOTAL：${total(p)}</div>`:''}${!state.rolling&&!state._rolledThisTurn?`<button class="btn ${pClass(p)}" id="rollBtn">ROLL ${rolled+1}</button>`:!state.rolling?`<div class="declareBox"><input id="declareInput" inputmode="numeric" pattern="[0-9]*" placeholder="宣言値" maxlength="2" /><button class="btn ${pClass(p)}" id="enterDeclare" style="width:auto">ENTER</button></div><div class="notice">宣言値は実際の合計と違っていても構いません。</div>`:''}${historyHtml()}</div>`);bindBase();document.getElementById('rollBtn')?.addEventListener('click',animateRoll);document.getElementById('enterDeclare')?.addEventListener('click',submitDeclaration);const inp=document.getElementById('declareInput');inp?.addEventListener('keydown',e=>{if(e.key==='Enter')submitDeclaration()});inp?.focus()}
+
+  function animateRoll(){const p=state.current;if(state.rolling||state.dice[p].length>=3)return;const finalValue=Math.floor(Math.random()*6)+1;const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce){state.dice[p].push(finalValue);state._rolledThisTurn=true;render();return}state.rolling=true;state.rollingFace=Math.floor(Math.random()*6)+1;render();let ticks=0;const timer=setInterval(()=>{ticks++;state.rollingFace=Math.floor(Math.random()*6)+1;const die=document.getElementById('rollingDie');if(die)die.textContent=dieGlyph(state.rollingFace);if(ticks>=12){clearInterval(timer);state.rolling=false;state.rollingFace=finalValue;state.dice[p].push(finalValue);state._rolledThisTurn=true;render()}},75)}
+
+  function submitDeclaration(){const p=state.current,input=document.getElementById('declareInput'),raw=input?.value.trim();if(!raw||!/^[0-9]+$/.test(raw)){alert('宣言する数字を入力してください。');return}state.declarations[p].push(parseInt(raw,10));state._rolledThisTurn=false;const starter=state.starter,second=other(starter),next=other(p);if(state.dice[starter].length===1&&state.dice[second].length===0){prepareHandoff(second,'privateRoll')}else if(state.dice[starter].length===1&&state.dice[second].length===1&&p===second){prepareHandoff(starter,'privateRoll')}else if(state.dice[starter].length===2&&state.dice[second].length===1&&p===starter){prepareHandoff(second,'decision')}else{prepareHandoff(next,'decision')}}
+  function prepareHandoff(to,after){state.handoffTo=to;state.afterHandoff=after;state.current=to;state.phase='handoff';render()}
+  function renderHandoff(){const p=state.handoffTo;app.innerHTML=shell(`<div class="card center handoff"><div class="kicker">HANDOFF</div><div class="title">${names[p]} へ<br>端末を渡してください</div><div class="subtitle">前のプレイヤーの実際のサイコロはもう表示されません。</div><div style="height:18px"></div><button class="btn ${pClass(p)}" id="readyBtn">${names[p]} READY</button></div>`);bindBase();document.getElementById('readyBtn').onclick=()=>{state.phase=state.afterHandoff;render()}}
+
+  function renderDecision(){const p=state.current,opp=other(p),oppDecls=state.declarations[opp],lastDecl=oppDecls[oppDecls.length-1],canCall=state.dice[p].length<3;const myDice=state.dice[p].map(n=>dieGlyph(n)).join(' ');app.innerHTML=shell(`<div class="card center"><div class="playerTag ${pClass(p)}">${names[p]} の判断</div><div class="resultGrid"><div class="resultBox"><div class="who">自分の実際の出目</div><div style="font-size:27px;font-weight:900;min-height:35px">${myDice||'－'}</div><div class="sum">合計 ${total(p)}</div></div><div class="resultBox"><div class="who">${names[opp]} の宣言</div><div class="sum">${lastDecl}</div><div style="font-size:13px;color:var(--muted);margin-top:6px">相手の実ダイスは非公開</div></div></div><div class="subtitle">自分の実際の出目と、相手の宣言値を比べて判断してください。</div><div class="btnRow ${canCall?'':'two'}">${canCall?`<button class="btn call" id="callBtn">CALL<br><small>続ける</small></button>`:''}<button class="btn doubt" id="doubtBtn">DOUBT<br><small>ウソを疑う</small></button><button class="btn challenge" id="challengeBtn">CHALLENGE<br><small>勝負する</small></button></div>${!canCall?`<div class="notice">自分も3個目まで到達しているため、CALLは選べません。</div>`:''}${historyHtml()}</div>`);bindBase();document.getElementById('callBtn')?.addEventListener('click',()=>{state.phase='privateRoll';state._rolledThisTurn=false;render()});document.getElementById('doubtBtn').onclick=()=>startCountdown('DOUBT',p,opp,lastDecl);document.getElementById('challengeBtn').onclick=()=>startCountdown('CHALLENGE',p,opp)}
+  function startCountdown(type,challenger,opponent,declared=null){state.pendingResolution={type,challenger,opponent,declared};state.countdownValue=3;state.phase='countdown';render();runCountdown()}
+  function renderCountdown(){const type=state.pendingResolution?.type||'RESULT';app.innerHTML=shell(`<div class="card countdownCard"><div class="countdownType">${type}</div><div class="countdownNumber" id="countdownNumber">${state.countdownValue}</div><div class="subtitle">${type==='DOUBT'?'宣言の真偽を確認します':'実際の合計値を公開します'}</div><div class="countdownBar"><div></div></div></div>`);bindBase()}
+  function runCountdown(){const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches,stepMs=reduce?220:850;let n=3;const advance=()=>{if(state.phase!=='countdown')return;n--;if(n<=0){const pending=state.pendingResolution;state.pendingResolution=null;if(!pending)return;if(pending.type==='DOUBT')resolveDoubt(pending.challenger,pending.opponent,pending.declared);else resolveChallenge(pending.challenger,pending.opponent);return}state.countdownValue=n;renderCountdown();setTimeout(advance,stepMs)};setTimeout(advance,stepMs)}
+  function resolveDoubt(challenger,declarer,declared){const actual=total(declarer),winner=actual!==declared?challenger:declarer;state.resultType='DOUBT';state.resultData={challenger,declarer,declared,actual};finishRound(winner)}
+  function resolveChallenge(challenger,opponent){const a=total(challenger),b=total(opponent);let winner;if(a>b)winner=challenger;else winner=opponent;state.resultType='CHALLENGE';state.resultData={challenger,opponent,challengerTotal:a,opponentTotal:b};finishRound(winner)}
+  function finishRound(winner){state.winner=winner;state.score[winner]++;state.phase=state.score[winner]>=3?'matchEnd':'result';render()}
+
+  function renderResult(){const w=state.winner;let body='';if(state.resultType==='DOUBT'){const d=state.resultData;body=`<div class="kicker">ダウト結果</div><div class="resultMsg">${names[w]} の勝利</div><div class="resultGrid"><div class="resultBox ${d.declared===d.actual?'neutral':'bad'}"><div class="who">相手が発言した数字</div><div class="sum">${d.declared}</div></div><div class="resultBox ${d.declared===d.actual?'neutral':'good'}"><div class="who">相手の実際の合計</div><div class="sum">${d.actual}</div></div></div><div class="resultOutcome ${d.declared===d.actual?'fail':'success'}">${d.declared===d.actual?'一致 → ダウト失敗':'不一致 → ダウト成功'}</div>`}else{const d=state.resultData;body=`<div class="kicker">CHALLENGE RESULT</div><div class="resultMsg">${names[w]} WINS ROUND</div><div class="resultGrid"><div class="resultBox"><div class="who">PLAYER 1</div><div class="sum">${total(0)}</div><div>${state.dice[0].map(dieGlyph).join(' ')}</div></div><div class="resultBox"><div class="who">PLAYER 2</div><div class="sum">${total(1)}</div><div>${state.dice[1].map(dieGlyph).join(' ')}</div></div></div><div class="notice">${d.challengerTotal===d.opponentTotal?'同点のためCHALLENGEした側の負けです。':'実際の合計値が大きい側の勝利です。'}</div>`}app.innerHTML=shell(`<div class="card center">${body}${historyHtml()}<div style="height:12px"></div><button class="btn ${pClass(w)}" id="nextRound">NEXT ROUND</button></div>`);bindBase();document.getElementById('nextRound').onclick=()=>{state.round++;state.starter=other(state.starter);setupRound()}}
+  function celebrationHtml(){
+    const pieces=[];
+    for(let i=0;i<64;i++){
+      const left=2+((i*37)%96);
+      const mid=-55+((i*23)%111);
+      const end=-90+((i*41)%181);
+      const spin1=(i%2===0?1:-1)*(180+((i*31)%360));
+      const spin2=spin1+(i%2===0?540:-540);
+      const dur=(3.0+((i%8)*0.16)).toFixed(2);
+      const delay=((i%14)*0.06).toFixed(2);
+      pieces.push(`<span class="screenConfetti" style="--left:${left}%;--midX:${mid}px;--endX:${end}px;--spin1:${spin1}deg;--spin2:${spin2}deg;--dur:${dur}s;--delay:${delay}s"></span>`);
+    }
+    return `<div class="celebrationOverlay" aria-hidden="true"><div class="cannon left"><div class="tube"></div><div class="base"></div></div><div class="cannon right"><div class="tube"></div><div class="base"></div></div>${pieces.join('')}</div>`;
+  }
+  function renderMatchEnd(){const w=state.winner;let reveal='';if(state.resultType==='DOUBT'){const d=state.resultData;reveal=`<div class="resultGrid"><div class="resultBox ${d.declared===d.actual?'neutral':'bad'}"><div class="who">相手が発言した数字</div><div class="sum">${d.declared}</div></div><div class="resultBox ${d.declared===d.actual?'neutral':'good'}"><div class="who">相手の実際の合計</div><div class="sum">${d.actual}</div></div></div><div class="resultOutcome ${d.declared===d.actual?'fail':'success'}">${d.declared===d.actual?'一致 → ダウト失敗':'不一致 → ダウト成功'}</div>`}else{reveal=`<div class="resultGrid"><div class="resultBox ${w===0?'good':'bad'}"><div class="who">PLAYER 1</div><div class="sum">${total(0)}</div><div>${state.dice[0].map(dieGlyph).join(' ')}</div></div><div class="resultBox ${w===1?'good':'bad'}"><div class="who">PLAYER 2</div><div class="sum">${total(1)}</div><div>${state.dice[1].map(dieGlyph).join(' ')}</div></div></div>`}app.innerHTML=shell(`${celebrationHtml()}<div class="card center"><div class="kicker">3ポイント先取</div><div class="winnerBurst">${names[w]} の勝利！</div>${reveal}<div style="height:12px"></div><button class="btn ${pClass(w)}" id="newMatch">NEW MATCH</button></div>`);bindBase();document.getElementById('newMatch').onclick=resetMatch}
+  setupRound();
+})();
+</script>
+</body>
+</html>
