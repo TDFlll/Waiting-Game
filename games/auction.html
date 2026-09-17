@@ -174,7 +174,31 @@ let G={n:3,names:['A','B','C'],round:0,dealer:0,supply:clone(SAVED.supply),price
 const app=document.querySelector('#app');
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function title(sub=''){return `<div class='row'><div class='grow'><div class='mut'>WAITING GAMES</div><div class='big'>WAITING AUCTION</div></div><div class='pill'>v0.1 UI-16</div></div>${sub?`<div class='mut'>${sub}</div>`:''}`}
-function home(){app.innerHTML=title('BLACK MARKET')+`<div class='card center'><h2>闇市場へようこそ</h2><p class='mut'>秘密入札でロットの選択権を競う。使いすぎた者は最後に市場から消える。</p><button class='primary' onclick='setup()'>GAME START</button></div>`}
+const SAVE_KEY='waitingAuctionInProgressV1';
+function loadSavedGame(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(x&&x.version===1&&x.G&&x.screen)return x}catch(e){}return null}
+function saveGame(screen){try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:1,savedAt:Date.now(),screen:screen,G:G}))}catch(e){}}
+function clearSavedGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function resumeSummary(x){
+  const g=x.G||{},label=g.specialMarket?g.specialLabel:`R${(g.normalRoundIndex||0)+1}`;
+  const when=x.savedAt?new Date(x.savedAt).toLocaleString():'保存あり';
+  return `${label} / ${g.names?g.names.length:3}人 / ${when}`;
+}
+function resumeGame(){
+  const x=loadSavedGame();if(!x){home();return}
+  G=x.G;
+  const screen=x.screen==='bid'?'pass':x.screen;
+  if(screen==='dealer')renderDealer();
+  else if(screen==='special')renderSpecialMarket();
+  else if(screen==='market')market();
+  else if(screen==='pass')passScreen();
+  else if(screen==='result')resultGoScreen();
+  else if(screen==='rank')rankScreen();
+  else if(screen==='pick')pickScreen();
+  else if(screen==='roundEnd')roundEnd();
+  else dealerScreen();
+}
+function confirmNewGame(){if(loadSavedGame()&&!confirm('途中のゲームを削除して新しく始めますか？'))return;clearSavedGame();setup()}
+function home(){const saved=loadSavedGame();app.innerHTML=title('BLACK MARKET')+`<div class='card center'><h2>闇市場へようこそ</h2><p class='mut'>秘密入札でロットの選択権を競う。使いすぎた者は最後に市場から消える。</p>${saved?`<div class='privacy'><b>途中のゲームがあります</b><div class='mut'>${esc(resumeSummary(saved))}</div><div class='row' style='justify-content:center;margin-top:10px'><button class='primary' onclick='resumeGame()'>再開する</button><button onclick='confirmNewGame()'>新しく始める</button></div></div>`:`<button class='primary' onclick='setup()'>GAME START</button>`}</div>`}
 function setup(){
   app.innerHTML=title('GAME SETUP')+`<div class='card'><h3>プレイヤー人数</h3><div class='row'>${[3,4,5].map(n=>`<button onclick='setN(${n})' class='${G.n===n?'primary':''}'>${n}人</button>`).join('')}</div><h3>得点方式</h3><div class='mut'>${G.n}人用の商品価格設定を使用</div><div id='names'></div><div class='sep'></div><div class='privacy'><b>♦️🌟 希少市場</b><div class='mut'>ゲーム開始時に秘密ルートを抽選。希少品は通常商品に混ざらず、X.5の特別市場にのみ出現します。</div></div><div class='sep'></div><div class='row'><button onclick='editSupply()'>ラウンド・ロット数</button><button onclick='editPrices()'>商品価格を編集</button><button class='primary' onclick='startGame()'>START</button></div></div>`;renderNames()
 }
@@ -231,6 +255,7 @@ function buildSecretRareRoute(){
   G.specialQueue=clone(RARE_ROUTES_3[G.rareRoute]);
 }
 function startGame(){
+  clearSavedGame();
   G.round=0;G.normalRoundIndex=0;G.dealer=0;G.lastAllocationSnapshot=null;G.specialMarket=false;G.specialLabel='';G.specialHistory=[];
   G.owned=Array.from({length:G.n},()=>Object.fromEntries(CATS.map(c=>[c[0],0])));
   G.spent=Array(G.n).fill(0);G.marketBonus=Array(G.n).fill(0);
@@ -264,6 +289,7 @@ function startSpecialMarket(ev){
   renderSpecialMarket();
 }
 function renderSpecialMarket(){
+  saveGame('special');
   const icon=G.lots.some(l=>l.includes('欠けた星'))?'🌟':'♦️';
   app.innerHTML=title(`${G.specialLabel} SPECIAL MARKET`)+`<div class='card center'><div class='big'>${icon} 希少市場</div><p class='mut'>通常商品とは別の特別オークションです。</p><div class='row'>${G.lots.map((l,i)=>lotHTML(l,i)).join('')}</div><button class='primary' onclick='market()'>入札へ</button></div>`;
 }
@@ -272,17 +298,17 @@ function lotHTML(l,i,selectable=false){
 let empty=l.length===0;
 return `<div class='lot'><b>LOT ${String.fromCharCode(65+i)}</b><div class='items'>${empty?'∅':l.map(x=>CATS.find(c=>c[0]===x)[1]).join(' ')}</div><div class='mut'>${empty?'0商品 / 支出免除ロット':l.map(esc).join(' / ')}</div>${selectable?`<button class='primary' onclick='chooseLot(${i})'>このロット</button>`:''}</div>`
 }
-function renderDealer(){app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET`:`ROUND ${G.normalRoundIndex+1}/${G.supply[G.n].length}`)+`<div class='card center'><div class='mut'>🎩 親</div><h2>${esc(G.names[G.dealer])}</h2><p>商品ルーレット　<span class='mut'>ROLL ${G.rollCount}/3</span></p>${G.cursedMarket?`<div class='privacy danger'><b>☠ CURSED MARKET</b><br>全商品が呪物に変化しました。</div>`:''}<div class='row'>${G.lots.map((l,i)=>lotHTML(l,i)).join('')}</div><p>残りリロール：${G.rerolls}</p><button ${G.rerolls<=0?'disabled':''} onclick='reroll()'>🎰 REROLL</button> <button class='primary' onclick='market()'>この市場で確定</button></div>`}
+function renderDealer(){saveGame('dealer');app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET`:`ROUND ${G.normalRoundIndex+1}/${G.supply[G.n].length}`)+`<div class='card center'><div class='mut'>🎩 親</div><h2>${esc(G.names[G.dealer])}</h2><p>商品ルーレット　<span class='mut'>ROLL ${G.rollCount}/3</span></p>${G.cursedMarket?`<div class='privacy danger'><b>☠ CURSED MARKET</b><br>全商品が呪物に変化しました。</div>`:''}<div class='row'>${G.lots.map((l,i)=>lotHTML(l,i)).join('')}</div><p>残りリロール：${G.rerolls}</p><button ${G.rerolls<=0?'disabled':''} onclick='reroll()'>🎰 REROLL</button> <button class='primary' onclick='market()'>この市場で確定</button></div>`}
 function reroll(){if(G.rerolls>0){G.rerolls--;randomLots();renderDealer()}}
-function market(){app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET / 親：${esc(G.names[G.dealer])}`:`ROUND ${G.normalRoundIndex+1} / 親：${esc(G.names[G.dealer])}`)+boardHTML()+`<div style='margin-top:12px'><button class='primary' onclick='beginBid()'>秘密入札を開始</button></div>`}
+function market(){saveGame('market');app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET / 親：${esc(G.names[G.dealer])}`:`ROUND ${G.normalRoundIndex+1} / 親：${esc(G.names[G.dealer])}`)+boardHTML()+`<div style='margin-top:12px'><button class='primary' onclick='beginBid()'>秘密入札を開始</button></div>`}
 function playerPanelHTML(){return `<div class='card'><h3>PLAYER DATA</h3><div class='playersPanel'>${G.names.map((n,i)=>`<div class='playerCompact'><div class='playerHead'><b>${esc(n)} ${i===G.dealer?'🎩':''}</b><span class='scoreNow'>${scorePlayer(i)} VP</span></div><div class='miniCats'>${CATS.map(c=>`<span class='miniCat'>${c[1]} ${esc(c[0])}：<b>${G.owned[i][c[0]]}</b></span>`).join('')}</div></div>`).join('')}</div></div>`}
 function marketPanelHTML(selectLots=false){return `<div class='card'><h2>MARKET ${selectLots?`<span class='marketSelectHint'>赤枠をタップして獲得</span>`:''}</h2>${G.cursedMarket?`<div class='privacy danger'><b>☠ CURSED MARKET</b></div>`:''}<div class='marketLots'>${G.lots.map((l,i)=>l!==null?lotHTML(l,i,selectLots):`<div class='lot mut'>LOT ${String.fromCharCode(65+i)}：獲得済み</div>`).join('')}</div></div>`}
 function boardHTML(selectLots=false){return `<div class='board'><div>${marketPanelHTML(selectLots)}</div><div>${playerPanelHTML()}</div></div>`}
 function ownedHTML(){return playerPanelHTML()}
 function beginBid(){G.bids=Array(G.n).fill(null);G.bidTurn=0;passScreen()}
 function turnPlayer(){return (G.dealer+G.bidTurn)%G.n}
-function passScreen(){let p=turnPlayer();app.innerHTML=title('SECRET BID')+boardHTML()+`<div class='card center'><h2>${esc(G.names[p])} に端末を渡してください</h2><p class='mut'>市場と所持状況は公開情報です。入札額だけを隠してください。</p><button class='primary' onclick='bidScreen()'>準備OK</button></div>`}
-function bidScreen(){let p=turnPlayer();app.innerHTML=title(`SECRET BID / ${esc(G.names[p])}`)+boardHTML()+`<div class='card bidArea'><div class='privacy'><div class='mut'>この欄から下は ${esc(G.names[p])} だけ確認</div><div class='mut'>あなたの累計支出</div><h2>${G.spent[p].toLocaleString()}</h2><input id='bid' class='money' type='number' min='0' step='1' inputmode='numeric' placeholder='入札額'><br><br><button class='primary' onclick='submitBid()'>入札確定</button></div>${scoreBreakdownHTML(p)}</div>`}
+function passScreen(){saveGame('pass');let p=turnPlayer();app.innerHTML=title('SECRET BID')+boardHTML()+`<div class='card center'><h2>${esc(G.names[p])} に端末を渡してください</h2><p class='mut'>市場と所持状況は公開情報です。入札額だけを隠してください。</p><button class='primary' onclick='bidScreen()'>準備OK</button></div>`}
+function bidScreen(){saveGame('pass');let p=turnPlayer();app.innerHTML=title(`SECRET BID / ${esc(G.names[p])}`)+boardHTML()+`<div class='card bidArea'><div class='privacy'><div class='mut'>この欄から下は ${esc(G.names[p])} だけ確認</div><div class='mut'>あなたの累計支出</div><h2>${G.spent[p].toLocaleString()}</h2><input id='bid' class='money' type='number' min='0' step='1' inputmode='numeric' placeholder='入札額'><br><br><button class='primary' onclick='submitBid()'>入札確定</button></div>${scoreBreakdownHTML(p)}</div>`}
 function submitBid(){let p=turnPlayer(),v=Math.max(0,Math.floor(Number(document.querySelector('#bid').value)||0));G.bids[p]=v;G.bidTurn++;if(G.bidTurn<G.n)passScreen();else resolveBids()}
 function priority(p){return (p-G.dealer+G.n)%G.n}
 function resolveBids(){
@@ -298,6 +324,7 @@ G.pickIdx=0;
 resultGoScreen()
 }
 function resultGoScreen(){
+  saveGame('result');
   const isFinal=!G.specialMarket&&G.normalRoundIndex===G.supply[G.n].length-1&&!G.specialQueue.some(e=>e.after===G.normalRoundIndex+1);
   app.innerHTML=title(`${G.specialMarket?G.specialLabel:'ROUND '+(G.normalRoundIndex+1)} RESULT`)+`
   <div class='resultStage'>
@@ -319,12 +346,13 @@ function startResultCountdown(){
   };
   show();
 }
-function rankScreen(){app.innerHTML=title('BIDDING RESULT')+`<div class='card center'><h2>入札順位</h2><div class='privacy'><div class='mut'>このラウンドの最高入札額</div><div class='big'>${G.highestBid.toLocaleString()}</div></div>${G.order.map((p,i)=>`<div class='rank'>${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${esc(G.names[p])}</div>`).join('')}<p class='mut'>2位以下の入札額は非公開です</p><button class='primary' onclick='pickScreen()'>ロット選択へ</button></div>`}
+function rankScreen(){saveGame('rank');app.innerHTML=title('BIDDING RESULT')+`<div class='card center'><h2>入札順位</h2><div class='privacy'><div class='mut'>このラウンドの最高入札額</div><div class='big'>${G.highestBid.toLocaleString()}</div></div>${G.order.map((p,i)=>`<div class='rank'>${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${esc(G.names[p])}</div>`).join('')}<p class='mut'>2位以下の入札額は非公開です</p><button class='primary' onclick='pickScreen()'>ロット選択へ</button></div>`}
 function pickScreen(){
   if(G.pickIdx>=G.order.length||G.lots.every(x=>x===null)){roundEnd();return}
   let p=G.order[G.pickIdx];
   let available=G.lots.map((l,i)=>l?i:null).filter(x=>x!==null);
   if(available.length===1){chooseLot(available[0]);return}
+  saveGame('pick');
   app.innerHTML=title(`LOT SELECT`)+
     `<div class='lotSelectTop'>
       <div><span>${G.pickIdx+1}位</span><b>${esc(G.names[p])}</b></div>
@@ -361,6 +389,7 @@ function undoAllocation(){
 function roundEnd(){
   if(!G.specialMarket)G.scoreHistory[G.normalRoundIndex]=G.names.map((_,i)=>scorePlayer(i));
   const label=G.specialMarket?G.specialLabel:`ROUND ${G.normalRoundIndex+1}`;
+  saveGame('roundEnd');
   app.innerHTML=title(`${label} COMPLETE`)+ownedHTML()+`<div class='row'><button onclick='undoAllocation()' ${G.lastAllocationSnapshot?'':'disabled'}>BACK</button><button class='primary' onclick='nextRound()'>NEXT</button></div>`
 }
 function nextRound(){
@@ -662,6 +691,7 @@ function chartHTML(titleText,history,valueSuffix=''){
     </svg></div>`;
 }
 function finale(){
+  clearSavedGame();
   let max=Math.max(...G.spent),
       dead=G.spent.map((v,i)=>v===max?i:null).filter(x=>x!==null),
       alive=G.names.map((_,i)=>i).filter(i=>!dead.includes(i)),
