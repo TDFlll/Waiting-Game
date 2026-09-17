@@ -1,6 +1,6 @@
 # WAITING GAMES
 
-1台のiPhoneを2人で共有して、待ち時間に短時間で遊べるミニゲーム集です。
+1台のiPhoneを共有して、待ち時間に短時間で遊べるミニゲーム集です。
 
 ## Files
 
@@ -10,7 +10,8 @@ waiting-games/
 ├─ games/
 │  ├─ shapes.html
 │  ├─ dice.html
-│  └─ cards.html
+│  ├─ cards.html
+│  └─ auction.html
 └─ README.md
 ```
 
@@ -19,6 +20,7 @@ waiting-games/
 - `games/shapes.html` from `waiting_shapes_v0_8_1_c1.html`
 - `games/dice.html` from `waiting_dice_v0_3_2.html`
 - `games/cards.html` from `waiting_cards_v0_6_3_v13.html`
+- `games/auction.html` from `waiting_auction_v0.1_UI16.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Notes

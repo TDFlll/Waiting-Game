@@ -1,0 +1,685 @@
+<!doctype html><html lang='ja'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><title>Waiting Auction v0.1</title>
+<style>
+:root{--bg:#111;--panel:#1c1c1c;--line:#444;--txt:#f3f3f3;--mut:#aaa;--gold:#d7b56d;--bad:#b74a4a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,sans-serif}button,input,select{font:inherit}button{background:#2b2b2b;color:#fff;border:1px solid #555;border-radius:12px;padding:12px 16px}button.primary{background:#765d25;border-color:#a88843}.wrap{max-width:1050px;margin:auto;padding:14px}.card{background:var(--panel);border:1px solid #333;border-radius:18px;padding:16px;margin:12px 0}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.grow{flex:1}.big{font-size:28px;font-weight:800}.mut{color:var(--mut)}.lot{border:1px solid #555;border-radius:14px;padding:12px;min-width:120px;flex:1}.items{font-size:25px;letter-spacing:4px}.hidden{display:none}.center{text-align:center}.rank{font-size:24px;margin:8px}.pill{display:inline-block;border:1px solid #555;border-radius:999px;padding:5px 10px;margin:3px}.danger{color:#ff8a8a}.scoregrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.player{border:1px solid #444;border-radius:12px;padding:10px}.money{font-size:30px;width:100%;padding:12px;background:#0d0d0d;color:#fff;border:1px solid #555;border-radius:12px}h1,h2,h3{margin:.4em 0}.sep{height:1px;background:#333;margin:14px 0}
+.board{display:grid;grid-template-columns:minmax(0,58fr) minmax(0,42fr);gap:12px;align-items:start}.board .card{margin:0}.marketLots{display:grid;gap:9px}.marketLots .lot{min-width:0}.playersPanel{display:grid;gap:8px}.playerCompact{border:1px solid #444;border-radius:12px;padding:9px;background:#171717}.playerHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.miniCats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 7px;margin-top:7px;font-size:13px}.miniCat{white-space:nowrap}.scoreNow{margin-top:7px;color:var(--gold);font-weight:700}.bidArea{margin-top:12px}.scoreBreakdown{margin-top:14px;border-top:1px solid #333;padding-top:12px}.scoreTable{width:100%;border-collapse:collapse;font-size:14px}.scoreTable th,.scoreTable td{padding:8px 6px;border-bottom:1px solid #333;text-align:left;vertical-align:top}.scoreTable th:last-child,.scoreTable td:last-child{text-align:right}.scoreTable .total td{font-weight:800;color:var(--gold);border-bottom:none}
+.bidLog{margin-top:16px;padding-top:14px;border-top:1px solid #333}
+.bidLogList{display:grid;gap:6px}
+.bidLogRow{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid #333;border-radius:10px;background:#151515}
+.bidLogAmount{font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.scoreLegend{display:grid;gap:7px;margin-top:10px}
+.scoreRowCard{display:grid;grid-template-columns:72px 76px minmax(0,1fr) 72px;gap:8px;align-items:stretch;border:1px solid #383838;border-radius:12px;padding:8px;background:#171717}
+.scoreItem{display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;padding-right:7px}
+.scoreIcon{font-size:27px;line-height:1.05}
+.scoreItemName{font-size:13px;font-weight:800;margin-top:4px;white-space:nowrap}
+.scoreType{display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:14px;border-right:1px solid #333;padding-right:7px}
+.valueGrid{display:grid;grid-template-columns:repeat(8,minmax(36px,1fr));gap:4px;align-content:center}
+.valueCell{min-height:47px;border:1px solid #444;border-radius:8px;background:#101010;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.valueTop{font-size:10px;color:var(--mut);margin-bottom:4px}
+.valueCell b{font-size:17px;font-variant-numeric:tabular-nums}
+.scoreCurrent{display:flex;flex-direction:column;justify-content:center;align-items:center;border-left:1px solid #333;font-size:12px}
+.scoreCurrent b{font-size:17px;color:var(--gold);margin-top:3px}
+.scoreTotalBar{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:10px 12px;border-top:1px solid #444;color:var(--gold);font-weight:800}
+.scoreTotalBar b{font-size:20px}
+
+.valueBlank{opacity:.22}
+.resultStage{min-height:62vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+.resultEyebrow{letter-spacing:.18em;color:var(--mut);font-weight:800}
+.resultGoText{font-size:52px;font-weight:950;letter-spacing:.08em}
+.resultGoBtn{width:130px;height:130px;border-radius:50%;font-size:38px;font-weight:950;background:#765d25;border:3px solid #d7b56d;box-shadow:0 0 0 8px #2b2415}
+.countdownStage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.countdownRound{color:var(--mut);font-weight:800;letter-spacing:.14em}
+.countdownNum{font-size:min(48vw,240px);font-weight:950;line-height:1}
+.chartCard{overflow:hidden}
+.chartHead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chartLegend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px}
+.chartLegendItem{display:flex;align-items:center;gap:5px}
+.chartLegendItem i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.resultChart{width:100%;height:auto;display:block;margin-top:6px;background:#141414;border-radius:12px}
+.chartGrid{stroke:#343434;stroke-width:1}
+.chartAxis{fill:#9f9f9f;font-size:12px}
+
+.privacy{background:#15110a;border:1px solid #5b4926;border-radius:12px;padding:10px;margin-top:10px}
+@media(max-width:620px){
+.scoreRowCard{grid-template-columns:54px 57px minmax(0,1fr) 54px;gap:5px;padding:6px}
+.scoreIcon{font-size:23px}.scoreItemName{font-size:11px}.scoreType{font-size:11px}
+.valueGrid{grid-template-columns:repeat(8,minmax(29px,1fr));gap:3px}
+.valueCell{min-height:42px}.valueTop{font-size:9px}.valueCell b{font-size:14px}
+.scoreCurrent{font-size:10px}.scoreCurrent b{font-size:14px}
+.wrap{padding:10px}.board{grid-template-columns:minmax(0,56fr) minmax(0,44fr);gap:7px}.board .card{padding:10px;border-radius:14px}.lot{padding:8px}.items{font-size:21px;letter-spacing:2px}.miniCats{grid-template-columns:1fr;font-size:12px}.playerCompact{padding:7px}.playerHead{font-size:13px}.scoreNow{font-size:12px}.board h2,.board h3{font-size:17px}.money{font-size:26px}.scoreTable{font-size:12px}.scoreTable th,.scoreTable td{padding:6px 4px}}
+
+.compactScoreInfo{margin-top:10px}
+.scoreDrawerShade{position:fixed;inset:0;background:rgba(0,0,0,.10);opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:98}
+.scoreDrawerShade.open{opacity:1;pointer-events:auto}
+.scoreDrawer{position:fixed;top:0;right:0;height:100dvh;width:min(88vw,560px);background:rgba(21,21,21,.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-left:1px solid #3b3b3b;transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.75,.2,1);z-index:99;box-shadow:-20px 0 45px rgba(0,0,0,.35)}
+.scoreDrawer.open{transform:translateX(0)}
+.sideHandles{position:absolute;left:-48px;top:28%;display:flex;flex-direction:column;gap:8px}
+.scoreDrawerHandle{position:relative;width:48px;height:108px;border:1px solid #565656;border-right:none;border-radius:14px 0 0 14px;background:rgba(36,36,36,.96);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;box-shadow:-6px 4px 18px rgba(0,0,0,.22);padding:0}
+.scoreDrawerHandle.active{border-color:#8d7341;background:rgba(62,50,28,.97)}
+.scoreDrawerHandle span{writing-mode:vertical-rl;letter-spacing:.08em;font-weight:900}
+.scoreDrawerHandle b{font-size:12px;color:var(--gold)}
+.scoreDrawer.open .scoreDrawerHandle b{transform:rotate(180deg)}
+.scoreDrawerInner{height:100%;overflow:auto;padding:18px 18px 24px;-webkit-overflow-scrolling:touch}
+.scoreDrawerHead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:sticky;top:0;background:#151515;padding-bottom:10px;z-index:2;border-bottom:1px solid #333}
+.scoreDrawerHead h2{margin:.1em 0}
+.drawerClose{width:42px;height:42px;border-radius:50%;padding:0;font-size:24px}
+.drawerCards{display:grid;gap:10px;margin-top:12px}
+.drawerScoreCard{border:1px solid #3b3b3b;border-radius:14px;padding:10px;background:#1b1b1b}
+.drawerCardHead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.drawerName{display:flex;align-items:center;gap:9px}
+.drawerIcon{font-size:27px}
+.drawerName b{display:block;font-size:16px}
+.drawerName small{display:block;color:var(--mut);font-size:11px;margin-top:2px}
+.drawerCurrent{text-align:right}
+.drawerCurrent span{display:block;font-size:11px;color:var(--mut)}
+.drawerCurrent b{color:var(--gold);font-size:16px}
+.drawerValueGrid{display:grid;grid-template-columns:repeat(10,minmax(29px,1fr));gap:4px}
+.drawerValueGrid .valueCell{min-height:50px}
+.drawerTotal{position:sticky;bottom:0;margin-top:14px;padding:12px 14px;border-radius:12px;background:#211d13;border:1px solid #5b4926;display:flex;justify-content:space-between;align-items:center;color:var(--gold);font-weight:900}
+.drawerTotal b{font-size:22px}
+
+.supplyIntro{margin:12px 0;color:var(--mut);font-size:13px}
+.supplyRoundList{display:grid;gap:9px}
+.supplyRound{display:grid;grid-template-columns:64px 1fr;gap:9px;align-items:stretch;border:1px solid #383838;border-radius:14px;padding:9px;background:rgba(27,27,27,.86)}
+.supplyRound.current{border-color:#8d7341;background:rgba(48,40,23,.90)}
+.supplyRoundNo{display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #373737}
+.supplyRoundNo span{font-size:9px;color:var(--mut);letter-spacing:.08em}
+.supplyRoundNo b{font-size:25px;line-height:1.1}
+.supplyRoundNo small{margin-top:4px;color:var(--gold);font-size:9px;font-weight:900}
+.supplyLots{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:5px}
+.supplyLot{min-height:64px;border:1px solid #444;border-radius:9px;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.supplyLot span{font-size:9px;color:var(--mut)}
+.supplyLot b{font-size:23px;line-height:1.1}
+.supplyLot small{font-size:9px;color:#bbb}
+.supplyLot.empty{border-style:dashed;opacity:.7}
+.supplyNote{margin-top:12px;padding:10px;border:1px solid #3a3a3a;border-radius:10px;color:var(--mut);font-size:11px;line-height:1.6}
+
+@media(max-width:620px){
+  .scoreDrawer{width:min(92vw,520px)}
+  .sideHandles{left:-42px}.scoreDrawerHandle{width:42px;height:98px}
+  .drawerValueGrid{grid-template-columns:repeat(10,minmax(25px,1fr));gap:3px}
+  .drawerValueGrid .valueCell{min-height:46px}
+  .scoreDrawerInner{padding:14px 12px 20px}
+}
+
+
+.scoreDrawerHeadWithTotal{align-items:center}
+.drawerHeadActions{display:flex;align-items:center;gap:10px}
+.drawerHeaderTotal{min-width:104px;text-align:right;padding:7px 10px;border-radius:11px;background:#211d13;border:1px solid #6a5428}
+.drawerHeaderTotal span{display:block;font-size:10px;color:#c7b98d;white-space:nowrap}
+.drawerHeaderTotal b{display:block;color:var(--gold);font-size:24px;line-height:1.05;margin-top:2px;font-variant-numeric:tabular-nums}
+.drawerHeaderTotal small{font-size:10px}
+.drawerPlayerGuide{margin:10px 0 4px;padding:8px 10px;border-radius:9px;background:rgba(118,93,37,.16);border:1px solid rgba(215,181,109,.28);color:#d9c89e;font-size:11px;text-align:center}
+.drawerScoreCard.hasOwned{border-color:#5e512f}
+.drawerValueGrid .valueCell{position:relative;transition:border-color .15s,background .15s,transform .15s}
+.drawerValueGrid .valueCell.currentOwned{background:#4b3b18;border-color:#d7b56d;box-shadow:inset 0 0 0 1px rgba(215,181,109,.35),0 0 12px rgba(215,181,109,.12);transform:translateY(-1px)}
+.drawerValueGrid .valueCell.currentOwned .valueTop{color:#f0ddad;font-weight:800}
+.drawerValueGrid .valueCell.currentOwned b{color:#fff3ce}
+.drawerValueGrid .valueCell.currentOwned em{position:absolute;right:2px;top:2px;font-size:7px;font-style:normal;color:#111;background:#d7b56d;border-radius:5px;padding:1px 3px;font-weight:900}
+@media(max-width:620px){
+  .drawerHeaderTotal{min-width:86px;padding:6px 7px}
+  .drawerHeaderTotal b{font-size:20px}
+  .drawerHeaderTotal span{font-size:9px}
+  .scoreDrawerHeadWithTotal h2{font-size:18px}
+}
+
+
+.rareSetup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rareSetup label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid #3b3b3b;border-radius:10px}
+.rareSetup input{width:74px;padding:8px;border-radius:8px}
+.rareFlow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0 12px}
+.rareFlow>div{padding:8px;border:1px solid #3b3b3b;border-radius:9px;background:rgba(20,20,20,.7);font-size:11px}
+.rareFlow b{color:var(--gold);font-size:15px}.rareFlow small{display:block;color:var(--mut)}
+.recordBonus{margin-left:6px;color:var(--gold);font-size:10px}
+@media(max-width:620px){.rareSetup,.rareFlow{grid-template-columns:1fr}.drawerValueGrid{overflow-x:auto}.drawerValueGrid .valueCell{min-width:27px}}
+
+
+.lotPickArea{margin-top:12px}
+.lotPickHead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.lotPickHead h2{margin:.15em 0}
+
+
+.lotSelectTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:9px 12px;border:1px solid #4a4a4a;border-radius:11px;background:rgba(18,18,18,.92)}
+.lotSelectTop>div{display:flex;align-items:baseline;gap:9px}.lotSelectTop span{font-size:11px;color:var(--mut)}.lotSelectTop b{font-size:20px;color:var(--gold)}
+.lotSelectTop strong{font-size:12px}.marketSelectHint{float:right;font-size:10px;color:#ff7777;font-weight:600;margin-top:6px}
+@media(max-width:620px){.lotSelectTop{align-items:flex-start;flex-direction:column;gap:3px}}
+
+
+.priceEditor{display:grid;gap:8px}.priceEditRow{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:10px;align-items:center}.priceEditRow input{width:100%;padding:9px;border-radius:8px}
+@media(max-width:620px){.priceEditRow{grid-template-columns:1fr;gap:3px}}
+
+.wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:110;border:1px solid rgba(215,181,109,.65);border-radius:999px;background:rgba(17,17,17,.82);color:#f3f3f3;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+</style></head><body><a class='wg-home' href='../index.html' aria-label='WAITING GAMESへ戻る'>← GAMES</a><div id='app' class='wrap'></div>
+<script>
+const CATS=[['宝石','💎'],['古代遺物','🏺'],['美術品','🖼️'],['呪物','☠️'],['レッドダイヤ','♦️'],['欠けた星','🌟']];
+const defaultSupply={3:[[2,2,1],[2,2,1],[2,1,0],[2,2,2],[2,2,2],[2,2,0],[3,3,2]],4:[[4,3,2,1],[4,3,2,1],[4,3,2,1],[4,3,3,2],[5,4,3,2],[5,4,3,3]],5:[[5,4,3,2,1],[5,4,3,2,1],[5,4,3,2,1],[5,4,3,3,2],[6,5,4,3,2],[6,5,4,3,3]]};
+const defaultPrices={
+  3:{diamond:[2,4,6,8,10,12,14,16,18,20],relic:[1,2,3,6,12,24,36,48,60,72],painting:[2,5,10,12,17,25,27,32,40,42],curse:[-1,-2,-4,-8,-12,-16,-20,-24],red:15,star:[0,0,30],diamondTop:20,recordBonus:2,curseRate:5,rare:{red:1,star:3}},
+  4:{diamond:[2,4,6,8,10,12,14,16,18,20],relic:[1,2,3,6,12,24,36,48,60,72],painting:[2,5,10,12,17,25,27,32,40,42],curse:[-1,-2,-4,-8,-12,-16,-20,-24],red:15,star:[0,0,30],diamondTop:30,recordBonus:2,curseRate:5,rare:{red:1,star:3}},
+  5:{diamond:[2,4,6,8,10,12,14,16,18,20],relic:[1,2,3,6,12,24,36,48,60,72],painting:[2,5,10,12,17,25,27,32,40,42],curse:[-1,-2,-4,-8,-12,-16,-20,-24],red:15,star:[0,0,30],diamondTop:40,recordBonus:2,curseRate:5,rare:{red:1,star:3}}
+};
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function loadAuctionSettings(){
+  try{
+    const x=JSON.parse(localStorage.getItem('waitingAuctionSettingsV1')||'null');
+    if(x&&x.supply&&x.prices)return x;
+  }catch(e){}
+  return {supply:clone(defaultSupply),prices:clone(defaultPrices)};
+}
+const SAVED=loadAuctionSettings();
+function persistAuctionSettings(){
+  localStorage.setItem('waitingAuctionSettingsV1',JSON.stringify({supply:G.supply,prices:G.prices}));
+}
+
+let G={n:3,names:['A','B','C'],round:0,dealer:0,supply:clone(SAVED.supply),prices:clone(SAVED.prices),lots:[],rerolls:2,bids:[],order:[],pickIdx:0,owned:[],spent:[],scoring:'stage',rollCount:0,cursedMarket:false,highestBid:0,highestBidLog:[],bidHistory:[],scoreHistory:[],rareConfig:clone(SAVED.prices[3].rare),rarePlan:null,marketBonus:[],rareRoute:null,specialQueue:[],specialMarket:false,specialLabel:'',specialHistory:[],normalRoundIndex:0,lastAllocationSnapshot:null};
+const app=document.querySelector('#app');
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function title(sub=''){return `<div class='row'><div class='grow'><div class='mut'>WAITING GAMES</div><div class='big'>WAITING AUCTION</div></div><div class='pill'>v0.1 UI-16</div></div>${sub?`<div class='mut'>${sub}</div>`:''}`}
+function home(){app.innerHTML=title('BLACK MARKET')+`<div class='card center'><h2>闇市場へようこそ</h2><p class='mut'>秘密入札でロットの選択権を競う。使いすぎた者は最後に市場から消える。</p><button class='primary' onclick='setup()'>GAME START</button></div>`}
+function setup(){
+  app.innerHTML=title('GAME SETUP')+`<div class='card'><h3>プレイヤー人数</h3><div class='row'>${[3,4,5].map(n=>`<button onclick='setN(${n})' class='${G.n===n?'primary':''}'>${n}人</button>`).join('')}</div><h3>得点方式</h3><div class='mut'>${G.n}人用の商品価格設定を使用</div><div id='names'></div><div class='sep'></div><div class='privacy'><b>♦️🌟 希少市場</b><div class='mut'>ゲーム開始時に秘密ルートを抽選。希少品は通常商品に混ざらず、X.5の特別市場にのみ出現します。</div></div><div class='sep'></div><div class='row'><button onclick='editSupply()'>ラウンド・ロット数</button><button onclick='editPrices()'>商品価格を編集</button><button class='primary' onclick='startGame()'>START</button></div></div>`;renderNames()
+}
+function setN(n){G.n=n;G.names=Array.from({length:n},(_,i)=>String.fromCharCode(65+i));setup()}
+function renderNames(){let d=document.querySelector('#names');d.innerHTML='<h3>プレイヤー名</h3>'+G.names.map((x,i)=>`<input style="width:100%;margin:4px 0;padding:10px;border-radius:10px" value="${esc(x)}" onchange="G.names[${i}]=this.value||'P${i+1}'">`).join('')}
+function editSupply(){let rows=G.supply[G.n].map((a,i)=>`<div class='row'><b>R${i+1}</b><input id='r${i}' value='${a.join(',')}' style='flex:1;padding:9px'></div>`).join('');app.innerHTML=title(`${G.n}人用 配給設定`)+`<div class='card'><p class='mut'>各ラウンドのロット商品数をカンマ区切りで入力。</p>${rows}<br><button onclick='setup()'>戻る</button> <button class='primary' onclick='saveSupply()'>保存</button></div>`}
+function saveSupply(){G.supply[G.n]=G.supply[G.n].map((_,i)=>document.querySelector('#r'+i).value.split(',').map(Number).filter(x=>x>=0));persistAuctionSettings();setup()}
+
+function csvNums(a){return a.join(',')}
+function editPrices(){
+  const q=G.prices[G.n];
+  const row=(label,id,val)=>`<label class='priceEditRow'><b>${label}</b><input id='${id}' value='${val}'></label>`;
+  app.innerHTML=title(`${G.n}人用 商品価格設定`)+`<div class='card priceEditor'>
+    <p class='mut'>個数別得点は「1個,2個,3個…」の順でカンマ区切り。3・4・5人戦ごとに別々に保存されます。</p>
+    ${row('💎 ダイヤ', 'pvDiamond',csvNums(q.diamond))}
+    ${row('💎 単独トップボーナス','pvDiamondTop',q.diamondTop)}
+    ${row('🏺 遺物','pvRelic',csvNums(q.relic))}
+    ${row('🖼️ 絵画','pvPainting',csvNums(q.painting))}
+    ${row('☠️ 呪物','pvCurse',csvNums(q.curse))}
+    ${row('♦️ レッドダイヤ 1個','pvRed',q.red)}
+    ${row('🌟 欠けた星','pvStar',csvNums(q.star))}
+    ${row('🏆 最高入札額更新ボーナス','pvRecord',q.recordBonus)}
+    ${row('☠️ 通常呪物 出現率(%)','pvCurseRate',q.curseRate)}
+    <div class='sep'></div><button onclick='setup()'>戻る</button> <button class='primary' onclick='savePrices()'>保存</button>
+  </div>`;
+}
+function parseScoreList(id){
+  return document.querySelector('#'+id).value.split(',').map(x=>Number(x.trim())).filter(Number.isFinite);
+}
+function savePrices(){
+  const q=G.prices[G.n];
+  const d=parseScoreList('pvDiamond'),r=parseScoreList('pvRelic'),p=parseScoreList('pvPainting'),c=parseScoreList('pvCurse'),s=parseScoreList('pvStar');
+  if(!d.length||!r.length||!p.length||!c.length||!s.length){alert('得点表には1つ以上の数値を入力してください。');return}
+  q.diamond=d;q.relic=r;q.painting=p;q.curse=c;q.star=s;
+  q.diamondTop=Math.max(0,Number(document.querySelector('#pvDiamondTop').value)||0);
+  q.red=Number(document.querySelector('#pvRed').value)||0;
+  q.recordBonus=Math.max(0,Number(document.querySelector('#pvRecord').value)||0);
+  q.curseRate=Math.min(100,Math.max(0,Number(document.querySelector('#pvCurseRate').value)||0));
+  persistAuctionSettings();setup();
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const RARE_ROUTES_3={
+  A:[{after:6,type:'red',lots:[1,0,0]}],
+  B:[{after:3,type:'red',lots:[1,0,0]},{after:6,type:'red',lots:[1,1,0]}],
+  C:[{after:2,type:'star',lots:[1,1,0]},{after:4,type:'star',lots:[1,0,0]},{after:7,type:'star',lots:[1,0,0]}],
+  D:[{after:3,type:'star',lots:[1,1,0]},{after:5,type:'red',lots:[1,0,0]},{after:6,type:'star',lots:[1,0,0]},{after:7,type:'star',lots:[1,0,0]}]
+};
+function buildSecretRareRoute(){
+  // 現在確定している配置表は3人戦用。4/5人戦は希少市場なしで従来ラウンドのみ進行。
+  if(G.n!==3){G.rareRoute=null;G.specialQueue=[];return}
+  const keys=Object.keys(RARE_ROUTES_3);
+  G.rareRoute=keys[Math.floor(Math.random()*keys.length)];
+  G.specialQueue=clone(RARE_ROUTES_3[G.rareRoute]);
+}
+function startGame(){
+  G.round=0;G.normalRoundIndex=0;G.dealer=0;G.lastAllocationSnapshot=null;G.specialMarket=false;G.specialLabel='';G.specialHistory=[];
+  G.owned=Array.from({length:G.n},()=>Object.fromEntries(CATS.map(c=>[c[0],0])));
+  G.spent=Array(G.n).fill(0);G.marketBonus=Array(G.n).fill(0);
+  G.highestBid=0;G.highestBidLog=[];G.bidHistory=[];G.scoreHistory=[];
+  buildSecretRareRoute();dealerScreen()
+}
+function normalGood(){
+  if(Math.random()<(G.prices[G.n].curseRate/100))return '呪物';
+  const a=['宝石','古代遺物','美術品'];
+  return a[Math.floor(Math.random()*a.length)];
+}
+function randomLots(){
+  G.rollCount++;G.cursedMarket=false;
+  const sizes=G.supply[G.n][G.normalRoundIndex];
+  G.lots=sizes.map(sz=>Array.from({length:sz},()=>normalGood()));
+  if(G.normalRoundIndex>=3&&G.rollCount===2&&Math.random()<0.10){
+    G.lots=G.lots.map(l=>l.map(()=> '呪物'));G.cursedMarket=true;
+  }
+}
+function specialLots(ev){
+  const good=ev.type==='red'?'レッドダイヤ':'欠けた星';
+  G.lots=ev.lots.map(sz=>Array.from({length:sz},()=>good));
+  G.specialMarket=true;G.specialLabel=`R${ev.after}.5`;
+  G.cursedMarket=false;G.rollCount=1;G.rerolls=0;
+}
+function dealerScreen(){
+  G.specialMarket=false;G.specialLabel='';G.rerolls=2;G.rollCount=0;G.cursedMarket=false;randomLots();renderDealer()
+}
+function startSpecialMarket(ev){
+  specialLots(ev);
+  renderSpecialMarket();
+}
+function renderSpecialMarket(){
+  const icon=G.lots.some(l=>l.includes('欠けた星'))?'🌟':'♦️';
+  app.innerHTML=title(`${G.specialLabel} SPECIAL MARKET`)+`<div class='card center'><div class='big'>${icon} 希少市場</div><p class='mut'>通常商品とは別の特別オークションです。</p><div class='row'>${G.lots.map((l,i)=>lotHTML(l,i)).join('')}</div><button class='primary' onclick='market()'>入札へ</button></div>`;
+}
+function reroll(){if(!G.specialMarket&&G.rerolls>0){G.rerolls--;randomLots();renderDealer()}}
+function lotHTML(l,i,selectable=false){
+let empty=l.length===0;
+return `<div class='lot'><b>LOT ${String.fromCharCode(65+i)}</b><div class='items'>${empty?'∅':l.map(x=>CATS.find(c=>c[0]===x)[1]).join(' ')}</div><div class='mut'>${empty?'0商品 / 支出免除ロット':l.map(esc).join(' / ')}</div>${selectable?`<button class='primary' onclick='chooseLot(${i})'>このロット</button>`:''}</div>`
+}
+function renderDealer(){app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET`:`ROUND ${G.normalRoundIndex+1}/${G.supply[G.n].length}`)+`<div class='card center'><div class='mut'>🎩 親</div><h2>${esc(G.names[G.dealer])}</h2><p>商品ルーレット　<span class='mut'>ROLL ${G.rollCount}/3</span></p>${G.cursedMarket?`<div class='privacy danger'><b>☠ CURSED MARKET</b><br>全商品が呪物に変化しました。</div>`:''}<div class='row'>${G.lots.map((l,i)=>lotHTML(l,i)).join('')}</div><p>残りリロール：${G.rerolls}</p><button ${G.rerolls<=0?'disabled':''} onclick='reroll()'>🎰 REROLL</button> <button class='primary' onclick='market()'>この市場で確定</button></div>`}
+function reroll(){if(G.rerolls>0){G.rerolls--;randomLots();renderDealer()}}
+function market(){app.innerHTML=title(G.specialMarket?`${G.specialLabel} SPECIAL MARKET / 親：${esc(G.names[G.dealer])}`:`ROUND ${G.normalRoundIndex+1} / 親：${esc(G.names[G.dealer])}`)+boardHTML()+`<div style='margin-top:12px'><button class='primary' onclick='beginBid()'>秘密入札を開始</button></div>`}
+function playerPanelHTML(){return `<div class='card'><h3>PLAYER DATA</h3><div class='playersPanel'>${G.names.map((n,i)=>`<div class='playerCompact'><div class='playerHead'><b>${esc(n)} ${i===G.dealer?'🎩':''}</b><span class='scoreNow'>${scorePlayer(i)} VP</span></div><div class='miniCats'>${CATS.map(c=>`<span class='miniCat'>${c[1]} ${esc(c[0])}：<b>${G.owned[i][c[0]]}</b></span>`).join('')}</div></div>`).join('')}</div></div>`}
+function marketPanelHTML(selectLots=false){return `<div class='card'><h2>MARKET ${selectLots?`<span class='marketSelectHint'>赤枠をタップして獲得</span>`:''}</h2>${G.cursedMarket?`<div class='privacy danger'><b>☠ CURSED MARKET</b></div>`:''}<div class='marketLots'>${G.lots.map((l,i)=>l!==null?lotHTML(l,i,selectLots):`<div class='lot mut'>LOT ${String.fromCharCode(65+i)}：獲得済み</div>`).join('')}</div></div>`}
+function boardHTML(selectLots=false){return `<div class='board'><div>${marketPanelHTML(selectLots)}</div><div>${playerPanelHTML()}</div></div>`}
+function ownedHTML(){return playerPanelHTML()}
+function beginBid(){G.bids=Array(G.n).fill(null);G.bidTurn=0;passScreen()}
+function turnPlayer(){return (G.dealer+G.bidTurn)%G.n}
+function passScreen(){let p=turnPlayer();app.innerHTML=title('SECRET BID')+boardHTML()+`<div class='card center'><h2>${esc(G.names[p])} に端末を渡してください</h2><p class='mut'>市場と所持状況は公開情報です。入札額だけを隠してください。</p><button class='primary' onclick='bidScreen()'>準備OK</button></div>`}
+function bidScreen(){let p=turnPlayer();app.innerHTML=title(`SECRET BID / ${esc(G.names[p])}`)+boardHTML()+`<div class='card bidArea'><div class='privacy'><div class='mut'>この欄から下は ${esc(G.names[p])} だけ確認</div><div class='mut'>あなたの累計支出</div><h2>${G.spent[p].toLocaleString()}</h2><input id='bid' class='money' type='number' min='0' step='1' inputmode='numeric' placeholder='入札額'><br><br><button class='primary' onclick='submitBid()'>入札確定</button></div>${scoreBreakdownHTML(p)}</div>`}
+function submitBid(){let p=turnPlayer(),v=Math.max(0,Math.floor(Number(document.querySelector('#bid').value)||0));G.bids[p]=v;G.bidTurn++;if(G.bidTurn<G.n)passScreen();else resolveBids()}
+function priority(p){return (p-G.dealer+G.n)%G.n}
+function resolveBids(){
+G.order=Array.from({length:G.n},(_,i)=>i).sort((a,b)=>G.bids[b]-G.bids[a]||priority(a)-priority(b));
+const previousRecord=G.highestBidLog.length?Math.max(...G.highestBidLog.map(x=>x.amount)):0;
+G.highestBid=Math.max(...G.bids);
+const recordBonus=G.highestBid>previousRecord&&G.highestBidLog.length>0?G.prices[G.n].recordBonus:0;
+if(recordBonus)G.marketBonus[G.order[0]]+=recordBonus;
+G.highestBidLog.push({round:G.specialMarket?G.specialLabel:(G.normalRoundIndex+1),player:G.names[G.order[0]],amount:G.highestBid,bonus:recordBonus});
+if(!G.specialMarket)G.bidHistory[G.normalRoundIndex]=[...G.bids];
+G.order.forEach(p=>G.spent[p]+=G.bids[p]);
+G.pickIdx=0;
+resultGoScreen()
+}
+function resultGoScreen(){
+  const isFinal=!G.specialMarket&&G.normalRoundIndex===G.supply[G.n].length-1&&!G.specialQueue.some(e=>e.after===G.normalRoundIndex+1);
+  app.innerHTML=title(`${G.specialMarket?G.specialLabel:'ROUND '+(G.normalRoundIndex+1)} RESULT`)+`
+  <div class='resultStage'>
+    <div class='resultEyebrow'>${isFinal?'FINAL ROUND':'BIDDING CLOSED'}</div>
+    <div class='resultGoText'>RESULT</div>
+    <button class='resultGoBtn' onclick='startResultCountdown()'>GO</button>
+    <div class='mut'>${isFinal?'最終ラウンドは 5 カウント':'3 カウントで順位発表'}</div>
+  </div>`;
+}
+function startResultCountdown(){
+  const isFinal=!G.specialMarket&&G.normalRoundIndex===G.supply[G.n].length-1&&!G.specialQueue.some(e=>e.after===G.normalRoundIndex+1);
+  const seq=isFinal?[5,4,3,2,1]:[3,2,1];
+  let i=0;
+  const show=()=>{
+    if(i>=seq.length){rankScreen();return}
+    const n=seq[i++];
+    app.innerHTML=`<div class='countdownStage'><div class='countdownRound'>${G.specialMarket?G.specialLabel:'ROUND '+(G.normalRoundIndex+1)}</div><div class='countdownNum'>${n}</div></div>`;
+    setTimeout(show,isFinal?760:700);
+  };
+  show();
+}
+function rankScreen(){app.innerHTML=title('BIDDING RESULT')+`<div class='card center'><h2>入札順位</h2><div class='privacy'><div class='mut'>このラウンドの最高入札額</div><div class='big'>${G.highestBid.toLocaleString()}</div></div>${G.order.map((p,i)=>`<div class='rank'>${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${esc(G.names[p])}</div>`).join('')}<p class='mut'>2位以下の入札額は非公開です</p><button class='primary' onclick='pickScreen()'>ロット選択へ</button></div>`}
+function pickScreen(){
+  if(G.pickIdx>=G.order.length||G.lots.every(x=>x===null)){roundEnd();return}
+  let p=G.order[G.pickIdx];
+  let available=G.lots.map((l,i)=>l?i:null).filter(x=>x!==null);
+  if(available.length===1){chooseLot(available[0]);return}
+  app.innerHTML=title(`LOT SELECT`)+
+    `<div class='lotSelectTop'>
+      <div><span>${G.pickIdx+1}位</span><b>${esc(G.names[p])}</b></div>
+      <strong>獲得するロットを赤枠から選択</strong>
+    </div>`+
+    boardHTML(true);
+}
+function chooseLot(i){
+  if(!G.lots[i])return;
+  if(G.pickIdx===0){
+    G.lastAllocationSnapshot={
+      lots:clone(G.lots),owned:clone(G.owned),spent:clone(G.spent),
+      pickIdx:0,order:clone(G.order),bids:clone(G.bids),
+      specialMarket:G.specialMarket,specialLabel:G.specialLabel,
+      normalRoundIndex:G.normalRoundIndex
+    };
+  }
+  const p=G.order[G.pickIdx],lot=G.lots[i];
+  lot.forEach(x=>{if(G.owned[p][x]!==undefined)G.owned[p][x]++});
+  if(G.pickIdx===G.order.length-1&&lot.length===0)G.spent[p]-=G.bids[p];
+  G.lots[i]=null;G.pickIdx++;
+  if(G.pickIdx>=G.order.length||G.lots.every(x=>x===null))roundEnd();else pickScreen();
+}
+function undoAllocation(){
+  const s=G.lastAllocationSnapshot;
+  if(!s)return;
+  G.lots=clone(s.lots);G.owned=clone(s.owned);G.spent=clone(s.spent);
+  G.pickIdx=s.pickIdx;G.order=clone(s.order);G.bids=clone(s.bids);
+  G.specialMarket=s.specialMarket;G.specialLabel=s.specialLabel;
+  G.normalRoundIndex=s.normalRoundIndex;
+  G.lastAllocationSnapshot=null;
+  pickScreen();
+}
+function roundEnd(){
+  if(!G.specialMarket)G.scoreHistory[G.normalRoundIndex]=G.names.map((_,i)=>scorePlayer(i));
+  const label=G.specialMarket?G.specialLabel:`ROUND ${G.normalRoundIndex+1}`;
+  app.innerHTML=title(`${label} COMPLETE`)+ownedHTML()+`<div class='row'><button onclick='undoAllocation()' ${G.lastAllocationSnapshot?'':'disabled'}>BACK</button><button class='primary' onclick='nextRound()'>NEXT</button></div>`
+}
+function nextRound(){
+  G.lastAllocationSnapshot=null;
+  if(G.specialMarket){
+    G.specialHistory.push(G.specialLabel);
+    G.specialMarket=false;G.specialLabel='';
+    G.dealer=(G.dealer+1)%G.n;
+    G.normalRoundIndex++;
+    if(G.normalRoundIndex>=G.supply[G.n].length)finale();else dealerScreen();
+    return;
+  }
+  const finished=G.normalRoundIndex+1;
+  const idx=G.specialQueue.findIndex(e=>e.after===finished);
+  if(idx>=0){
+    const ev=G.specialQueue.splice(idx,1)[0];
+    startSpecialMarket(ev);return;
+  }
+  G.dealer=(G.dealer+1)%G.n;
+  G.normalRoundIndex++;
+  if(G.normalRoundIndex>=G.supply[G.n].length)finale();else dealerScreen();
+}
+function scoreCount(n,mode){if(mode==='single')return n*3;if(mode==='stage'){if(n===0)return 0;if(n===1)return 2;return 1+n*(n+1)/2}if(mode==='set3'){let q=Math.floor(n/3),r=n%3;return q*15+(r===1?3:r===2?8:0)}if(mode==='minus'){return -Math.floor(n*(n+1)/4); }return 0}
+function rankCat(cat,p){let counts=G.owned.map(o=>o[cat]);let sorted=[...counts].sort((a,b)=>b-a);let base=[16,10,6,2,0];let n=counts[p];let first=sorted.indexOf(n),last=sorted.lastIndexOf(n);let sum=0;for(let i=first;i<=last;i++)sum+=base[i]||0;return Math.floor(sum/(last-first+1))}
+
+const CATEGORY_SCORE_MODE={
+  '宝石':'diamond',
+  '古代遺物':'relic',
+  '美術品':'painting',
+  '呪物':'minus',
+  'レッドダイヤ':'red',
+  '欠けた星':'star'
+};
+function categoryMode(cat){return CATEGORY_SCORE_MODE[cat]||'single'}
+function categoryModeName(mode){
+  return {diamond:'単体＋首位',relic:'段階型',painting:'3セット',minus:'減点型',red:'希少品',star:'希少品'}[mode]||mode;
+}
+function tableScore(a,n){if(n<=0)return 0;if(n<=a.length)return a[n-1];if(a.length<2)return a[a.length-1]||0;return a[a.length-1]+(n-a.length)*(a[a.length-1]-a[a.length-2])}
+function relicScore(n){return tableScore(G.prices[G.n].relic,n)}
+function paintingScore(n){return tableScore(G.prices[G.n].painting,n)}
+function curseScore(n){return tableScore(G.prices[G.n].curse,n)}
+function diamondLeaderBonus(p){
+  const counts=G.owned.map(o=>o['宝石']||0), mine=counts[p];
+  if(mine<=0 || mine!==Math.max(...counts))return 0;
+  const leaders=counts.filter(v=>v===mine).length;
+  const full=G.prices[G.n].diamondTop;
+  return leaders===1?full:Math.floor(full/2);
+}
+function categoryScore(cat,p){
+  const n=G.owned[p][cat]||0,mode=categoryMode(cat);
+  if(mode==='diamond')return tableScore(G.prices[G.n].diamond,n)+diamondLeaderBonus(p);
+  if(mode==='relic')return relicScore(n);
+  if(mode==='painting')return paintingScore(n);
+  if(mode==='minus')return curseScore(n);
+  if(mode==='red')return n*G.prices[G.n].red;
+  if(mode==='star')return tableScore(G.prices[G.n].star,n);
+  return 0;
+}
+function scorePlayer(p){return CATS.reduce((s,c)=>s+categoryScore(c[0],p),0)+(G.marketBonus?.[p]||0)}
+function scoreRuleText(cat){
+  const mode=categoryMode(cat),q=G.prices[G.n];
+  if(mode==='diamond')return `1〜${q.diamond.length}個：${q.diamond.join(' / ')} ＋ 最多保有ボーナス`;
+  if(mode==='relic')return `1〜${q.relic.length}個：${q.relic.join(' / ')}`;
+  if(mode==='painting')return `1〜${q.painting.length}個：${q.painting.join(' / ')}`;
+  if(mode==='minus')return `1〜${q.curse.length}個：${q.curse.join(' / ')}`;
+  if(mode==='red')return `1個につき${q.red}点`;
+  if(mode==='star')return `1〜${q.star.length}個：${q.star.join(' / ')}`;
+  return '';
+}
+
+function shortCatName(cat){
+  return {'宝石':'ダイヤ','古代遺物':'遺物','美術品':'絵画','呪物':'呪物','レッドダイヤ':'赤ダイヤ','欠けた星':'欠けた星'}[cat]||cat;
+}
+function valueCells(cat,p=null){
+  const mode=categoryMode(cat);let vals=[];
+  if(mode==='diamond')vals=G.prices[G.n].diamond;
+  if(mode==='relic')vals=G.prices[G.n].relic;
+  if(mode==='painting')vals=G.prices[G.n].painting;
+  if(mode==='minus')vals=G.prices[G.n].curse;
+  if(mode==='red')vals=[G.prices[G.n].red];
+  if(mode==='star')vals=G.prices[G.n].star;
+  const n=p!==null?(G.owned[p][cat]||0):0;
+  return vals.map((v,i)=>{
+    const current=p!==null&&n>0&&i===Math.min(n,vals.length)-1?' currentOwned':'';
+    let extra='';
+    if(mode==='diamond'&&current&&diamondLeaderBonus(p)>0)extra=`<em>首位+${diamondLeaderBonus(p)}</em>`;
+    else if(current)extra='<em>現在</em>';
+    return `<div class='valueCell${current}'><span class='valueTop'>${i+1}個</span><b>${v}</b>${extra}</div>`;
+  }).join('');
+}
+function scoreBreakdownHTML(p){
+  return `<div class='scoreBreakdown compactScoreInfo'>
+    <div class='scoreTotalBar'><span>現在合計</span><b>${scorePlayer(p)} VP</b></div>
+    ${highestBidLogHTML()}
+  </div>`;
+}
+
+
+let activeSidePanel='score';
+
+function drawerCurrentPlayer(){
+  try{
+    // ロット選択中は、現在ロットを選んでいるプレイヤーを本人として扱う
+    if(Array.isArray(G.order) && G.order.length===G.n &&
+       Number.isInteger(G.pickIdx) && G.pickIdx>=0 && G.pickIdx<G.order.length &&
+       Array.isArray(G.lots) && G.lots.some(x=>x!==null)){
+      return G.order[G.pickIdx];
+    }
+    // 秘密入札中は、いま端末を持っているプレイヤー
+    if(Number.isInteger(G.bidTurn) && G.bidTurn>=0 && G.bidTurn<G.n &&
+       Array.isArray(G.bids) && G.bids.length===G.n){
+      if(typeof turnPlayer==='function')return turnPlayer();
+    }
+  }catch(e){}
+  return null;
+}
+
+function scorePanelContent(){
+  const p=drawerCurrentPlayer();
+  return `<div class='scoreDrawerHead scoreDrawerHeadWithTotal'>
+    <div>
+      <div class='mut'>REFERENCE</div>
+      <h2>商品価値・得点表</h2>
+    </div>
+    <div class='drawerHeadActions'>
+      ${p!==null?`<div class='drawerHeaderTotal'>
+        <span>${esc(G.names[p])} の合計</span>
+        <b>${scorePlayer(p)} <small>VP</small></b>
+      </div>`:''}
+      <button class='drawerClose' onclick='closeScoreDrawer()'>×</button>
+    </div>
+  </div>
+  ${p!==null?`<div class='drawerPlayerGuide'>色付きマスが現在の所持数・順位です</div>`:''}
+  <div class='drawerCards'>
+    ${CATS.map(c=>{
+      const cat=c[0],mode=categoryMode(cat);
+      return `<div class='drawerScoreCard ${p!==null && G.owned[p][cat]>0?'hasOwned':''}'>
+        <div class='drawerCardHead'>
+          <div class='drawerName'>
+            <span class='drawerIcon'>${c[1]}</span>
+            <div><b>${shortCatName(cat)}</b><small>${categoryModeName(mode)}</small></div>
+          </div>
+          ${p!==null?`<div class='drawerCurrent'>
+            <span>所持 ${G.owned[p][cat]}個</span>
+            <b>${categoryScore(cat,p)}点</b>
+          </div>`:''}
+        </div>
+        <div class='drawerValueGrid'>${valueCells(cat,p)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function supplyPanelContent(){
+  const rounds=(G.supply && G.supply[G.n])?G.supply[G.n]:[];
+  return `<div class='scoreDrawerHead'>
+    <div><div class='mut'>ROUND SUPPLY</div><h2>ラウンド別 陳列数</h2></div>
+    <button class='drawerClose' onclick='closeScoreDrawer()'>×</button>
+  </div>
+  <div class='supplyIntro'>${G.n}人戦の予定ロット構成</div><div class='rareFlow'><div>♦️🌟 希少品は <b>X.5特別市場のみ</b></div><div>🔒 出現ルート・残数は非公開</div><div>☠️ 通常出現率 <b>${G.prices[G.n].curseRate}%</b></div></div>
+  <div class='supplyRoundList'>
+    ${rounds.map((lots,r)=>{
+      const isNow=r===G.round;
+      return `<div class='supplyRound ${isNow?'current':''}'>
+        <div class='supplyRoundNo'>
+          <span>ROUND</span>
+          <b>${r+1}</b>
+          ${isNow?`<small>NOW</small>`:''}
+        </div>
+        <div class='supplyLots'>
+          ${lots.map((num,i)=>`<div class='supplyLot ${num===0?'empty':''}'>
+            <span>LOT ${String.fromCharCode(65+i)}</span>
+            <b>${num}</b>
+            <small>${num===0?'EMPTY':'商品'}</small>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class='supplyNote'>※ 0商品ロットを最下位が取得した場合、そのラウンドの入札額は支出に加算されません。</div>`;
+}
+
+function scoreDrawerHTML(){
+  return `<div id='scoreDrawerShade' class='scoreDrawerShade' onclick='closeScoreDrawer()'></div>
+  <aside id='scoreDrawer' class='scoreDrawer' aria-hidden='true'>
+    <div class='sideHandles'>
+      <button class='scoreDrawerHandle ${activeSidePanel==='score'?'active':''}' onclick="openSidePanel('score')">
+        <span>得点</span><b>◀</b>
+      </button>
+      <button class='scoreDrawerHandle supplyHandle ${activeSidePanel==='supply'?'active':''}' onclick="openSidePanel('supply')">
+        <span>陳列</span><b>◀</b>
+      </button>
+    </div>
+    <div class='scoreDrawerInner'>
+      ${activeSidePanel==='supply'?supplyPanelContent():scorePanelContent()}
+    </div>
+  </aside>`;
+}
+
+function mountScoreDrawer(preserveOpen=true){
+  const old=document.getElementById('scoreDrawer');
+  const shade=document.getElementById('scoreDrawerShade');
+  const wasOpen=!!(preserveOpen && old && old.classList.contains('open'));
+  if(old)old.remove();
+  if(shade)shade.remove();
+  document.body.insertAdjacentHTML('beforeend',scoreDrawerHTML());
+  if(wasOpen)openScoreDrawer();
+}
+
+function openSidePanel(type){
+  activeSidePanel=type;
+  const wasOpen=document.getElementById('scoreDrawer')?.classList.contains('open');
+  mountScoreDrawer(false);
+  openScoreDrawer();
+}
+
+function openScoreDrawer(){
+  if(!document.getElementById('scoreDrawer')) mountScoreDrawer(false);
+  const d=document.getElementById('scoreDrawer'),s=document.getElementById('scoreDrawerShade');
+  d.classList.add('open'); s.classList.add('open'); d.setAttribute('aria-hidden','false');
+}
+
+function closeScoreDrawer(){
+  const d=document.getElementById('scoreDrawer'),s=document.getElementById('scoreDrawerShade');
+  if(d){d.classList.remove('open');d.setAttribute('aria-hidden','true')}
+  if(s)s.classList.remove('open');
+}
+
+function toggleScoreDrawer(){
+  if(!document.getElementById('scoreDrawer')) mountScoreDrawer(false);
+  document.getElementById('scoreDrawer').classList.contains('open')?closeScoreDrawer():openScoreDrawer();
+}
+
+let scoreTouchStartX=null,scoreTouchStartY=null;
+document.addEventListener('touchstart',e=>{
+  const t=e.touches&&e.touches[0];if(!t)return;
+  scoreTouchStartX=t.clientX;scoreTouchStartY=t.clientY;
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(scoreTouchStartX===null)return;
+  const t=e.changedTouches&&e.changedTouches[0];if(!t)return;
+  const dx=t.clientX-scoreTouchStartX,dy=t.clientY-scoreTouchStartY,w=window.innerWidth;
+  if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.25){
+    if(scoreTouchStartX>w-52 && dx<0)openSidePanel(activeSidePanel||'score');
+    else if(document.getElementById('scoreDrawer')?.classList.contains('open') && dx>0)closeScoreDrawer();
+  }
+  scoreTouchStartX=scoreTouchStartY=null;
+},{passive:true});
+function highestBidLogHTML(){
+  return `<div class='bidLog'><h3>最高額入札ログ</h3>${
+    G.highestBidLog.length
+      ? `<div class='bidLogList'>${G.highestBidLog.map(x=>`
+          <div class='bidLogRow'>
+            <span>${String(x.round).startsWith('R')?x.round:'R'+x.round}</span>
+            <b>${esc(x.player)}</b>
+            <span class='bidLogAmount'>${Number(x.amount).toLocaleString()}</span>
+          </div>`).join('')}</div>`
+      : `<div class='mut'>まだ入札履歴はありません</div>`
+  }</div>`;
+}
+
+/* scorePlayer is defined below using fixed category scoring */
+function chartHTML(titleText,history,valueSuffix=''){
+  if(!history.length)return '';
+  const W=760,H=285,L=54,R=18,T=28,B=42;
+  const rounds=history.length;
+  const flat=history.flat().map(Number);
+  let min=Math.min(0,...flat),max=Math.max(1,...flat);
+  if(max===min)max=min+1;
+  const span=max-min;
+  const pad=span*0.08;
+  max+=pad; min-=pad;
+  const x=i=>rounds===1?L+(W-L-R)/2:L+i*(W-L-R)/(rounds-1);
+  const y=v=>T+(max-v)*(H-T-B)/(max-min);
+  const palette=['#d7b56d','#71b7ff','#e98585','#8bd49c','#c39cff'];
+  let grid='';
+  for(let k=0;k<=4;k++){
+    const yy=T+k*(H-T-B)/4;
+    const val=max-k*(max-min)/4;
+    grid+=`<line x1='${L}' y1='${yy}' x2='${W-R}' y2='${yy}' class='chartGrid'/>
+      <text x='${L-8}' y='${yy+4}' text-anchor='end' class='chartAxis'>${Math.round(val).toLocaleString()}</text>`;
+  }
+  let xlabels='';
+  for(let i=0;i<rounds;i++) xlabels+=`<text x='${x(i)}' y='${H-14}' text-anchor='middle' class='chartAxis'>R${i+1}</text>`;
+  let series='';
+  G.names.forEach((name,p)=>{
+    const pts=history.map((row,i)=>`${x(i)},${y(Number(row[p]||0))}`).join(' ');
+    series+=`<polyline points='${pts}' fill='none' stroke='${palette[p%palette.length]}' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>`;
+    history.forEach((row,i)=>{
+      const v=Number(row[p]||0);
+      series+=`<circle cx='${x(i)}' cy='${y(v)}' r='4' fill='${palette[p%palette.length]}'/>
+        <title>${esc(name)} R${i+1}: ${v.toLocaleString()}${valueSuffix}</title>`;
+    });
+  });
+  const legend=G.names.map((n,i)=>`<span class='chartLegendItem'><i style='background:${palette[i%palette.length]}'></i>${esc(n)}</span>`).join('');
+  return `<div class='card chartCard'><div class='chartHead'><h3>${titleText}</h3><div class='chartLegend'>${legend}</div></div>
+    <svg class='resultChart' viewBox='0 0 ${W} ${H}' role='img' aria-label='${esc(titleText)}'>
+      ${grid}${xlabels}${series}
+    </svg></div>`;
+}
+function finale(){
+  let max=Math.max(...G.spent),
+      dead=G.spent.map((v,i)=>v===max?i:null).filter(x=>x!==null),
+      alive=G.names.map((_,i)=>i).filter(i=>!dead.includes(i)),
+      scores=G.names.map((_,i)=>scorePlayer(i)),
+      winner=null;
+  if(alive.length){
+    winner=[...alive].sort((a,b)=>scores[b]-scores[a]||G.spent[a]-G.spent[b]||priority(a)-priority(b))[0]
+  }
+  app.innerHTML=title('MARKET CLOSED')+
+    `<div class='card'><h2>最終監査</h2>${G.names.map((n,i)=>`<div class='player'><b>${esc(n)}</b><br>総支出：${G.spent[i].toLocaleString()}<br>得点：${scores[i]} ${dead.includes(i)?`<span class='danger'>☠ 最多支出・脱落</span>`:''}</div>`).join('')}</div>
+    <div class='card center'><div class='mut'>WINNER</div><div class='big'>${winner===null?'勝者なし':esc(G.names[winner])+' 🏆'}</div>${winner!==null?`<p>${scores[winner]} VP / 支出 ${G.spent[winner].toLocaleString()}</p>`:''}</div>`+
+    chartHTML('ラウンド別 入札額',G.bidHistory,'')+
+    chartHTML('得点推移',G.scoreHistory,' VP')+
+    `<div class='center'><button onclick='home()'>TITLE</button></div>`;
+}
+
+const scoreDrawerObserver=new MutationObserver(()=>mountScoreDrawer(true));
+scoreDrawerObserver.observe(app,{childList:true});
+mountScoreDrawer(false);
+home();
+</script></body></html>
