@@ -304,7 +304,7 @@ select{max-width:165px;border:1px solid var(--line2);background:#081824;color:va
 
         <div id="railP1" class="rail-half rail-p1 active">
           <div class="rail-arrow"></div>
-          <div class="rail-name">PLAYER<br>1</div>
+          <div id="railP1Name" class="rail-name">PLAYER<br>1</div>
           <div class="rail-dot"></div>
         </div>
       </aside>
@@ -317,7 +317,7 @@ select{max-width:165px;border:1px solid var(--line2);background:#081824;color:va
     <section id="p1" class="player p1 active">
       <div class="inner">
         <div class="player-head">
-          <span class="name">PLAYER 1</span>
+          <span id="p1Name" class="name">PLAYER 1</span>
           <span class="turn-badge">YOUR TURN</span>
         </div>
         <div id="pieces1" class="pieces"></div>
@@ -400,9 +400,21 @@ function otherPlayer(player){
   return player===1?2:1;
 }
 
+function sharedPlayerName(player){
+  var defaults=["P1","P2","P3","P4"];
+  try{
+    var saved=JSON.parse(localStorage.getItem("waitingGamesPlayerNamesV1")||"null");
+    if(Array.isArray(saved)){
+      var raw=String(saved[player-1]||defaults[player-1]||("P"+player)).trim().slice(0,16).replace(/[&<>"']/g,"");
+      return raw||defaults[player-1]||("P"+player);
+    }
+  }catch(e){}
+  return defaults[player-1]||("P"+player);
+}
+
 function playerName(player){
   if(gameMode==="cpu"&&player===cpuPlayer)return "CPU";
-  return "PLAYER "+player;
+  return sharedPlayerName(player);
 }
 
 function loadSettings(){
@@ -472,18 +484,10 @@ function timeoutCurrentPlayer(){
 
   render();
 
-  var loserName=
-    gameMode==="cpu"&&loser===cpuPlayer
-      ? "CPU"
-      : "PLAYER "+loser;
-
-  var winnerName=
-    gameMode==="cpu"&&winner===cpuPlayer
-      ? "CPU"
-      : "PLAYER "+winner;
+  var loserName=playerName(loser);
 
   showInfo(
-    winnerName+" WIN!",
+    playerName(winner)+" WIN!",
     loserName+" は制限時間内に駒を配置できなかったため敗北です。"
   );
 
@@ -1027,7 +1031,7 @@ function scheduleCpuTurn(){
       cpuThinking=false;
       render();
       showInfo(
-        "PLAYER "+winner+" WIN!",
+        playerName(winner)+" WIN!",
         "CPUは所持しているどの駒も配置できないため敗北です。"
       );
       return;
@@ -1225,7 +1229,7 @@ function place(index,fromCpu){
       body+="<br><br>OWN 2+：完成した4マスに自分の駒が2個以上含まれています。";
     }
 
-    showInfo("PLAYER "+winner+" WIN!",body);
+    showInfo(playerName(winner)+" WIN!",body);
     return;
   }
 
@@ -1419,11 +1423,11 @@ function renderPlayers(){
   $("p1").querySelector(".turn-badge").textContent=p1Badge;
   $("p2").querySelector(".turn-badge").textContent=p2Badge;
 
-  $("p2Name").textContent=
-    gameMode==="cpu"?"CPU":"PLAYER 2";
+  $("p1Name").textContent=playerName(1);
+  $("p2Name").textContent=playerName(2);
 
-  $("railP2Name").innerHTML=
-    gameMode==="cpu"?"CPU":"PLAYER<br>2";
+  $("railP1Name").textContent=playerName(1);
+  $("railP2Name").textContent=playerName(2);
 
   $("railP1").className=
     "rail-half rail-p1"+

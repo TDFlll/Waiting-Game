@@ -169,8 +169,19 @@ const SAVED=loadAuctionSettings();
 function persistAuctionSettings(){
   localStorage.setItem('waitingAuctionSettingsV1',JSON.stringify({supply:G.supply,prices:G.prices}));
 }
+function sharedPlayerNames(n){
+  const defaults=Array.from({length:n},(_,i)=>'P'+(i+1));
+  try{
+    const saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'null');
+    if(Array.isArray(saved))return defaults.map((d,i)=>{
+      const raw=String(saved[i]||d).trim().slice(0,16).replace(/[&<>"']/g,'');
+      return raw||d;
+    });
+  }catch(e){}
+  return defaults;
+}
 
-let G={n:3,names:['A','B','C'],round:0,dealer:0,supply:clone(SAVED.supply),prices:clone(SAVED.prices),lots:[],rerolls:2,bids:[],order:[],pickIdx:0,owned:[],spent:[],scoring:'stage',rollCount:0,cursedMarket:false,highestBid:0,highestBidLog:[],bidHistory:[],scoreHistory:[],rareConfig:clone(SAVED.prices[3].rare),rarePlan:null,marketBonus:[],rareRoute:null,specialQueue:[],specialMarket:false,specialLabel:'',specialHistory:[],normalRoundIndex:0,lastAllocationSnapshot:null};
+let G={n:3,names:sharedPlayerNames(3),round:0,dealer:0,supply:clone(SAVED.supply),prices:clone(SAVED.prices),lots:[],rerolls:2,bids:[],order:[],pickIdx:0,owned:[],spent:[],scoring:'stage',rollCount:0,cursedMarket:false,highestBid:0,highestBidLog:[],bidHistory:[],scoreHistory:[],rareConfig:clone(SAVED.prices[3].rare),rarePlan:null,marketBonus:[],rareRoute:null,specialQueue:[],specialMarket:false,specialLabel:'',specialHistory:[],normalRoundIndex:0,lastAllocationSnapshot:null};
 const app=document.querySelector('#app');
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function title(sub=''){return `<div class='row'><div class='grow'><div class='mut'>WAITING GAMES</div><div class='big'>WAITING AUCTION</div></div><div class='pill'>v0.1 UI-16</div></div>${sub?`<div class='mut'>${sub}</div>`:''}`}
@@ -202,7 +213,7 @@ function home(){const saved=loadSavedGame();app.innerHTML=title('BLACK MARKET')+
 function setup(){
   app.innerHTML=title('GAME SETUP')+`<div class='card'><h3>プレイヤー人数</h3><div class='row'>${[3,4,5].map(n=>`<button onclick='setN(${n})' class='${G.n===n?'primary':''}'>${n}人</button>`).join('')}</div><h3>得点方式</h3><div class='mut'>${G.n}人用の商品価格設定を使用</div><div id='names'></div><div class='sep'></div><div class='privacy'><b>♦️🌟 希少市場</b><div class='mut'>ゲーム開始時に秘密ルートを抽選。希少品は通常商品に混ざらず、X.5の特別市場にのみ出現します。</div></div><div class='sep'></div><div class='row'><button onclick='editSupply()'>ラウンド・ロット数</button><button onclick='editPrices()'>商品価格を編集</button><button class='primary' onclick='startGame()'>START</button></div></div>`;renderNames()
 }
-function setN(n){G.n=n;G.names=Array.from({length:n},(_,i)=>String.fromCharCode(65+i));setup()}
+function setN(n){G.n=n;G.names=sharedPlayerNames(n);setup()}
 function renderNames(){let d=document.querySelector('#names');d.innerHTML='<h3>プレイヤー名</h3>'+G.names.map((x,i)=>`<input style="width:100%;margin:4px 0;padding:10px;border-radius:10px" value="${esc(x)}" onchange="G.names[${i}]=this.value||'P${i+1}'">`).join('')}
 function editSupply(){let rows=G.supply[G.n].map((a,i)=>`<div class='row'><b>R${i+1}</b><input id='r${i}' value='${a.join(',')}' style='flex:1;padding:9px'></div>`).join('');app.innerHTML=title(`${G.n}人用 配給設定`)+`<div class='card'><p class='mut'>各ラウンドのロット商品数をカンマ区切りで入力。</p>${rows}<br><button onclick='setup()'>戻る</button> <button class='primary' onclick='saveSupply()'>保存</button></div>`}
 function saveSupply(){G.supply[G.n]=G.supply[G.n].map((_,i)=>document.querySelector('#r'+i).value.split(',').map(Number).filter(x=>x>=0));persistAuctionSettings();setup()}

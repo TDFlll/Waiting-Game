@@ -47,9 +47,9 @@
   <div class="status"><span id="turnText"></span><strong id="actionText"></strong><span id="deckText"></span></div>
   <div class="turnDigestBar" id="turnDigestBar"><div class="turnDigestHead"><span>PREVIOUS TURN</span><span id="turnDigestCount"></span></div><div class="turnDigestList" id="turnDigestList"></div></div>
   <div class="board">
-    <div><div class="sideLabel">PLAYER 2 FIELD</div><div class="field" id="p2field"></div></div>
+    <div><div class="sideLabel" id="p2SideLabel">PLAYER 2 FIELD</div><div class="field" id="p2field"></div></div>
     <div class="midline"></div>
-    <div><div class="field" id="p1field"></div><div class="sideLabel">PLAYER 1 FIELD</div></div>
+    <div><div class="field" id="p1field"></div><div class="sideLabel" id="p1SideLabel">PLAYER 1 FIELD</div></div>
   </div>
   <div class="controls">
     <button class="btn primary" id="attackBtn">ATTACK</button>
@@ -114,6 +114,7 @@ let GAME_MODE='2P',CPU_PLAYER=1,cpuThinking=false,cpuDecisionContext=false,cpuCu
 let OPENING_AP=1,FIRST_TURN_DRAW=true;
 const STATS_KEY='waitingCards_v050_stats';
 const $=id=>document.getElementById(id);
+function sharedPlayerName(p){const defaults=['P1','P2','P3','P4'];try{const saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'null');if(Array.isArray(saved)){const raw=String(saved[p]||defaults[p]||`P${p+1}`).trim().slice(0,16).replace(/[&<>"']/g,'');return raw||defaults[p]||`P${p+1}`;}}catch(e){}return defaults[p]||`P${p+1}`;}
 function loadStats(){try{return JSON.parse(localStorage.getItem(STATS_KEY)||'null')||{games:0,p1:0,p2:0,draw:0,starterWins:0,secondWins:0,cpuGames:0,cpuWins:0};}catch(e){return{games:0,p1:0,p2:0,draw:0,starterWins:0,secondWins:0,cpuGames:0,cpuWins:0};}}
 function saveStats(st){try{localStorage.setItem(STATS_KEY,JSON.stringify(st));}catch(e){}}
 function renderStats(){const st=loadStats();const boxes=[['対戦数',st.games],['P1 勝利',st.p1],['P2 勝利',st.p2],['引き分け',st.draw],['先攻勝利',st.starterWins],['後攻勝利',st.secondWins],['CPU戦',st.cpuGames],['CPU勝利',st.cpuWins]];$('statsGrid').innerHTML=boxes.map(x=>`<div class="statBox">${x[0]}<b>${x[1]}</b></div>`).join('');}
@@ -156,7 +157,7 @@ function newState(){
  return{players,deck,grave:[],turn:0,turnNo:1,starter:Math.random()<.5?0:1,actions:0,
  firstTurn:true,gameover:false,log:[],pending:[],turnEvents:[],lastTurnEvents:[],mode:GAME_MODE};
 }
-function pName(p){return `P${p+1}`;}
+function pName(p){return GAME_MODE==='CPU'&&p===CPU_PLAYER?'CPU':sharedPlayerName(p);}
 function isEffectEvent(t){
  return /発動|効果で|CHOICE|チョイス|貫通|脱力|コントロール|憑依|信仰|憎悪|踏破|特殊勝利|除去時効果/.test(t);
 }
@@ -186,13 +187,14 @@ function slotHTML(c,p,l,z){const attrs=`data-p="${p}" data-l="${l}" data-zone="$
 function renderField(p){let h='';for(let l=0;l<2;l++)h+=`<div class="lane">${p===1?slotHTML(S.players[p].magic[l],p,l,'magic')+slotHTML(S.players[p].monster[l],p,l,'monster'):slotHTML(S.players[p].monster[l],p,l,'monster')+slotHTML(S.players[p].magic[l],p,l,'magic')}</div>`;return h;}
 function render(){
  $('p1field').innerHTML=renderField(0);$('p2field').innerHTML=renderField(1);
- $('score1').innerHTML=`<span class="playerName">PLAYER 1</span><br><span class="p1c"><b>♥ ${S.players[0].life}</b></span><br>TIME ${S.players[0].timeUsed?'USED':'READY'} / HAND ${S.players[0].hand.length}`;
- $('score2').innerHTML=`<span class="playerName">PLAYER 2${GAME_MODE==='CPU'?'<span class="cpuBadge">CPU</span>':''}</span><br><span class="p2c"><b>♥ ${S.players[1].life}</b></span><br>TIME ${S.players[1].timeUsed?'USED':'READY'} / HAND ${S.players[1].hand.length}`;
+ $('p1SideLabel').textContent=`${pName(0)} FIELD`;$('p2SideLabel').textContent=`${pName(1)} FIELD`;
+ $('score1').innerHTML=`<span class="playerName">${pName(0)}</span><br><span class="p1c"><b>♥ ${S.players[0].life}</b></span><br>TIME ${S.players[0].timeUsed?'USED':'READY'} / HAND ${S.players[0].hand.length}`;
+ $('score2').innerHTML=`<span class="playerName">${pName(1)}</span><br><span class="p2c"><b>♥ ${S.players[1].life}</b></span><br>TIME ${S.players[1].timeUsed?'USED':'READY'} / HAND ${S.players[1].hand.length}`;
  const app=document.querySelector('.app');app.classList.toggle('turn-p1',S.turn===0);app.classList.toggle('turn-p2',S.turn===1);$('score1').classList.toggle('turnOwner',S.turn===0);$('score2').classList.toggle('turnOwner',S.turn===1);
  $('turnText').textContent=`TURN ${S.turnNo} · ${pName(S.turn)} ${S.turn===0?'🟢':'🔴'}`;$('actionText').textContent=`AP ${S.actions}`;$('deckText').textContent=`DECK ${S.deck.length}`;$('handTitle').textContent=`${pName(S.turn)} PRIVATE HAND`;$('graveText').textContent=`GRAVE ${S.grave.length}`;
  renderHand();renderLog();setupFieldInteractions();const cpuTurn=GAME_MODE==='CPU'&&S.turn===CPU_PLAYER;$('attackBtn').disabled=cpuTurn||S.gameover||S.actions<=0||!S.players[S.turn].monster.some((c,l)=>c&&canAttack(c,S.turn,l));$('timeBtn').disabled=cpuTurn||S.gameover||S.players[S.turn].timeUsed;$('endBtn').disabled=cpuTurn||S.gameover;
 }
-function renderHand(){const p=S.turn;if(GAME_MODE==='CPU'&&p===CPU_PLAYER){$('handTitle').textContent='PLAYER 2 CPU HAND';$('hand').innerHTML='<div class="tiny">CPUの手札は非公開です。思考中の行動だけが公開されます。</div>';return;}$('hand').innerHTML=S.players[p].hand.map(c=>`<div class="handCard ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="type">${cardTypeText(c)}</div><div class="effect">${c.text}</div><button class="play" data-uid="${c.uid}" ${S.actions<=0?'disabled':''}>PLAY</button></div>`).join('')||'<div class="tiny">手札なし</div>';document.querySelectorAll('.play').forEach(b=>b.onclick=e=>{e.stopPropagation();playFromHand(Number(b.dataset.uid));});document.querySelectorAll('.handCard').forEach((el,i)=>el.onclick=()=>showCardDetail(S.players[p].hand[i],p));}
+function renderHand(){const p=S.turn;if(GAME_MODE==='CPU'&&p===CPU_PLAYER){$('handTitle').textContent='CPU HAND';$('hand').innerHTML='<div class="tiny">CPUの手札は非公開です。思考中の行動だけが公開されます。</div>';return;}$('hand').innerHTML=S.players[p].hand.map(c=>`<div class="handCard ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="type">${cardTypeText(c)}</div><div class="effect">${c.text}</div><button class="play" data-uid="${c.uid}" ${S.actions<=0?'disabled':''}>PLAY</button></div>`).join('')||'<div class="tiny">手札なし</div>';document.querySelectorAll('.play').forEach(b=>b.onclick=e=>{e.stopPropagation();playFromHand(Number(b.dataset.uid));});document.querySelectorAll('.handCard').forEach((el,i)=>el.onclick=()=>showCardDetail(S.players[p].hand[i],p));}
 function setupFieldInteractions(){document.querySelectorAll('.slot[data-p]').forEach(el=>{const p=+el.dataset.p,l=+el.dataset.l,z=el.dataset.zone,c=z==='monster'?S.players[p].monster[l]:S.players[p].magic[l];if(fieldPickResolve&&fieldPickFilter&&fieldPickFilter(p,l,z,c)){el.classList.add('pickable');el.onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r({p,l,zone:z});};}else if(c&&!(c.faceDown&&c.controller!==S.turn)){el.classList.add('inspectable');el.onclick=()=>showCardDetail(c,S.turn);}});}
 function activeDecisionPlayer(){return decisionPlayer===null||decisionPlayer===undefined?S.turn:decisionPlayer;}
 function cpuShouldAuto(title){const dp=activeDecisionPlayer();if(GAME_MODE!=='CPU'||dp!==CPU_PLAYER)return false;if(!(cpuDecisionContext||decisionPlayer===CPU_PLAYER))return false;if(title&&title.indexOf('P1')>=0&&dp!==0)return false;return true;}
@@ -203,7 +205,7 @@ scored.sort((a,b)=>b.s-a.s);return scored[0].i;}
 function cpuPickField(title,filter){const cand=[];for(let p=0;p<2;p++)for(let l=0;l<2;l++)for(const z of ['monster','magic']){const c=S.players[p][z][l];if(filter(p,l,z,c))cand.push({p:p,l:l,zone:z,c:c});}if(!cand.length)return null;let best=cand[0],bestS=-999;for(const x of cand){let sc=Math.random()*.4;if(/攻撃するモンスター/.test(title)){sc+=cpuAttackScore(x.l)*2;}if(/召喚先|復活先|MONSTER/.test(title)){if(x.p===CPU_PLAYER)sc+=2;if(!S.players[1-CPU_PLAYER].monster[x.l])sc+=1.2;else sc+=0.5;}if(/強化/.test(title)){if(x.p===CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.15;}if(/脱力/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/コントロール/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/入れ替える場/.test(title)){if(x.p!==CPU_PLAYER)sc+=1.5;}if(/配置先/.test(title)&&x.p===CPU_PLAYER)sc+=2;if(sc>bestS){bestS=sc;best=x;}}return{p:best.p,l:best.l,zone:best.zone};}
 function chooseFieldSlot(msg,filter){if(cpuShouldAuto(msg)){return new Promise(res=>setTimeout(()=>res(cpuPickField(msg,filter)),260));}return new Promise(res=>{fieldPickResolve=res;fieldPickFilter=filter;$('pickHint').textContent=msg+' ｜ ここをタップでキャンセル';$('pickHint').classList.remove('hidden');$('pickHint').onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r(null);};render();});}
 function choose(title,opts,cancel=true){if(cpuShouldAuto(title)){return new Promise(res=>setTimeout(()=>{const ix=cpuPickOption(title,opts);res(ix===null?null:opts[ix].value);},240));}return new Promise(res=>{choiceResolve=res;$('modalTitle').textContent=title;$('modalOptions').innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}">${o.label}${o.sub?`<small>${o.sub}</small>`:''}</button>`).join('');$('modalCancel').style.display=cancel?'block':'none';$('modalCancel').textContent='キャンセル';$('modal').classList.remove('hidden');document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const v=opts[+b.dataset.i].value;$('modal').classList.add('hidden');choiceResolve=null;res(v);});$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');choiceResolve=null;res(null);};});}
-function showHandoff(next,msg='相手に画面を見せないように端末を渡してください。'){setHandPrivate(true);clearDigestBanners();if(GAME_MODE==='2P')clearTransientEffects();if(GAME_MODE==='CPU'&&next===CPU_PLAYER){setTimeout(()=>{setHandPrivate(false);runCpuTurn();},420);return;}$('handoffTitle').textContent=GAME_MODE==='CPU'?'YOUR TURN':`${pName(next)} の番です`;$('handoffMsg').textContent=GAME_MODE==='CPU'?'CPUターンが終了しました。READYで開始してください。':msg;$('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');if(GAME_MODE==='2P')showDigestBanners(S.lastTurnEvents);else clearDigestBanners();setHandPrivate(false);render();};}
+function showHandoff(next,msg='相手に画面を見せないように端末を渡してください。'){setHandPrivate(true);clearDigestBanners();if(GAME_MODE==='2P')clearTransientEffects();if(GAME_MODE==='CPU'&&next===CPU_PLAYER){setTimeout(()=>{setHandPrivate(false);runCpuTurn();},420);return;}$('handoffTitle').textContent=`${pName(next)} の番です`;$('handoffMsg').textContent=GAME_MODE==='CPU'?'CPUターンが終了しました。READYで開始してください。':msg;$('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');if(GAME_MODE==='2P')showDigestBanners(S.lastTurnEvents);else clearDigestBanners();setHandPrivate(false);render();};}
 function draw(p,n=1,publicEvent=true){let got=0;for(let i=0;i<n;i++){if(!S.deck.length)break;S.players[p].hand.push(S.deck.pop());got++;}if(got)log(`${pName(p)} が ${got}枚ドロー`,publicEvent);return got;}
 async function faithStartOption(p){
  if(S.gameover||!S.players[p].faithEmblem||S.players[p].faithUsedTurn===S.turnNo)return;
@@ -955,7 +957,7 @@ function showRules(){
 async function startNewGame(){
  uid=1;cpuThinking=false;cpuDecisionContext=false;clearDigestBanners();S=newState();
  $('titleScreen').classList.add('hidden');S.turn=S.starter;
- log(`先攻は ${pName(S.starter)}${GAME_MODE==='CPU'&&S.starter===CPU_PLAYER?' (CPU)':''} / 初回AP${OPENING_AP} / ${FIRST_TURN_DRAW?'先攻ドローあり':'先攻ドローなし'} / 初手モンスター1枚以上保証`);
+ log(`先攻は ${pName(S.starter)} / 初回AP${OPENING_AP} / ${FIRST_TURN_DRAW?'先攻ドローあり':'先攻ドローなし'} / 初手モンスター1枚以上保証`);
  await startTurn(S.starter,true);
  if(GAME_MODE==='CPU'&&S.starter===CPU_PLAYER){setHandPrivate(false);setTimeout(runCpuTurn,500);}
  else showHandoff(S.starter,GAME_MODE==='CPU'?'初手4枚（モンスター1枚以上保証）を確認してREADYを押してください。':'初手4枚（両プレイヤーともモンスター1枚以上保証）は相手に見せず、READYを押してください。');
