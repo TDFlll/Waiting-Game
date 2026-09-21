@@ -11,7 +11,8 @@ waiting-games/
 │  ├─ shapes.html
 │  ├─ dice.html
 │  ├─ cards.html
-│  └─ auction.html
+│  ├─ auction.html
+│  └─ robots.html
 └─ README.md
 ```
 
@@ -21,6 +22,7 @@ waiting-games/
 - `games/dice.html` from `waiting_dice_v0_3_2.html`
 - `games/cards.html` from `waiting_cards_v0_6_3_v13.html`
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
+- `games/robots.html` from `waiting_robots_v4.7.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Notes
