@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Waiting Escape Prototype v0.20</title>
+<style>
+:root{--bg:#050b17;--panel:#0b1829;--panel2:#0a2233;--text:#e7faff;--muted:#89abbc;--edge:#1e536a;--open:#153447;--closed:#0a1727;--accent:#4af0e4;--gold:#ffd471;--red:#ff5c87;--blue:#66aaff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 78% 2%,#123d5b 0,transparent 32%),radial-gradient(circle at 8% 72%,#1b1742 0,transparent 39%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 31px,#4af0e409 32px),repeating-linear-gradient(90deg,transparent 0 31px,#4af0e409 32px);mask-image:linear-gradient(#0008,transparent 90%)}
+main{max-width:1060px;margin:auto;padding:12px 12px 32px}.card{background:linear-gradient(140deg,#112437ed,#091521f5);border:1px solid #327088;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 8px 32px #0005,inset 0 1px #78eff01c}
+h1{margin:6px 0 12px;font-size:clamp(28px,6vw,45px);line-height:1.08;letter-spacing:.05em;text-shadow:0 0 22px #4af0e470}h1:before{content:"◈ ";color:var(--accent)}h2{font-size:17px;margin:0 0 12px;color:var(--accent);letter-spacing:.08em}.muted{color:var(--muted);font-size:13px;line-height:1.6}.eyebrow,.badge,.tierTitle,.node .sub,.miniTag{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}.eyebrow{font-size:11px;font-weight:800;color:var(--accent)}.heroLead{margin:0 0 18px;color:#bbd8e2}.row{display:flex;gap:9px;flex-wrap:wrap}.grow{flex:1;min-width:140px;color:var(--muted);font-size:13px;line-height:2}
+button,select,input{font:inherit;border-radius:10px;border:1px solid #3e7189;background:#0b2232;color:var(--text);padding:10px}button{min-height:44px;cursor:pointer;touch-action:manipulation;transition:transform .15s,box-shadow .2s,background .2s}button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 16px #4af0e43d}button:disabled{cursor:default}button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.primary{background:linear-gradient(120deg,#53f7e0,#41a8e9);color:#051622;border:0;font-weight:900;box-shadow:0 0 18px #4af0e43b}.danger{background:#3b182e;border-color:#d64b78}.hidden{display:none!important}.badge{display:inline-flex;align-items:center;padding:7px 11px;border:1px solid #397b8e;border-radius:8px;background:#0a2839;color:#b7fcf4;font-size:11px;font-weight:800}
+.boardScroll{overflow:auto;max-height:min(70dvh,660px);padding:8px 1px 11px;scrollbar-color:#3a8ea3 #091725;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.board{position:relative;width:760px;min-height:720px;margin:auto;padding:10px 24px 18px;border:1px solid #24465e;border-radius:14px;background:radial-gradient(circle at 50% 45%,#123148 0,#081523 68%);box-shadow:inset 0 0 45px #030912,0 0 22px #1bece815}.board:after{content:"NETWORK GRID // TRACE ACTIVE";position:absolute;bottom:3px;right:18px;font:9px ui-monospace,monospace;letter-spacing:.16em;color:#5c9db0;pointer-events:none}.lines{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}.edge{stroke:#25536c;stroke-width:2.2;stroke-dasharray:5 5}.edge.openEdge{stroke:#42d5cb;stroke-width:2.6;stroke-dasharray:none;filter:drop-shadow(0 0 3px #4af0e4)}.tier{position:relative;z-index:2;height:132px}.tierTitle{text-align:center;color:#75cfd1;font-size:11px;font-weight:900;margin-bottom:8px}.nodes{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;align-items:center}.node{height:78px;padding:4px;border:1px solid #356178;background:linear-gradient(145deg,#0f263a,#071321);color:#8299ae;position:relative;overflow:visible;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));box-shadow:inset 0 0 0 1px #23506a}.node.open{background:linear-gradient(145deg,#145067,#123047);color:#efffff;border-color:#5be5dc;box-shadow:inset 0 0 0 1px #57e4db,0 0 12px #4af0e445}.node.reachable{border:2px solid var(--accent);background:#175269;filter:drop-shadow(0 0 8px #4af0e4);animation:signal 1.4s infinite}.node.path{outline:2px solid var(--gold);outline-offset:2px}.node.final{border:2px solid var(--gold);filter:drop-shadow(0 0 8px #ffd471)}.node.blocked{border-color:var(--red)}.node .nm{font-weight:950;font-size:16px;letter-spacing:.04em}.node .sub{font-size:9px;margin-top:5px;opacity:.85}.piece{position:absolute;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:950;border:2px solid #fff;z-index:4;box-shadow:0 0 13px currentColor}.piece.det{background:#c62761;color:white;right:-7px;top:-8px}.piece.run{background:#168c91;color:white;left:-7px;top:-8px}.piece.r2{left:18px}.piece.r3{left:43px}
+.legend{display:flex;gap:10px 16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}.dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}.player{padding:9px 0;border-bottom:1px solid #23516a}.player:last-child{border:0}.log{max-height:220px;overflow:auto;font-size:13px;line-height:1.6}.log>div{padding:7px 0;border-bottom:1px solid #244358}
+.overlay{position:fixed;inset:0;z-index:50;background:radial-gradient(circle at 50% 16%,#133c50,#030913 70%);padding:10px;overflow:auto}.overlay:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background:repeating-linear-gradient(0deg,transparent 0 5px,#2ce9df17 6px)}.overlayPanel{position:relative;max-width:900px;margin:10px auto;background:linear-gradient(160deg,#142c40,#071420);border:1px solid #4bb7bb;border-radius:18px;padding:17px;box-shadow:0 0 38px #2af5dd26,0 15px 42px #0009}.overlayTitle{text-align:center;font-size:clamp(23px,5vw,34px);font-weight:950;line-height:1.2;margin:4px 0 8px;text-shadow:0 0 17px #41e8e25e}.overlayText{text-align:center;color:#aacdd7;margin:8px 0 15px;line-height:1.55}.actions{text-align:center;margin-top:16px}.actions button{min-width:min(100%,260px)}.secret{background:#0b2534;border:1px solid #347d94;border-left:4px solid var(--accent);border-radius:10px;padding:13px;margin:12px 0;line-height:1.7}.notice{text-align:center;font-size:23px;font-weight:900;margin:12px}.count{font:950 clamp(100px,26vw,170px) ui-monospace,monospace;text-align:center;margin:24px;color:var(--accent);text-shadow:0 0 35px #4af0e4;animation:pop .55s ease}.history{font-size:12px;color:var(--muted);margin-top:8px}.event{padding:6px 0;border-bottom:1px solid #293344}.event:last-child{border:0}.miniTag{display:block;text-align:center;font-size:11px;color:var(--accent);font-weight:900;margin:7px 0}.eventCard{position:relative;text-align:center;max-width:530px;margin:18px auto;padding:22px 18px;background:linear-gradient(145deg,#124055,#0b1d32);border:1px solid var(--accent);border-radius:18px;box-shadow:0 0 25px #4af0e43a;animation:reveal .4s ease both}.eventCard.dangerCard{border-color:var(--red);background:linear-gradient(145deg,#552239,#191426);box-shadow:0 0 25px #ff5c8738}.eventCard.goldCard{border-color:var(--gold);background:linear-gradient(145deg,#453c28,#151d2a);box-shadow:0 0 25px #ffd47130}.eventIcon{font-size:56px;line-height:1.2;filter:drop-shadow(0 0 12px currentColor)}.eventLabel{margin-top:10px;font:800 11px ui-monospace,monospace;letter-spacing:.22em;color:var(--accent)}.eventCard h3{font-size:clamp(22px,5vw,31px);margin:8px 0}.eventCard p{color:#c5dee3;line-height:1.6;margin:0}.resultSummary{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0}.resultChip{border:1px solid #427d92;border-radius:10px;background:#102b3a;padding:9px 13px;font-weight:800}.resultChip strong{color:var(--accent)}.overlay[data-stage="handoff"] .overlayPanel{border-color:#8d7eea}.overlay[data-stage="search"] .overlayPanel,.overlay[data-stage="capture"] .overlayPanel{border-color:var(--red);box-shadow:0 0 35px #ff5c8730}.overlay[data-stage="capture"] .overlayTitle{color:var(--red);animation:alert .8s 3}.overlay[data-stage="event"] .overlayTitle{color:var(--gold)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}@keyframes reveal{from{opacity:0;transform:translateY(24px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes signal{50%{filter:drop-shadow(0 0 2px #4af0e4)}}@keyframes alert{50%{text-shadow:0 0 28px var(--red)}}
+@media(max-width:650px){main{padding:8px}.board{width:690px}.node{height:72px}.tier{height:124px}.card,.overlayPanel{padding:13px}.badge{font-size:10px}.boardScroll{margin:0 -5px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+.moveHud{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:760px;margin:10px auto;padding:9px 12px;border:1px solid #4c9da9;border-radius:12px;background:#0b283c;box-shadow:0 0 18px #4af0e422}.moveHud .moveNumber{font:900 36px ui-monospace,monospace;color:var(--gold);text-shadow:0 0 13px #ffd47199;min-width:44px;text-align:center}.moveHud .moveCaption{flex:1;font-size:13px;color:#bde5e7}.moveHud .moveCaption strong{display:block;color:#fff;font-size:15px}.moveHud button{min-width:88px}.node.tentative{border-color:var(--gold);background:linear-gradient(145deg,#3a3540,#13243a)}.node.tentative .sub{color:var(--gold);font-weight:900}.node.landing{z-index:5;transform:translateY(-6px) scale(1.09);filter:drop-shadow(0 0 12px var(--gold));animation:landing .35s ease both}.node.landing:after{content:"現在地";position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;color:var(--gold);font:bold 10px ui-monospace,monospace}.node.recent{border-color:var(--gold)}.node.recent .sub{color:var(--gold);font-weight:900}.piece.preview{animation:pieceLand .32s ease both}.intelChoice{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0}.intelChoice button{min-width:74px;padding:14px 9px;font-weight:900}.intelChoice button.selected{background:#1a5b64;border-color:var(--gold);box-shadow:0 0 12px #ffd47166}.intelChoice button.known{border-style:dashed}.intelHint{text-align:center;color:var(--muted);font-size:13px}.intelRecords{line-height:1.65}.intelRecords b{color:var(--gold)}@keyframes landing{from{transform:translateY(2px) scale(.92)}to{transform:translateY(-6px) scale(1.09)}}@keyframes pieceLand{from{transform:translateY(18px);opacity:.25}to{transform:translateY(0);opacity:1}}
+.actionBar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px auto;max-width:760px}.actionBar button{flex:1;min-width:135px;font-weight:800}.actionBar button.active{border-color:var(--gold);background:#514328;box-shadow:0 0 14px #ffd47155}.actionBar button:disabled{opacity:.45;box-shadow:none}.actionNotice{max-width:760px;margin:8px auto}.actionNotice .eventCard{margin:8px auto;padding:12px}.actionNotice .eventIcon{font-size:32px}.actionNotice h3{font-size:19px;margin:4px}.node.verifyTarget{border:2px solid var(--gold);filter:drop-shadow(0 0 8px var(--gold))}.node.verifiedHit{border-color:var(--red)}.node.verifiedMiss{border-color:var(--blue)}.node.verifiedHit .sub{color:var(--red)}.node.verifiedMiss .sub{color:var(--blue)}
+.actionBar button.available{border-color:var(--gold);background:#514328;color:#fff8e5;box-shadow:0 0 14px #ffd47155}.actionBar button.available.active{background:#6a5127;box-shadow:0 0 19px #ffd47188}.teamPanel{max-width:760px;margin:12px auto}.teamTabs{display:flex;gap:8px;flex-wrap:wrap}.teamTabs button{flex:1;min-width:95px;font-weight:900}.teamTabs button.selected{background:#514328;border-color:var(--gold);box-shadow:0 0 14px #ffd47155}.teamTabs button.done{opacity:.75}.teamRoster{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;margin-top:10px}.teamMember{border:1px solid #347d94;border-radius:9px;padding:8px;font-size:12px;line-height:1.5;background:#0b2534}.teamMember b{color:var(--accent)}.teamMember.selected{border-color:var(--gold)}.teamMember .items{color:#ffe2a2}
+.roundSettings{margin:14px 0;padding:14px;border:1px solid #3b8997;border-radius:12px;background:#091e2d}.roundSettings h3{margin:0 0 6px;font-size:17px;color:var(--accent)}.roundSettings p{margin:0 0 12px}.roundEffectList{display:grid;gap:8px}.roundEffectRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px;border:1px solid #28586c;border-radius:9px;background:#0c2635}.roundEffectRow strong{min-width:54px;color:var(--gold)}.roundEffectChoice{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border:1px solid #366879;border-radius:8px;font-size:12px;cursor:pointer}.roundEffectChoice:has(input:checked){border-color:var(--gold);background:#514328}.roundEffectChoice input{accent-color:var(--gold);margin:0;width:16px;height:16px}.node.trap{box-shadow:inset 0 0 0 2px var(--red),0 0 10px #ff5c8766}.node.trap .sub{color:var(--red)}
+.roundGuide{margin-top:18px;padding-top:16px;border-top:1px solid #3b8997}.roundGuide h4{margin:0 0 10px;color:var(--gold);font-size:15px}.roundGuideList{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:8px;margin:0}.roundGuideItem{margin:0;padding:10px;border:1px solid #28586c;border-radius:9px;background:#0c2635}.roundGuideItem dt{font-weight:850;color:#e9fcff}.roundGuideItem dd{margin:5px 0 0;color:#bad4dc;font-size:12px;line-height:1.55}
+.wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:70;border:1px solid #397b8e;border-radius:999px;background:rgba(10,40,57,.82);color:#b7fcf4;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+</style>
+</head>
+<body>
+<a class="wg-home" href="../index.html">← GAMES</a>
+<main>
+<div class="eyebrow">TACTICAL CHASE // PROTOTYPE 0.20</div>
+<h1>WAITING ESCAPE</h1><p class="heroLead">電脳迷宮で、痕跡を追う者と逃げ切る者。</p>
+<div id="setup" class="card">
+<div class="eyebrow">INITIALIZE SESSION</div><h2>ゲーム設定</h2>
+<div class="row">
+<label class="grow">逃走者数<br><select id="pc"><option value="2" selected>2人</option><option value="3">3人</option></select></label>
+<label class="grow">捕獲勝利ポイント<br><input id="target" type="number" min="1" max="20" value="5"></label>
+<label class="grow">虹鍵出現率<br><select id="rainbow"><option value=".25">25%</option><option value=".5" selected>50%</option><option value=".75">75%</option><option value="1">100%</option></select></label>
+<label class="grow">二重ロック出現率<br><select id="double"><option value=".25">25%</option><option value=".5" selected>50%</option><option value=".75">75%</option><option value="1">100%</option></select></label>
+</div>
+<p class="muted">初期配置：P1=1-B、P2=1-C、P3=1-B、捜査官=5-C。1Rのみ初期位置を公開。逃走者は各2AP、捜査官は通常3AP。捕獲された逃走者はスタートに戻り次の手番を1回休みます。探索は捜査官手番で捕獲されなかった場合に確定します。</p>
+<button id="settingsToggle" type="button" aria-expanded="false" aria-controls="roundSettings">⚙ 設定：ラウンド効果</button>
+<div id="roundSettings" class="roundSettings hidden"><h3>1〜9ラウンドの効果</h3><p class="muted">各ラウンドで複数選択できます（未選択なら効果なし）。AP増加はそのラウンドから永続・重ねて選ぶと加算されます。通常アイテムはラウンド開始時に未開放マスへ1個ずつ追加し、探索が確定すると入手します。鍵と扉は追加候補に含みません。</p><div id="roundEffectList" class="roundEffectList"></div><div class="roundGuide"><h4>アイテム・効果一覧</h4><dl id="roundEffectGuide" class="roundGuideList"></dl></div></div>
+<button id="start" class="primary">ゲーム開始</button>
+</div>
+<div id="game" class="hidden">
+<div class="card"><div class="row"><span id="round" class="badge"></span><span id="cap" class="badge"></span><span id="detMove" class="badge"></span><span id="runnerAp" class="badge"></span></div></div>
+<div class="card"><h2>NETWORK MAP / 共有ボード</h2><div class="boardScroll"><div id="mainBoard" class="board"></div></div>
+<div class="legend"><span><i class="dot" style="background:#f0f3f7"></i>開放</span><span><i class="dot" style="background:#343b48"></i>未開放</span><span>🔴 捜査官</span><span>🟢 逃走者（本人画面のみ）</span><span>1Rの淡いコマ＝初期位置（移動後の位置ではありません）</span></div></div>
+<div id="status" class="card"></div>
+<div class="card"><h2>公開ログ</h2><div id="log" class="log"></div></div>
+<button id="reset" class="danger">最初から</button>
+</div>
+</main>
+
+<div id="ov" class="overlay hidden"><div class="overlayPanel">
+<div id="ovTag" class="miniTag">SECURE CHANNEL</div><div id="ovTitle" class="overlayTitle"></div><div id="ovText" class="overlayText"></div>
+<div id="ovExtra"></div><div id="moveHud" class="moveHud hidden"><div id="moveRemaining" class="moveNumber">2</div><div class="moveCaption"><strong id="movePosition">現在地</strong><span id="moveStatus">APを使って行動</span></div><button id="undoMove" type="button">↶ 1手戻る</button></div><div id="actionBar" class="actionBar hidden"><button id="moveAction" type="button">移動 −1AP</button><button id="exploreAction" type="button">探索 −1AP</button><button id="investigateAction" type="button">調査 −1AP</button><button id="verifyAction" type="button">検証 −2AP</button></div><div id="actionNotice" class="actionNotice"></div><div id="ovBoardWrap" class="boardScroll hidden"><div id="ovBoard" class="board"></div></div>
+<div class="actions"><button id="ovBtn" class="primary hidden">OK</button></div>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+const counts=[4,5,3,4,5];
+const rows=counts.map((n,r)=>Array.from({length:n},(_,i)=>(r+1)+"-"+String.fromCharCode(65+i)));
+const all=rows.flat();
+const E={};
+function add(a,b){(E[a]||(E[a]=new Set())).add(b);(E[b]||(E[b]=new Set())).add(a)}
+rows.forEach((row,r)=>{if(r===2||r===4)return;row.forEach((id,i)=>{if(i+1<row.length)add(id,row[i+1])})});
+[["1-A","2-A"],["1-A","2-B"],["1-B","2-B"],["1-B","2-C"],["1-C","2-C"],["1-C","2-D"],["1-D","2-D"],["1-D","2-E"],
+ ["2-A","3-A"],["2-B","3-A"],["2-B","3-B"],["2-C","3-B"],["2-D","3-B"],["2-D","3-C"],["2-E","3-C"],
+ ["3-A","4-A"],["3-A","4-B"],["3-B","4-B"],["3-B","4-C"],["3-C","4-C"],["3-C","4-D"],
+ ["4-A","5-A"],["4-A","5-B"],["4-B","5-B"],["4-B","5-C"],["4-C","5-C"],["4-C","5-D"],["4-D","5-D"],["4-D","5-E"]].forEach(x=>add(x[0],x[1]));
+
+let G=null, mode=null, actor=null, path=[], action="move", undoSteps=[], afterUpgrade=null;
+const $=x=>document.getElementById(x);
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function sharedPlayerName(i){
+ const defaults=["P1","P2","P3","P4"];
+ try{
+  const saved=JSON.parse(localStorage.getItem("waitingGamesPlayerNamesV1")||"null");
+  if(Array.isArray(saved)){
+   const raw=String(saved[i]||defaults[i]||("P"+(i+1))).trim().slice(0,16).replace(/[&<>"']/g,"");
+   return raw||defaults[i]||("P"+(i+1));
+  }
+ }catch(e){}
+ return defaults[i]||("P"+(i+1));
+}
+function runnerName(i){return sharedPlayerName(i)}
+function runnerShort(i){const n=runnerName(i);return n.length>3?n.slice(0,3):n}
+const sh=a=>{a=a.slice();for(let i=a.length-1;i;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const kind=k=>({wiretap:"盗聴キット",camera:"偽装カメラ",buzzer:"防犯ブザー",smoke:"煙幕くん",geta:"天狗の下駄",redKey:"赤鍵",blueKey:"青鍵",greenKey:"緑鍵",rainbowKey:"虹鍵",redDoor:"赤扉",blueDoor:"青扉",greenDoor:"緑扉",doubleDoor:"二重ロック扉",noEntry:"進入禁止",empty:"通常地点"})[k]||k;
+const roundItems=[
+ {id:"surround",name:"🚨 包囲網",detail:"捜査官が公開・未公開を問わず1マスにブザーを設置。捕獲されなかった逃走者が通過・滞在すると作動し、次ラウンドの捜査官APが＋2。"},
+ {id:"katsudon",name:"🍚 カツ丼",detail:"捜査官の基本APが発動ラウンドから永続で＋1。別のラウンドでも選ぶと加算。"},
+ {id:"tobacco",name:"🚬 タバコ",detail:"逃走者全員の基本APが発動ラウンドから永続で＋1。別のラウンドでも選ぶと加算。"},
+ {id:"smoke",name:"💨 煙幕くん",detail:"取得した本人の所持品。移動していない手番に調査され、直前のマスへ戻れる場合に1個消費して捕獲を回避。"},
+ {id:"geta",name:"👟 天狗の下駄",detail:"取得した本人が1個消費して、その手番のAPを＋2。1人につき1手番1回まで使用可能。"},
+ {id:"wiretap",name:"📡 盗聴キット",detail:"探索時、5Fの1マスを選び、扉の有無と種類・色を調査。結果は逃走者チームで共有。"},
+ {id:"camera",name:"📷 偽装カメラ",detail:"探索時、5Fの2マスを選び、各マスに扉があるかを調査。扉の色は分からず、結果はチームで共有。"},
+ {id:"buzzer",name:"🚨 防犯ブザー",detail:"探索で作動すると、次ラウンドの捜査官APが＋2。同ラウンドに複数作動しても加算されない。"},
+ {id:"noEntry",name:"⛔ 進入禁止",detail:"取得した逃走者は次の1手番だけ探索不可。移動は可能。"}
+];
+const extraDropKinds=new Set(["smoke","geta","wiretap","camera","buzzer","noEntry"]);
+function buildRoundSettings(){
+ $("roundEffectList").innerHTML=Array.from({length:9},(_,i)=>{const round=i+1;return '<div class="roundEffectRow"><strong>R'+round+'</strong>'+roundItems.map(item=>'<label class="roundEffectChoice" title="'+item.detail+'"><input type="checkbox" id="effect-'+round+'-'+item.id+'" '+((round===6&&item.id==="surround")||(round===9&&item.id==="katsudon")?'checked':'')+'>'+item.name+'</label>').join('')+'</div>'}).join('');
+ $("roundEffectGuide").innerHTML=roundItems.map(item=>'<div class="roundGuideItem"><dt>'+item.name+'</dt><dd>'+item.detail+'</dd></div>').join('');
+}
+$("settingsToggle").onclick=()=>{const visible=$("roundSettings").classList.toggle("hidden");$("settingsToggle").setAttribute("aria-expanded",String(!visible))};
+buildRoundSettings();
+function log(x){G.logs.unshift("R"+G.round+"｜"+x)}
+function posStyle(r,i){const n=counts[r], span=2, start=Math.floor((10-n*span)/2)+1+i*span;return "grid-column:"+start+" / "+(start+span)}
+function edgeKey(a,b){return [a,b].sort().join("|")}
+
+function init(){
+ const n=+$("pc").value;
+ const roundEffects={};for(let round=1;round<=9;round++)roundEffects[round]=roundItems.filter(item=>$("effect-"+round+"-"+item.id).checked).map(item=>item.id);
+ const cells={};all.forEach(id=>cells[id]={kind:"empty",revealed:false,uses:0});
+ // information/items
+ function place(k,candidates){const p=sh(candidates.filter(id=>cells[id].kind==="empty"));if(p.length)cells[p[0]].kind=k}
+ place("wiretap",rows[1]); place("wiretap",rows[2]);
+ place("camera",rows[2]); place("camera",rows[3]);
+ place("buzzer",rows[3]); place("buzzer",rows[4]);
+ place("smoke",rows[1].concat(rows[2],rows[3]));
+ place("geta",rows[1].concat(rows[2],rows[3]));
+ place("noEntry",rows[1].concat(rows[2],rows[3]));
+ let keys=["redKey","blueKey","greenKey"];
+ if(Math.random()<+$("rainbow").value)keys[Math.floor(Math.random()*3)]="rainbowKey";
+ let keyPool=sh(rows[1].concat(rows[2],rows[3]).filter(id=>cells[id].kind==="empty"));
+ keys.forEach(k=>{if(keyPool.length)cells[keyPool.shift()].kind=k});
+ let doors=["redDoor","blueDoor","greenDoor"];
+ if(Math.random()<+$("double").value)doors[Math.floor(Math.random()*3)]="doubleDoor";
+ let dpool=sh(rows[4].filter(id=>cells[id].kind==="empty"));doors.forEach(k=>{if(dpool.length)cells[dpool.shift()].kind=k});
+ const starts=n===2?["1-B","1-C"]:["1-B","1-C","1-B"];
+ G={round:1,target:+$("target").value||5,captures:0,open:new Set(rows[0]),publicOpen:new Set(rows[0]),currentOpen:new Set(),recentOpen:new Set(),teamIntel:[],cells,roundEffects,appliedRounds:new Set(),buffs:{detective:0,runner:0},traps:new Set(),roundDrops:{},
+ runners:Array.from({length:n},(_,i)=>({name:runnerName(i),pos:starts[i],prev:starts[i],history:[starts[i]],keys:[],smoke:0,geta:0,noOpen:false,noOpenNext:false,skipTurns:0,skipping:false,ap:2,pendingExplorations:[],capturedThisRound:false,privateInfo:[],pending:[],double:{},turnDone:false,turnPath:[starts[i]],turnUndo:[]})),
+ detective:{pos:"5-C",history:["5-C"],fail:{},blocked:{},ap:3,verifyUsed:false,verifyMark:null,searched:new Set()},alarm:false,alarmNext:false,logs:[],events:[],lastCapture:null,over:false};
+ $("setup").classList.add("hidden");$("game").classList.remove("hidden");log("ゲーム開始。");beginRound(true);
+}
+
+function pieceHTML(id,viewRunner,privateBoard){
+ let h="";
+ // Round 1 shows only the fixed initial positions as public teaching markers.
+ if(G.round===1){
+   if(!(privateBoard&&mode==="runner"))G.runners.forEach((p,i)=>{if(p.history[0]===id)h+='<span class="piece run r'+(i+1)+'" style="opacity:.70" title="1R初期位置">'+esc(runnerShort(i))+'</span>'});
+   if(id==="5-C" && !(privateBoard&&mode==="detective"&&path[path.length-1]===id))h+='<span class="piece det" style="opacity:.70" title="1R初期位置">D</span>';
+ }
+ // Real positions are visible only to the acting side.
+ if(privateBoard && mode==="runner" && typeof viewRunner==="number"){
+   G.runners.forEach((p,i)=>{if(p.pos===id)h+='<span class="piece run '+(i===viewRunner?'preview ':'')+'r'+(i+1)+'" title="'+esc(p.name)+'">'+esc(runnerShort(i))+'</span>'});
+ }
+ if(privateBoard && mode==="detective" && viewRunner===null && path[path.length-1]===id){
+   h+='<span class="piece det preview">D</span>';
+ }
+ // Previous-round capture location is public.
+ if(G.lastCapture && G.lastCapture.round===G.round-1 && G.lastCapture.pos===id){
+   h+='<span style="position:absolute;right:3px;bottom:2px;font-size:18px" title="前R捕獲地点">🚨</span>';
+ }
+ return h;
+}
+function boardHTML(target,viewRunner,interactive){
+ let h='<svg id="'+target+'Lines" class="lines"></svg>';const shownOpen=G.open;
+ rows.forEach((row,r)=>{
+  h+='<div class="tier"><div class="tierTitle">'+(r+1)+'F</div><div class="nodes">';
+  row.forEach((id,i)=>{
+   const op=shownOpen.has(id), recent=op&&G.recentOpen.has(id), current=op&&G.currentOpen.has(id), blocked=mode==="detective"&&G.detective.blocked[id]===G.round;
+   const reserved=target==="ovBoard"&&mode==="runner"&&typeof viewRunner==="number"&&G.runners[viewRunner].pendingExplorations.includes(id);
+   const mark=target==="ovBoard"&&mode==="detective"&&G.detective.verifyMark?.id===id?G.detective.verifyMark.hit?"verifiedHit ":"verifiedMiss ":"";
+   const trap=target==="ovBoard"&&(mode==="detective"||mode==="upgrade")&&G.traps.has(id);
+   let cls="node "+(op?"open ":"")+(reserved?"tentative ":"")+(recent?"recent ":"")+(trap?"trap ":"")+(target==="ovBoard"&&path.includes(id)?"path ":"")+(target==="ovBoard"&&action==="verify"?"verifyTarget ":"")+(target==="ovBoard"&&(mode==="runner"||mode==="detective")&&path.length>1&&path[path.length-1]===id?"landing ":"")+(blocked?"blocked ":"")+mark;
+   h+='<button data-id="'+id+'" id="'+target+"-"+id+'" class="'+cls+'" style="'+posStyle(r,i)+'" '+(interactive?"":"disabled")+'><div class="nm">'+id+'</div><div class="sub">'+(mark?G.detective.verifyMark.hit?"存在を検証":"不在を検証":trap?"ブザー設置":reserved?"探索予約":current?"今回解放":recent?"前回解放":op?"開放済み":"未開放")+'</div>'+pieceHTML(id,viewRunner,target==="ovBoard")+'</button>';
+  });
+  h+="</div></div>";
+ });
+ return h;
+}
+function draw(target){
+ const board=$(target),svg=$(target+"Lines");if(!board||!svg)return;const br=board.getBoundingClientRect();svg.innerHTML="";
+ const done=new Set(), shownOpen=G.open;
+ Object.keys(E).forEach(a=>E[a].forEach(b=>{const k=edgeKey(a,b);if(done.has(k))return;done.add(k);
+  const x=$(target+"-"+a),y=$(target+"-"+b);if(!x||!y)return;const xr=x.getBoundingClientRect(),yr=y.getBoundingClientRect();
+  const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",xr.left+xr.width/2-br.left);l.setAttribute("y1",xr.top+xr.height/2-br.top);l.setAttribute("x2",yr.left+yr.width/2-br.left);l.setAttribute("y2",yr.top+yr.height/2-br.top);
+  l.setAttribute("class","edge "+(shownOpen.has(a)&&shownOpen.has(b)?"openEdge":""));svg.appendChild(l);
+ }));
+}
+function render(){
+ $("round").textContent="ROUND "+G.round;$("cap").textContent="捜査P "+G.captures+"/"+G.target;
+ $("detMove").textContent="捜査官 今RのAP "+detLimit();$("runnerAp").textContent="逃走者 基本AP "+(2+G.buffs.runner);
+ $("mainBoard").innerHTML=boardHTML("mainBoard",null,false);
+ $("status").innerHTML="<h2>TRACKING STATUS / 公開情報</h2><div class='player'><b>捜査官</b>：位置非公開</div>"+G.runners.map(p=>"<div class='player'><b>"+esc(p.name)+"</b>：位置非公開</div>").join("");
+ $("log").innerHTML=G.logs.map(x=>"<div>"+x+"</div>").join("");requestAnimationFrame(()=>draw("mainBoard"));
+}
+function detLimit(){return 3+G.buffs.detective+(G.alarm?2:0)}
+
+function overlay(title,text,board,viewRunner,extra,btn,cb,stage){
+ $("ov").dataset.stage=stage||"normal";$("ovTag").textContent=({runner:"RUNNER // PRIVATE VIEW",detective:"DETECTIVE // PRIVATE VIEW",handoff:"PASS DEVICE // SCREEN HIDDEN",event:"PRIVATE EVENT // DO NOT SHOW",search:"SCAN IN PROGRESS",capture:"TARGET FOUND",result:"SEARCH REPORT"})[stage]||"SECURE CHANNEL";
+ $("ovTitle").textContent=title;$("ovText").textContent=text;$("ovExtra").innerHTML=extra||"";$("actionNotice").innerHTML="";$("ovBoardWrap").classList.toggle("hidden",!board);$("moveHud").classList.toggle("hidden",!board||!(mode==="runner"||mode==="detective"));$("actionBar").classList.toggle("hidden",!board||!(mode==="runner"||mode==="detective"));
+ if(board){$("ovBoard").innerHTML=boardHTML("ovBoard",viewRunner,true);requestAnimationFrame(()=>{draw("ovBoard");bindBoard()})}
+ $("ovBtn").classList.toggle("hidden",!btn);$("ovBtn").disabled=false;$("ovBtn").textContent=btn||"";$("ovBtn").onclick=cb||null;$("ov").classList.remove("hidden");
+}
+function closeOv(){$("ov").classList.add("hidden")}
+function updateMoveHud(){
+ if(mode!=="runner"&&mode!=="detective")return;
+ const p=mode==="runner"?G.runners[actor]:G.detective,ap=p.ap;
+ $("moveRemaining").textContent=ap;$("movePosition").textContent="現在地 "+p.pos;
+ $("moveStatus").textContent="残り "+ap+" AP"+(action==="verify"?"・検証するマスを選択":"・経路上のマスをタップして移動");
+ $("undoMove").disabled=!undoSteps.length;
+ const canMove=ap>=1&&!(mode==="runner"&&p.turnDone)&&[...E[p.pos]].some(id=>mode==="detective"||G.open.has(p.pos)||G.open.has(id));
+ $("moveAction").disabled=!canMove;$("moveAction").classList.toggle("active",action==="move");$("moveAction").classList.toggle("available",canMove);
+ $("exploreAction").classList.toggle("hidden",mode!=="runner");$("investigateAction").classList.toggle("hidden",mode!=="detective");$("verifyAction").classList.toggle("hidden",mode!=="detective");
+ if(mode==="runner"){$("exploreAction").disabled=p.turnDone||ap<1||G.open.has(p.pos)||p.noOpen||p.pendingExplorations.includes(p.pos);$("exploreAction").classList.toggle("available",!$("exploreAction").disabled)}
+ else{$("investigateAction").disabled=ap<1||G.detective.searched.has(p.pos)||G.detective.blocked[p.pos]===G.round;$("verifyAction").disabled=ap<2||G.detective.verifyUsed;$("verifyAction").classList.toggle("active",action==="verify")}
+}
+function undoMove(){
+ if(!undoSteps.length)return;
+ const step=undoSteps.pop(),p=mode==="runner"?G.runners[actor]:G.detective;
+ if(step.type==="explore"){
+  const at=p.pendingExplorations.lastIndexOf(step.id);if(at>=0)p.pendingExplorations.splice(at,1);
+  p.ap++;$("ovText").textContent=step.id+"の探索予約を取り消し、1APを返却しました。";
+ }else{
+  p.pos=step.from;p.prev=step.prevBefore;p.ap++;p.history.pop();path.pop();
+  $("ovText").textContent="移動を1手戻し、1APを返却しました。";
+ }
+ if(mode==="runner"){p.turnDone=false;p.movedThisRound=path.length>1}
+ if(mode==="runner")refreshTeamPanel();
+ refreshOverlayBoard(mode==="runner"?actor:null);
+}
+$("undoMove").onclick=undoMove;
+function refreshOverlayBoard(viewRunner){$("ovBoard").innerHTML=boardHTML("ovBoard",viewRunner,true);requestAnimationFrame(()=>{draw("ovBoard");bindBoard();highlightReachable();updateMoveHud()})}
+
+function startRunnerPhase(){
+ G.runners.forEach(p=>{p.skipping=p.skipTurns>0;if(p.skipping)p.skipTurns--;p.ap=p.skipping?0:2+G.buffs.runner;p.getaUsed=false;p.movedThisRound=false;p.pendingExplorations=[];p.capturedThisRound=false;p.noOpen=!!p.noOpenNext;p.noOpenNext=false;p.turnDone=p.skipping;p.turnPath=[p.pos];p.turnUndo=[]});
+ const first=G.runners.findIndex(p=>!p.turnDone);runnerTurn(first>=0?first:0);
+}
+function teamPanelHTML(){
+ const p=G.runners[actor];
+ let h='<div class="teamPanel"><div class="teamTabs">'+G.runners.map((r,i)=>'<button type="button" data-runner="'+i+'" class="'+(i===actor?'selected ':'')+(r.turnDone?'done':'')+'">'+esc(r.name)+'　'+(r.skipping?'行動不可':r.turnDone?'仮終了':r.ap+' AP')+'</button>').join('')+'</div>';
+ h+='<div class="teamRoster">'+G.runners.map((r,i)=>'<div class="teamMember '+(i===actor?'selected':'')+'"><b>'+esc(r.name)+' '+r.pos+' / '+(r.skipping?'捕獲後の休み':r.turnDone?'仮終了':r.ap+' AP')+'</b><br><span class="items">鍵：'+(r.keys.map(kind).join('・')||'なし')+'<br>煙幕 '+r.smoke+'・下駄 '+r.geta+'</span><br>探索予約：'+(r.pendingExplorations.join('・')||'なし')+'</div>').join('')+'</div>';
+ h+='<div class="secret"><b>'+esc(p.name)+' の行動</b><br>移動履歴：'+p.history.join(' → ');
+ if(p.noOpen)h+='<br>進入禁止：この手番は探索不可';
+ if(p.pending.length)h+='<br><b>チームの新しい情報</b><br>'+p.pending.map(x=>'・'+x).join('<br>');
+ if(G.teamIntel.length)h+='<br><br><div class="intelRecords"><b>チーム共有・5F調査記録</b><br>'+G.teamIntel.map(x=>'・'+x).join('<br>')+'</div>';
+ h+='</div>';
+ if(p.geta>0&&!p.getaUsed&&!p.turnDone&&!p.skipping)h+='<button id="getaBtn" type="button">天狗の下駄を使う（AP＋2）</button>';
+ return h+'</div>';
+}
+function refreshTeamPanel(){
+ if(mode!=="runner")return;
+ $("ovExtra").innerHTML=teamPanelHTML();
+ document.querySelectorAll('[data-runner]').forEach(b=>b.onclick=()=>runnerTurn(+b.dataset.runner));
+ const gb=$("getaBtn");if(gb)gb.onclick=()=>{const p=G.runners[actor];p.geta--;p.getaUsed=true;p.ap+=2;p.pending.push("天狗の下駄を使用・AP＋2");refreshTeamPanel();updateMoveHud();highlightReachable()};
+}
+function runnerTurn(i){
+ actor=i;mode="runner";const p=G.runners[i];path=p.turnPath;undoSteps=p.turnUndo;action="move";
+ overlay('逃走者チーム / '+p.name,p.skipping?p.name+'は前回捕獲されたため、この手番は行動できません。':p.turnDone?p.name+'は仮終了中です。「1手戻る」で修正できます。':'APを使い切るか探索すると次へ切り替わります。チームの決定前は戻せます。',true,i,'','逃走者のターンを決定',finishRunnerTeam,'runner');
+ refreshTeamPanel();highlightReachable();updateMoveHud();
+}
+$("moveAction").onclick=()=>{action="move";refreshOverlayBoard(mode==="runner"?actor:null)};
+$("exploreAction").onclick=exploreCurrent;
+$("investigateAction").onclick=investigateCurrent;
+$("verifyAction").onclick=()=>{action=action==="verify"?"move":"verify";refreshOverlayBoard(null)};
+function bindBoard(){document.querySelectorAll("#ovBoard .node").forEach(b=>b.onclick=()=>mode==="upgrade"?placeBuzzer(b.dataset.id):action==="verify"&&mode==="detective"?verifyCell(b.dataset.id):moveClick(b.dataset.id))}
+function highlightReachable(){
+ document.querySelectorAll("#ovBoard .node").forEach(b=>b.classList.remove("reachable","final"));
+ if(mode==="runner"){
+  const p=G.runners[actor];if(p.ap<1||p.turnDone)return;
+  E[p.pos].forEach(id=>{const b=$("ovBoard-"+id);if(b&&(G.open.has(p.pos)||G.open.has(id)))b.classList.add("reachable")});
+ }else if(mode==="detective"){
+  const p=G.detective;if(p.ap<1)return;
+  if(action==="verify")all.forEach(id=>$("ovBoard-"+id)?.classList.add("reachable"));
+  else E[p.pos].forEach(id=>$("ovBoard-"+id)?.classList.add("reachable"));
+  $("ovBoard-"+p.pos)?.classList.add("final");
+ }else if(mode==="upgrade"){
+  all.forEach(id=>{const b=$("ovBoard-"+id);if(b&&!G.traps.has(id))b.classList.add("reachable")});
+ }
+}
+function moveClick(id){
+ if((mode!=="runner"&&mode!=="detective")||action!=="move")return;
+ const p=mode==="runner"?G.runners[actor]:G.detective,cur=p.pos;
+ if(p.ap<1||(mode==="runner"&&p.turnDone)||!E[cur]?.has(id))return;
+ if(mode==="runner"&&!G.open.has(cur)&&!G.open.has(id)){$("ovText").textContent="未開放マスから別の未開放マスへは移動できません。";return}
+ p.ap--;undoSteps.push({type:"move",from:cur,to:id,prevBefore:p.prev});p.prev=cur;p.pos=id;p.history.push(id);path.push(id);
+ if(mode==="runner")p.movedThisRound=true;
+ $("ovText").textContent=id+"へ移動しました（AP−1）。";
+ if(mode==="runner"&&G.open.has(id)&&["redDoor","blueDoor","greenDoor","doubleDoor"].includes(G.cells[id].kind))$("ovText").textContent=id+"へ移動しました。扉の判定は捜査官の手番後です。";
+ if(mode==="runner"&&p.ap===0){completeRunner(actor,"APを使い切った");return}
+ if(mode==="runner")refreshTeamPanel();
+ refreshOverlayBoard(mode==="runner"?actor:null);
+}
+function finishRunnerTeam(){
+ const unfinished=G.runners.map((p,i)=>!p.turnDone?p.name+'（残り'+p.ap+'AP）':null).filter(Boolean);
+ if(unfinished.length){
+  const selected=actor,scroll=$("ovBoardWrap"),left=scroll.scrollLeft,top=scroll.scrollTop;
+  const extra='<div class="eventCard dangerCard"><div class="eventIcon">⚠️</div><h3>未完了の逃走者</h3><p>'+unfinished.join('・')+'<br>残りの行動を使わずに終了しますか？</p></div><div class="actions"><button id="cancelRunnerEnd" type="button">行動に戻る</button></div>';
+  overlay('本当に終了しますか？','逃走者の行動がまだ残っています。',false,null,extra,'終了を確定',commitRunnerTeam,'event');
+  $("cancelRunnerEnd").onclick=()=>{runnerTurn(selected);requestAnimationFrame(()=>{scroll.scrollLeft=left;scroll.scrollTop=top})};
+  return;
+ }
+ commitRunnerTeam();
+}
+function commitRunnerTeam(){
+ G.runners.forEach(p=>{p.turnDone=true;p.turnUndo=[]});
+ handoffToDetective();
+}
+function handoffToDetective(){
+ closeOv();render();
+ overlay("捜査官へ端末を渡してください","逃走者チームの行動が終了しました。画面を伏せてから端末を渡してください。",false,null,"","捜査官の手番へ",()=>{closeOv();detectiveTurn()},"handoff");
+}
+function completeRunner(i,reason){
+ const p=G.runners[i];p.turnDone=true;
+ const next=G.runners.findIndex((r,j)=>j!==i&&!r.turnDone);
+ if(next>=0){runnerTurn(next);$("ovText").textContent=p.name+"は"+reason+"ため行動終了。"+G.runners[next].name+"を操作してください。";return}
+ runnerTurn(i);$("ovText").textContent="全員が仮終了しました。修正する場合は名前タブを選んで戻せます。確定する時は「逃走者のターンを決定」を押してください。";
+}
+function exploreCurrent(){
+ if(mode!=="runner")return;const p=G.runners[actor];
+ if(p.turnDone||p.ap<1||G.open.has(p.pos)||p.noOpen||p.pendingExplorations.includes(p.pos))return;
+ p.ap--;p.pendingExplorations.push(p.pos);undoSteps.push({type:"explore",id:p.pos});
+ $("ovText").textContent=p.pos+"の探索を予約しました。捜査官の手番後、捕獲されなければ解放します。";
+ showActionNotice("◇","探索予約："+p.pos,"まだ未開放です。アイテムも未取得です。");
+ completeRunner(actor,"探索を予約した");
+}
+function resolveCell(p,id=p.pos){
+ const c=G.cells[id];c.revealed=true;
+ const item=resolveItem(p,c);if(item)return item;
+ if(["redDoor","blueDoor","greenDoor","doubleDoor"].includes(c.kind)){
+  const k=c.kind;if(p.pos===id)checkDoor(p,k,id);if(G.over)return null;
+  return {icon:"🔒",label:"GATE FOUND",title:kind(k),detail:p.pos!==id?"扉を発見しました。ここへ戻って鍵を使えます。":k==="doubleDoor"?"二重ロック解除 "+(p.double[id]||0)+"/2":"対応する色の鍵、または虹鍵が必要です。",tone:"dangerCard"};
+ }
+ if(G.open.has(id)&&!G.roundDrops[id]?.length)return {icon:"◇",label:"NODE ACCESSED",title:"通常地点",detail:"この地点にはアイテムがありません。"};
+ return null;
+}
+function resolveItem(p,c){
+ if(["redKey","blueKey","greenKey","rainbowKey"].includes(c.kind)){const k=c.kind;p.keys.push(k);p.pending.push(kind(k)+"を取得");c.kind="empty";return {icon:"🔑",label:"KEY ACQUIRED",title:kind(k)+"を入手",detail:"脱出口を開くための鍵です。所持情報は本人だけが確認できます。",tone:"goldCard"}}
+ if(c.kind==="smoke"){p.smoke++;p.pending.push("煙幕くんを取得");c.kind="empty";return {icon:"💨",label:"ITEM ACQUIRED",title:"煙幕くんを入手",detail:"移動しなかった手番に調査された場合、1個消費して直前のマスへ逃れ、捕獲を回避します。"}}
+ if(c.kind==="geta"){p.geta++;p.pending.push("天狗の下駄を取得");c.kind="empty";return {icon:"👟",label:"ITEM ACQUIRED",title:"天狗の下駄を入手",detail:"使用すると、その手番のAPが2増えます。"}}
+ if(c.kind==="buzzer"){G.alarmNext=true;G.events.push("🚨 "+p.name+"が防犯ブザーを作動。次ラウンド捜査官AP+2");return {icon:"🚨",label:"ALERT TRIGGERED",title:"防犯ブザー作動",detail:"次ラウンド、捜査官のAPが2増えます。",tone:"dangerCard"}}
+ if(c.kind==="noEntry"){p.noOpenNext=true;p.pending.push("進入禁止：次の1手番だけ探索できない");return {icon:"⛔",label:"ACCESS DENIED",title:"進入禁止",detail:"次の1手番のみ探索できません。未開放マスへの移動は可能です。",tone:"dangerCard"}}
+ if(c.kind==="wiretap"||c.kind==="camera"){const k=c.kind;c.uses++;if(c.uses>=2)c.kind="empty";return {intel:k,icon:k==="wiretap"?"📡":"📷",label:"INTEL DECRYPTED",title:kind(k)+"を使用",tone:"goldCard"}}
+ return null;
+}
+function chooseIntel(p,event,done){
+ const count=event.intel==="wiretap"?1:2,chosen=[];
+ const tiles=rows[4].map(id=>'<button type="button" data-intel="'+id+'" class="'+(G.teamIntel.some(x=>x.startsWith(id+'：'))?'known':'')+'">'+id+'<br><small>'+(G.teamIntel.some(x=>x.startsWith(id+'：'))?'調査記録あり':'未調査')+'</small></button>').join('');
+ const extra='<div class="eventCard"><div class="eventIcon">'+event.icon+'</div><h3>'+event.title+'</h3><p>5Fから'+count+'マスを選んで調査します。調査済みのマスも再選択できます。</p></div><div class="intelChoice">'+tiles+'</div><div id="intelHint" class="intelHint"></div>';
+ overlay('調査するマスを選択',p.name+'の情報をチームで共有できます。',false,null,extra,'調査を実行',()=>{
+  if(chosen.length!==count)return;
+  const details=appraise(p,event.intel,chosen);event.detail=details.join('<br>');done(event);
+ },'event');
+ const sync=()=>{$('intelHint').textContent='選択中 '+chosen.length+' / '+count+' マス';$('ovBtn').disabled=chosen.length!==count};
+ document.querySelectorAll('[data-intel]').forEach(b=>b.onclick=()=>{const id=b.dataset.intel,at=chosen.indexOf(id);if(at>=0){chosen.splice(at,1);b.classList.remove('selected')}else if(chosen.length<count){chosen.push(id);b.classList.add('selected')}sync()});sync();
+}
+function appraise(p,k,ids){
+ return ids.map(id=>{
+  const z=G.cells[id].kind,isDoor=['redDoor','blueDoor','greenDoor','doubleDoor'].includes(z);
+  const msg=id+'：'+(isDoor?(k==='wiretap'?'扉 / '+(z==='doubleDoor'?'二重ロック':kind(z)):'扉'):'扉ではない');
+  G.teamIntel.push(msg);p.pending.push((k==='wiretap'?'盗聴':'カメラ')+'結果：'+msg);return msg;
+ });
+}
+function showRunnerEvent(p,event,handoff,buttonText="行動に戻る"){
+ const card='<div class="eventCard '+(event.tone||'')+'"><div class="eventIcon">'+event.icon+'</div><div class="eventLabel">'+event.label+'</div><h3>'+event.title+'</h3><p>'+event.detail+'</p></div>';
+ overlay(event.intel?'調査結果':'探索結果',p.name+'の結果を逃走者チームで確認してください。',false,null,card,buttonText,()=>{closeOv();handoff()},'event');
+}
+function checkDoor(p,k,id=p.pos){
+ const req={redDoor:"redKey",blueDoor:"blueKey",greenDoor:"greenKey"};
+ if(req[k]&&(p.keys.includes(req[k])||p.keys.includes("rainbowKey"))){end("逃走者チームの勝利！",p.name+"が"+kind(k)+"から脱出！");return}
+ if(k==="doubleDoor"&&p.keys.length){p.double[id]=(p.double[id]||0)+1;p.pending.push("二重ロック解除 "+p.double[id]+"/2");if(p.double[id]>=2)end("逃走者チームの勝利！",p.name+"が二重ロックを突破！")}
+}
+
+function detectiveTurn(){
+ actor=null;mode="detective";action="move";path=[G.detective.pos];undoSteps=[];
+ const d=G.detective;d.ap=detLimit();d.verifyUsed=false;d.verifyMark=null;d.searched=new Set();d.capturedThisTurn=new Set();d.turnCaptures=0;d.turnChecks=0;
+ let block=Object.keys(G.detective.blocked).filter(id=>G.detective.blocked[id]===G.round);
+ let extra='<div class="secret"><b>捜査官情報</b><br>現在地：'+d.pos+'<br>AP：'+d.ap+(block.length?'<br>今ラウンド調査不可：'+block.join(" / "):"")+"</div>";
+ overlay("捜査官の行動","移動後、現在地で調査できます。検証は2APで任意の1マスを1回だけ指定できます。",true,null,extra,"手番を終了",finishDetective,"detective");highlightReachable();updateMoveHud();
+}
+function finishDetective(){
+ closeOv();if(G.captures<G.target)settleExplorations();if(!G.over)showResult();
+}
+function settleExplorations(){
+ G.pendingOutcomes=[];
+ for(const p of G.runners){
+  if(p.capturedThisRound){p.pendingExplorations=[];continue}
+  for(const id of new Set(p.turnPath))if(G.traps.has(id)){
+   G.traps.delete(id);G.alarmNext=true;log(id+"の包囲網ブザーが作動した。");G.events.push("🚨 "+id+"の包囲網が作動。次ラウンド捜査官AP＋2");
+  }
+  let checkedDoor=false;
+  for(const id of p.pendingExplorations){
+   if(G.open.has(id))continue;
+   G.open.add(id);G.publicOpen.add(id);G.currentOpen.add(id);log(id+"が解放された。");G.events.push("◇ "+id+"が解放された");
+   const event=resolveCell(p,id);if(G.over)return;
+   if(event)G.pendingOutcomes.push({p,event});
+   const drops=G.roundDrops[id]||[];delete G.roundDrops[id];
+   for(const drop of drops){const bonus=resolveItem(p,{kind:drop,uses:0});if(bonus)G.pendingOutcomes.push({p,event:bonus})}
+   if(id===p.pos&&["redDoor","blueDoor","greenDoor","doubleDoor"].includes(G.cells[id].kind))checkedDoor=true;
+  }
+  p.pendingExplorations=[];
+  if(!checkedDoor&&G.open.has(p.pos)){
+   const k=G.cells[p.pos].kind;
+   if(["redDoor","blueDoor","greenDoor","doubleDoor"].includes(k)){checkDoor(p,k,p.pos);if(G.over)return}
+  }
+ }
+ render();
+}
+function showActionNotice(icon,title,detail,danger=false){
+ $("actionNotice").innerHTML='<div class="eventCard '+(danger?'dangerCard':'')+'"><div class="eventIcon">'+icon+'</div><h3>'+title+'</h3><p>'+detail+'</p></div>';
+}
+function investigateCurrent(){
+ if(mode!=="detective")return;
+ const d=G.detective,id=d.pos;
+ if(d.ap<1||d.searched.has(id)||d.blocked[id]===G.round)return;
+ d.ap--;d.searched.add(id);d.turnChecks++;undoSteps=[];action="move";
+ const present=G.runners.filter(p=>p.pos===id&&!d.capturedThisTurn.has(p));
+ const escaped=present.filter(p=>!p.movedThisRound&&p.smoke>0&&p.prev!==p.pos);
+ escaped.forEach(p=>{p.smoke--;p.pos=p.prev;p.history.push("💨"+p.pos);p.pendingExplorations=[];p.pending.push("煙幕くんを使用し、"+p.pos+"へ逃れた");G.events.push("💨 "+p.name+"が煙幕くんで捕獲を回避")});
+ const hit=present.filter(p=>!escaped.includes(p));
+ if(hit.length){
+  G.captures++;d.turnCaptures++;d.fail[id]=0;G.lastCapture={round:G.round,pos:id};
+  hit.forEach(p=>{
+   d.capturedThisTurn.add(p);
+   p.capturedThisRound=true;p.pendingExplorations=[];p.skipTurns=1;
+   G.events.push("🔎 "+p.name+"の所持鍵："+(p.keys.length?p.keys.map(kind).join(" / "):"なし"));
+   if(p.keys.includes("rainbowKey")){p.keys=p.keys.filter(k=>k!=="rainbowKey");G.events.push("🌈 "+p.name+"の虹鍵が消滅")}
+   p.pos=p.history[0];p.prev=p.pos;p.history.push("捕獲→"+p.pos);p.pending.push("捜査官に捕獲され、"+p.pos+"へ戻った。次の1手番は行動不可")
+  });
+  log(id+"で"+hit.map(p=>p.name).join("・")+"を捕獲。捜査P+1、次の逃走者手番は休み");
+  G.events.push("⏳ "+hit.map(p=>p.name).join("・")+"はスタートへ戻り、次の逃走者手番は行動不可");
+  showActionNotice("🚨",hit.map(p=>p.name).join("・")+"を捕獲！","捜査ポイント +1／スタートへ戻り次の1手番は行動不可",true);
+  if(G.captures>=G.target)d.ap=0;
+ }else if(escaped.length){
+  log(id+"で"+escaped.map(p=>p.name).join("・")+"が煙幕で捕獲を回避");
+  showActionNotice("💨",escaped.map(p=>p.name).join("・")+"が煙幕を使用","直前のマスへ逃れました。捕獲ポイントは入りません。");
+ }else if(G.runners.some(p=>p.pos===id)){
+  showActionNotice("⛔",id+"を調査","この手番に捕獲済みの逃走者は再捕獲できません。");
+ }else{
+  d.fail[id]=(d.fail[id]||0)+1;
+  if(d.fail[id]>=3){d.blocked[id]=G.round+1;d.fail[id]=0;G.events.push("⛔ "+id+"は3回空振り。次ラウンド調査不可")}
+  log(id+"を調査。捕獲なし。");showActionNotice("🔎",id+"を調査","逃走者はいませんでした。");
+ }
+ render();refreshOverlayBoard(null);
+}
+function verifyCell(id){
+ if(mode!=="detective"||!all.includes(id))return;
+ const d=G.detective;if(d.ap<2||d.verifyUsed)return;
+ d.ap-=2;d.verifyUsed=true;undoSteps=[];action="move";
+ const hit=G.runners.some(p=>p.pos===id);d.verifyMark={id,hit};
+ $("ovText").textContent=id+"を検証しました（AP−2）。この情報は次の捜査官手番に消えます。";
+ refreshOverlayBoard(null);showActionNotice(hit?"📡":"◇",id+"："+(hit?"逃走者あり":"逃走者なし"),"検証では捕獲しません。",hit);
+}
+function showResult(){
+ render();const d=G.detective,found=d.turnCaptures>0;
+ let h='<div class="eventCard '+(found?'dangerCard':'')+'"><div class="eventIcon">'+(found?'🚨':'📡')+'</div><h3>'+(found?"捕獲 "+d.turnCaptures+"件":"捜査官の手番終了")+'</h3><p>調査 '+d.turnChecks+'回・検証 '+(d.verifyUsed?1:0)+'回</p></div>';
+ h+='<div class="resultSummary"><div class="resultChip">捜査P <strong>'+G.captures+' / '+G.target+'</strong></div></div>';
+ h+='<div class="secret"><b>公開イベント</b><br>'+(G.events.length?G.events.map(x=>'・'+x).join('<br>'):'追加イベントなし')+'</div>';
+ overlay("ラウンド結果","検証したマスと結果は捜査官だけの情報です。",false,null,h,G.captures>=G.target?'結果へ':'次のラウンド',()=>{
+  closeOv();if(G.captures>=G.target){end('捜査官の勝利！','捜査ポイント '+G.captures+'/'+G.target);return}
+  processOutcomeQueue(()=>{
+   G.recentOpen=new Set(G.currentOpen);G.currentOpen=new Set();G.publicOpen=new Set(G.open);
+   G.round++;G.alarm=G.alarmNext;G.alarmNext=false;beginRound();
+  });
+ },found?'capture':'result');
+}
+function processOutcomeQueue(done){
+ const entry=G.pendingOutcomes.shift();if(!entry){done();return}
+ overlay("逃走者チームの探索結果",entry.p.name+"の探索結果をチームで確認してください。",false,null,"","結果を見る",()=>{
+  const proceed=()=>processOutcomeQueue(done);
+  if(entry.event.intel)chooseIntel(entry.p,entry.event,result=>showRunnerEvent(entry.p,result,proceed,"次へ"));
+  else showRunnerEvent(entry.p,entry.event,proceed,"次へ");
+ },"event");
+}
+function placeBuzzer(id){
+ if(mode!=="upgrade"||!all.includes(id)||G.traps.has(id))return;
+ G.traps.add(id);log("包囲網：捜査官が"+id+"に防犯ブザーを設置。");closeOv();afterUpgrade();
+}
+function surroundUpgrade(continueRound){
+ afterUpgrade=continueRound;
+ mode="upgrade";path=[];undoSteps=[];action="move";
+ overlay("捜査官アップグレード：包囲網","公開・未公開を問わずマスを1つ選び、防犯ブザーを設置します。隠されたアイテムは置き換えません。",true,null,"","スキップ",()=>{closeOv();afterUpgrade()});
+ highlightReachable();
+}
+function placeRoundDrop(item){
+ const unopened=all.filter(id=>!G.open.has(id));
+ const preferred=unopened.filter(id=>G.cells[id].kind==="empty"&&!G.roundDrops[id]?.length);
+ const free=unopened.filter(id=>!G.roundDrops[id]?.length);
+ const pool=preferred.length?preferred:free.length?free:unopened;
+ if(!pool.length){G.events.push("📦 "+kind(item)+"：未開放マスがないため配置不可");return}
+ const id=sh(pool)[0];(G.roundDrops[id]||(G.roundDrops[id]=[])).push(item);
+ G.events.push("📦 "+kind(item)+"を未開放マスに追加");
+}
+function beginRound(first=false){
+ if(!G.appliedRounds.has(G.round)){
+  G.appliedRounds.add(G.round);G.events=[];
+  const items=G.roundEffects[G.round]||[];
+  if(items.includes("katsudon")){G.buffs.detective++;G.events.push("🍚 カツ丼：捜査官の基本APが以降＋1")}
+  if(items.includes("tobacco")){G.buffs.runner++;G.events.push("🚬 タバコ：逃走者全員の基本APが以降＋1")}
+  items.filter(item=>extraDropKinds.has(item)).forEach(placeRoundDrop);
+ }
+ render();
+ const continueRound=()=>first?startRunnerPhase():nextRound();
+ if((G.roundEffects[G.round]||[]).includes("surround"))surroundUpgrade(continueRound);
+ else continueRound();
+}
+function nextRound(){render();overlay("次のラウンド","端末を逃走者チームへ渡してください。",false,null,"","開始",()=>{closeOv();startRunnerPhase()},"handoff")}
+function end(t,x){G.over=true;render();overlay(t,x,false,null,'<div class="eventCard goldCard"><div class="eventIcon">🏁</div><div class="eventLabel">SESSION COMPLETE</div><h3>ゲーム終了</h3><p>'+x+'</p></div>',"タイトルへ",returnToTitle,"result")}
+function returnToTitle(){
+ closeOv();G=null;mode=null;actor=null;action="move";path=[];undoSteps=[];
+ $("game").classList.add("hidden");$("setup").classList.remove("hidden");
+ $("ovExtra").innerHTML="";$("ovBoard").innerHTML="";$("mainBoard").innerHTML="";
+ window.scrollTo?.(0,0);
+}
+
+$("start").onclick=init;$("reset").onclick=returnToTitle;
+window.addEventListener("resize",()=>{if(G){draw("mainBoard");if(!$("ovBoardWrap").classList.contains("hidden"))draw("ovBoard")}});
+})();
+</script>
+</body>
+</html>
