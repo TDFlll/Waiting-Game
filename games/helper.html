@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#171717" />
+<title>Board Game Helper v1.01</title>
+<style>
+  :root{
+    --bg:#101114;
+    --panel:#181a1f;
+    --panel2:#22252c;
+    --line:#343844;
+    --text:#f4f5f7;
+    --muted:#aeb4c0;
+    --accent:#6fd3ff;
+    --accent2:#8ef0bb;
+    --danger:#ff7f8f;
+    --shadow:0 10px 28px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#0d0f12,#15171c);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    min-height:100vh;
+    -webkit-tap-highlight-color:transparent;
+  }
+  button,input{
+    font:inherit;
+  }
+  button{
+    border:none;
+    cursor:pointer;
+  }
+  .app{
+    width:min(960px,100%);
+    margin:0 auto;
+    padding:16px 14px calc(28px + env(safe-area-inset-bottom));
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .title{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+  .version{
+    color:var(--muted);
+    font-size:12px;
+  }
+  .tabs{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    background:#0b0c0f;
+    padding:6px;
+    border-radius:16px;
+    border:1px solid #242831;
+    margin-bottom:14px;
+    position:sticky;
+    top:8px;
+    z-index:20;
+    box-shadow:var(--shadow);
+  }
+  .tab{
+    padding:13px 7px;
+    border-radius:12px;
+    background:transparent;
+    color:var(--muted);
+    font-weight:800;
+    font-size:14px;
+  }
+  .tab.active{
+    background:var(--panel2);
+    color:white;
+  }
+  .page{display:none}
+  .page.active{display:block}
+  .card{
+    background:rgba(24,26,31,.96);
+    border:1px solid #2c3039;
+    border-radius:18px;
+    padding:14px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .section-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .section-title h2{
+    margin:0;
+    font-size:17px;
+  }
+  .hint{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .dice-add-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+  .dice-add{
+    background:var(--panel2);
+    border:1px solid #343947;
+    color:white;
+    border-radius:16px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .dice-add .die-name{
+    font-weight:800;
+    font-size:18px;
+  }
+  .dice-add .plus,
+  .dice-add .minus{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    font-size:27px;
+    font-weight:900;
+    line-height:1;
+  }
+  .dice-add .plus{
+    background:var(--accent);
+    color:#071016;
+  }
+  .dice-add .minus{
+    background:#343844;
+    color:#ffffff;
+  }
+  .count-badge{
+    min-width:30px;
+    height:30px;
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    background:#111319;
+    color:var(--muted);
+    font-weight:800;
+  }
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .btn{
+    min-height:44px;
+    padding:10px 14px;
+    border-radius:12px;
+    background:#2a2e37;
+    color:white;
+    font-weight:800;
+  }
+  .btn.primary{
+    background:var(--accent2);
+    color:#07140d;
+  }
+  .btn:disabled{
+    opacity:.72;
+    cursor:default;
+  }
+  .btn.danger{
+    background:#3a2328;
+    color:#ffc7cf;
+  }
+  .dice-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  .die-card{
+    background:var(--panel2);
+    border:1px solid #353a46;
+    border-radius:16px;
+    padding:12px;
+    position:relative;
+    min-height:118px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .die-card .remove{
+    position:absolute;
+    right:8px;
+    top:8px;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#353945;
+    color:#f6b8c0;
+    font-size:17px;
+  }
+  .die-type{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:800;
+  }
+  .die-value{
+    font-size:38px;
+    line-height:1;
+    font-weight:900;
+    transition:transform .08s ease;
+  }
+  .die-card{
+    transform-style:preserve-3d;
+    perspective:700px;
+    overflow:hidden;
+  }
+  .die-card::before{
+    content:"";
+    position:absolute;
+    inset:7px;
+    border-radius:13px;
+    border:1px solid rgba(255,255,255,.045);
+    pointer-events:none;
+  }
+  .die-card.rolling{
+    animation:diceRoll .72s cubic-bezier(.18,.72,.2,1);
+  }
+  .die-card.rolling .die-value{
+    animation:valueJitter .12s linear infinite;
+  }
+  @keyframes diceRoll{
+    0%   { transform:translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+    18%  { transform:translate3d(-7px,-10px,0) rotateX(95deg) rotateY(70deg) rotateZ(-12deg) scale(1.04); }
+    36%  { transform:translate3d(8px,-18px,0) rotateX(190deg) rotateY(160deg) rotateZ(17deg) scale(1.07); }
+    54%  { transform:translate3d(-5px,-7px,0) rotateX(285deg) rotateY(255deg) rotateZ(-10deg) scale(1.03); }
+    70%  { transform:translate3d(4px,-12px,0) rotateX(360deg) rotateY(350deg) rotateZ(8deg) scale(1.05); }
+    84%  { transform:translate3d(-2px,-3px,0) rotateX(405deg) rotateY(420deg) rotateZ(-4deg) scale(1.01); }
+    100% { transform:translate3d(0,0,0) rotateX(432deg) rotateY(432deg) rotateZ(0deg) scale(1); }
+  }
+  @keyframes valueJitter{
+    0%{ transform:translate(0,0) scale(1); }
+    25%{ transform:translate(-1px,1px) scale(1.03); }
+    50%{ transform:translate(1px,-1px) scale(.98); }
+    75%{ transform:translate(-1px,-1px) scale(1.02); }
+    100%{ transform:translate(0,0) scale(1); }
+  }
+  .summary{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+  }
+  .summary-box{
+    background:#111318;
+    border:1px solid #2c313b;
+    border-radius:14px;
+    padding:12px;
+    text-align:center;
+  }
+  .summary-label{
+    color:var(--muted);
+    font-size:12px;
+  }
+  .summary-value{
+    font-size:26px;
+    font-weight:900;
+    margin-top:2px;
+  }
+  .empty{
+    color:var(--muted);
+    text-align:center;
+    padding:22px 8px;
+    border:1px dashed #343947;
+    border-radius:14px;
+    margin-top:12px;
+  }
+
+  .score-controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .field input{
+    width:100%;
+    min-height:34px;
+    border-radius:9px;
+    border:1px solid #343947;
+    background:#101217;
+    color:white;
+    padding:9px 12px;
+    outline:none;
+  }
+  .score-wrap{
+    overflow:auto;
+    border:1px solid #2f3440;
+    border-radius:16px;
+  }
+  table{
+    border-collapse:separate;
+    border-spacing:0;
+    width:max-content;
+    min-width:100%;
+    background:#14161b;
+  }
+  th,td{
+    border-right:1px solid #2c313b;
+    border-bottom:1px solid #2c313b;
+    padding:7px;
+    text-align:center;
+    white-space:nowrap;
+  }
+  th{
+    position:sticky;
+    top:0;
+    background:#1f2229;
+    z-index:3;
+    font-size:12px;
+    color:#c9ced7;
+  }
+  th:first-child, td:first-child{
+    position:sticky;
+    left:0;
+    z-index:2;
+    background:#1a1d23;
+  }
+  th:first-child{
+    z-index:4;
+  }
+  tr:last-child td{border-bottom:none}
+  th:last-child,td:last-child{border-right:none}
+  .name-input{
+    width:110px;
+    min-height:40px;
+    border:1px solid #3a3f4c;
+    background:#101217;
+    color:white;
+    border-radius:10px;
+    padding:7px 8px;
+    font-weight:800;
+  }
+  .score-input{
+    width:72px;
+    min-height:42px;
+    border:1px solid #3a3f4c;
+    background:#0f1115;
+    color:white;
+    border-radius:10px;
+    text-align:center;
+    font-weight:900;
+    font-size:18px;
+    outline:none;
+  }
+  .total-cell{
+    min-width:70px;
+    font-size:18px;
+    font-weight:900;
+    color:var(--accent2);
+  }
+  .round-total{
+    color:var(--accent);
+    font-weight:900;
+  }
+  .round-label-input{
+    width:72px;
+    min-height:34px;
+    border:1px solid #3a3f4c;
+    background:#151820;
+    color:#dce2eb;
+    border-radius:9px;
+    text-align:center;
+    font-weight:800;
+    font-size:12px;
+    outline:none;
+    padding:5px 6px;
+  }
+  .favorite-panel{
+    display:none;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #2d323c;
+  }
+  .favorite-panel.open{
+    display:block;
+  }
+  .favorite-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .favorite-count{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:800;
+  }
+  .favorite-list{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    margin-top:8px;
+  }
+  .favorite-row{
+    display:grid;
+    grid-template-columns:minmax(100px,1fr) auto auto;
+    gap:6px;
+    align-items:center;
+    background:#121419;
+    border:1px solid #303541;
+    border-radius:11px;
+    padding:7px;
+  }
+  .favorite-name{
+    min-width:0;
+    min-height:38px;
+    border:1px solid #383e4a;
+    background:#0d0f13;
+    color:white;
+    border-radius:9px;
+    padding:6px 8px;
+    font-weight:800;
+  }
+  .favorite-mini{
+    min-height:38px;
+    padding:6px 10px;
+    border-radius:9px;
+    background:#292d36;
+    color:white;
+    font-weight:800;
+  }
+  .favorite-mini.delete{
+    background:#3a2328;
+    color:#ffc7cf;
+  }
+
+  .timer-display{
+    text-align:center;
+    padding:20px 10px 16px;
+    background:#101217;
+    border:1px solid #2f3440;
+    border-radius:18px;
+    margin-bottom:12px;
+  }
+  .timer-phase{
+    font-size:14px;
+    color:var(--muted);
+    font-weight:800;
+    min-height:20px;
+  }
+  .timer-time{
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(46px,12vw,76px);
+    font-weight:900;
+    letter-spacing:.02em;
+    line-height:1.08;
+    margin:6px 0;
+  }
+  .timer-progress{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .time-bar{
+    width:100%;
+    height:14px;
+    background:#242832;
+    border:1px solid #343a46;
+    border-radius:999px;
+    overflow:hidden;
+    margin:12px auto 10px;
+  }
+  .time-bar-fill{
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+    border-radius:inherit;
+    transition:width .12s linear, background .18s ease;
+  }
+  .timer-display.warning .time-bar-fill{
+    background:linear-gradient(90deg,#ff725f,#ff3f55);
+  }
+  .timer-display.warning .timer-time{
+    color:#ff6b73;
+  }
+  .timer-display.final-countdown{
+    animation:countdownPulse .72s ease-in-out infinite;
+  }
+  .timer-display.final-countdown .timer-time{
+    animation:countdownNumber .72s ease-in-out infinite;
+    text-shadow:0 0 16px rgba(255,72,84,.22);
+  }
+  @keyframes countdownPulse{
+    0%,100%{ box-shadow:0 0 0 rgba(255,70,82,0); }
+    50%{ box-shadow:0 0 0 2px rgba(255,70,82,.26), 0 0 24px rgba(255,70,82,.08); }
+  }
+  @keyframes countdownNumber{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.045); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .timer-display.final-countdown,
+    .timer-display.final-countdown .timer-time{
+      animation:none;
+    }
+  }
+  .timer-toolbar{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .timer-toolbar .btn{
+    min-width:0;
+  }
+  .timer-list{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .timer-row{
+    display:grid;
+    grid-template-columns:minmax(120px,1fr) 62px 14px 62px 38px;
+    gap:6px;
+    align-items:center;
+    background:#121419;
+    border:1px solid #303541;
+    border-radius:14px;
+    padding:8px;
+  }
+  .timer-row.active{
+    border-color:var(--accent);
+    box-shadow:inset 0 0 0 1px rgba(111,211,255,.18);
+  }
+  .timer-row.done{
+    opacity:.58;
+  }
+  .timer-settings{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:auto auto auto minmax(120px,1fr);
+    gap:6px;
+    align-items:center;
+    margin-top:2px;
+    padding-top:7px;
+    border-top:1px solid #2b3039;
+  }
+  .timer-setting{
+    min-width:0;
+  }
+  .timer-setting.compact-toggle{
+    display:flex;
+    align-items:center;
+  }
+  .timer-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    min-height:34px;
+    background:#0f1115;
+    border:1px solid #373c47;
+    border-radius:9px;
+    padding:4px 8px;
+    color:white;
+    font-size:12px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .timer-toggle input{
+    width:17px;
+    height:17px;
+    accent-color:var(--accent2);
+  }
+  .timer-select-wrap{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    gap:5px;
+    align-items:center;
+    min-width:0;
+  }
+  .timer-pause-wrap{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    min-width:0;
+  }
+  .timer-pause-wrap .timer-toggle{
+    width:100%;
+    justify-content:center;
+  }
+  .timer-mini-label{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .timer-select{
+    width:100%;
+    min-width:0;
+    min-height:34px;
+    border:1px solid #373c47;
+    background:#0f1115;
+    color:white;
+    border-radius:9px;
+    padding:4px 7px;
+    outline:none;
+    font-size:12px;
+  }
+  .timer-name,.timer-num{
+    min-height:40px;
+    border:1px solid #383e4a;
+    background:#0d0f13;
+    color:white;
+    border-radius:10px;
+    padding:7px 8px;
+    outline:none;
+    min-width:0;
+  }
+  .timer-num{
+    text-align:center;
+    font-weight:800;
+  }
+  .timer-sep{
+    text-align:center;
+    color:var(--muted);
+    font-weight:900;
+  }
+  .icon-btn{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:#352329;
+    color:#ffc2ca;
+    font-size:18px;
+    font-weight:900;
+  }
+  .add-wide{
+    width:100%;
+    margin-top:10px;
+  }
+  .counter-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .counter-row{
+    display:grid;
+    grid-template-columns:minmax(100px,1fr) 48px minmax(78px,110px) 48px 40px;
+    gap:7px;
+    align-items:center;
+    background:#121419;
+    border:1px solid #303541;
+    border-radius:15px;
+    padding:9px;
+  }
+  .counter-name,.counter-value{
+    min-height:44px;
+    border:1px solid #383e4a;
+    background:#0d0f13;
+    color:white;
+    border-radius:11px;
+    outline:none;
+  }
+  .counter-name{
+    padding:8px 10px;
+    font-weight:800;
+    min-width:0;
+  }
+  .counter-value{
+    width:100%;
+    text-align:center;
+    font-size:22px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+  }
+  .counter-step{
+    width:48px;
+    height:44px;
+    border-radius:11px;
+    background:#292d36;
+    color:white;
+    font-size:26px;
+    font-weight:900;
+  }
+  .counter-step.plus{
+    background:var(--accent2);
+    color:#07140d;
+  }
+  .counter-delete{
+    width:40px;
+    height:44px;
+    border-radius:11px;
+    background:#3a2328;
+    color:#ffc7cf;
+    font-size:18px;
+    font-weight:900;
+  }
+  .status-wrap{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:repeat(10,minmax(0,1fr));
+    gap:4px;
+    margin-top:2px;
+    padding-top:8px;
+    border-top:1px solid #2b3039;
+  }
+  .status-btn{
+    aspect-ratio:1 / 1;
+    min-height:34px;
+    border-radius:9px;
+    border:1px solid #333844;
+    background:#16191f;
+    display:grid;
+    place-items:center;
+    padding:4px;
+    transition:.12s ease;
+  }
+  .status-btn .status-icon{
+    font-size:20px;
+    line-height:1;
+    filter:grayscale(1);
+    opacity:.38;
+    transition:.12s ease;
+  }
+  .status-btn.active{
+    background:#2b3039;
+    border-color:#6d788a;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 0 12px rgba(255,255,255,.04);
+  }
+  .status-btn.active .status-icon{
+    filter:none;
+    opacity:1;
+    transform:scale(1.12);
+  }
+
+  @media (max-width:560px){
+    .tab{font-size:12px;padding:12px 4px}
+    .timer-row{
+      grid-template-columns:minmax(82px,1fr) 54px 12px 54px 34px;
+      gap:4px;
+      padding:7px;
+    }
+    .timer-settings{
+      grid-template-columns:auto auto auto minmax(90px,1fr);
+      gap:4px;
+    }
+    .timer-toggle{
+      min-height:32px;
+      padding:3px 6px;
+      font-size:11px;
+    }
+    .timer-select-wrap{
+      grid-template-columns:1fr;
+      gap:2px;
+    }
+    .timer-mini-label{
+      font-size:9px;
+      line-height:1;
+    }
+    .timer-select{
+      min-height:32px;
+      font-size:11px;
+      padding:3px 5px;
+    }
+    .counter-row{
+      grid-template-columns:minmax(76px,1fr) 44px 74px 44px 38px;
+      gap:5px;
+      padding:7px;
+    }
+    .counter-step{width:44px}
+    .counter-delete{width:38px}
+    .status-wrap{grid-template-columns:repeat(10,minmax(0,1fr));gap:3px}
+    .status-btn{min-height:30px;padding:2px}
+    .status-btn .status-icon{font-size:18px}
+  }
+  .confirm-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.58);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+    padding:18px;
+  }
+  .confirm-overlay.open{
+    display:flex;
+  }
+  .confirm-dialog{
+    width:min(420px,100%);
+    background:#181a1f;
+    border:1px solid #3a404c;
+    border-radius:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45);
+    padding:18px;
+  }
+  .confirm-title{
+    font-size:18px;
+    font-weight:900;
+    margin-bottom:8px;
+  }
+  .confirm-message{
+    color:#c4c9d2;
+    font-size:14px;
+    line-height:1.6;
+    white-space:pre-line;
+  }
+  .confirm-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:16px;
+  }
+  .confirm-actions .btn{
+    width:100%;
+  }
+  .footer-note{
+    color:#858c99;
+    font-size:11px;
+    text-align:center;
+    margin-top:12px;
+  }
+  @media (min-width:720px){
+    .dice-add-grid{grid-template-columns:repeat(5,1fr)}
+  }
+  .wg-home{
+    position:fixed;
+    left:10px;
+    top:max(10px,env(safe-area-inset-top));
+    z-index:40;
+    border:1px solid #343844;
+    border-radius:999px;
+    background:rgba(24,26,31,.82);
+    color:#f4f5f7;
+    text-decoration:none;
+    font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    letter-spacing:.08em;
+    padding:8px 10px;
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+</style>
+</head>
+<body>
+<a class="wg-home" href="../index.html">← GAMES</a>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="title">Board Game Helper</div>
+      <div class="version">v1.01</div>
+    </div>
+    <div class="hint">卓上ゲーム補助ツール</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="dice">🎲 DICE</button>
+    <button class="tab" data-tab="score">📊 SCORE</button>
+    <button class="tab" data-tab="timer">⏱ TIMER</button>
+    <button class="tab" data-tab="count">❤️ COUNT</button>
+  </div>
+
+  <section id="dice" class="page active">
+    <div class="card">
+      <div class="section-title">
+        <h2>ダイス追加</h2>
+        <div class="hint">合計10個まで</div>
+      </div>
+
+      <div class="dice-add-grid">
+        <div class="dice-add">
+          <div>
+            <div class="die-name">🪙 COIN</div>
+            <div class="hint">0 / 1</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="coin">−</button>
+            <div class="count-badge" id="count-coin">0</div>
+            <button class="plus" data-add-die="coin">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D3</div>
+            <div class="hint">3面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="3">−</button>
+            <div class="count-badge" id="count-3">0</div>
+            <button class="plus" data-add-die="3">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D6</div>
+            <div class="hint">6面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="6">−</button>
+            <div class="count-badge" id="count-6">0</div>
+            <button class="plus" data-add-die="6">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D10</div>
+            <div class="hint">10面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="10">−</button>
+            <div class="count-badge" id="count-10">0</div>
+            <button class="plus" data-add-die="10">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D100</div>
+            <div class="hint">100面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="100">−</button>
+            <div class="count-badge" id="count-100">0</div>
+            <button class="plus" data-add-die="100">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn primary" id="rollAll">🎲 ダイスを振る</button>
+        <button class="btn danger" id="clearDice">全削除</button>
+      </div>
+
+      <div id="diceList" class="dice-list"></div>
+      <div id="diceEmpty" class="empty">＋ボタンからダイスを追加してください</div>
+
+      <div class="summary">
+        <div class="summary-box">
+          <div class="summary-label">ダイス数</div>
+          <div class="summary-value" id="diceCount">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">合計</div>
+          <div class="summary-value" id="diceTotal">0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="score" class="page">
+    <div class="card">
+      <div class="section-title">
+        <h2>スコア設定</h2>
+        <div class="hint">人数・ラウンド変更可</div>
+      </div>
+
+      <div class="score-controls">
+        <div class="field">
+          <label for="playerCount">プレイヤー数</label>
+          <input id="playerCount" type="number" min="1" max="12" value="4">
+        </div>
+        <div class="field">
+          <label for="roundCount">ラウンド数</label>
+          <input id="roundCount" type="number" min="1" max="30" value="5">
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-top:10px">
+        <button class="btn primary" id="applyScoreTable">表を作成 / 更新</button>
+        <button class="btn danger" id="clearScores">スコアを全消去</button>
+        <button class="btn" id="toggleScoreFavorites">★ お気に入り</button>
+      </div>
+
+      <div id="scoreFavoritePanel" class="favorite-panel">
+        <div class="favorite-head">
+          <div class="hint">スコア表を最大10件保存</div>
+          <div id="scoreFavoriteCount" class="favorite-count">0 / 10</div>
+        </div>
+        <button class="btn primary" id="saveScoreFavorite">＋ 現在の表を保存</button>
+        <div id="scoreFavoriteList" class="favorite-list"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <h2>スコア表</h2>
+        <div class="hint">空欄と0は別扱い</div>
+      </div>
+      <div id="scoreTableWrap" class="score-wrap"></div>
+    </div>
+  </section>
+
+
+  <section id="timer" class="page">
+    <div class="card">
+      <div class="section-title">
+        <h2>進行タイマー</h2>
+        <div class="hint">設定時間終了後、自動で次へ</div>
+      </div>
+
+      <div id="timerDisplay" class="timer-display">
+        <div id="timerPhase" class="timer-phase">時間を設定してください</div>
+        <div id="timerTime" class="timer-time">00:00</div>
+        <div class="time-bar" aria-hidden="true">
+          <div id="timerBarFill" class="time-bar-fill"></div>
+        </div>
+        <div id="timerProgress" class="timer-progress">0 / 0</div>
+      </div>
+
+      <div class="timer-toolbar">
+        <button class="btn primary" id="timerPlay">▶ 再生</button>
+        <button class="btn" id="timerStop">⏸ 停止</button>
+        <button class="btn danger" id="timerReset">↺ リセット</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <h2>時間設定</h2>
+        <div class="hint">分 : 秒</div>
+      </div>
+      <div id="timerList" class="timer-list"></div>
+      <button class="btn add-wide" id="addTimerSegment">＋ 時間を追加</button>
+    </div>
+  </section>
+
+  <section id="count" class="page">
+    <div class="card">
+      <div class="section-title">
+        <h2>カウント管理</h2>
+        <div class="hint">ライフ・HP・資源など</div>
+      </div>
+      <div id="counterList" class="counter-list"></div>
+      <button class="btn primary add-wide" id="addCounter">＋ カウンターを追加</button>
+    </div>
+  </section>
+
+  <div id="confirmOverlay" class="confirm-overlay" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div id="confirmTitle" class="confirm-title">確認</div>
+      <div id="confirmMessage" class="confirm-message"></div>
+      <div class="confirm-actions">
+        <button class="btn" id="confirmCancel">キャンセル</button>
+        <button class="btn danger" id="confirmOk">実行する</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">入力内容はこの端末のブラウザ内に自動保存されます。</div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "boardGameHelper_v01";
+
+  const state = {
+    dice: [],
+    players: 4,
+    rounds: 5,
+    names: [],
+    scores: [],
+    roundLabels: [],
+    scoreFavorites: [],
+    timerSegments: [
+      {
+        name:"時間1", minutes:10, seconds:0,
+        sound:true, vibrate:false, pauseAfter:false,
+        intervalSound:"beep", finalSound:"bell"
+      }
+    ],
+    timerIndex:0,
+    timerRemaining:600,
+    counters:[
+      {name:"A", value:0, statuses:[]}
+    ],
+    nextCounterNumber:2
+  };
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
+  function sharedPlayerName(i) {
+    const defaults = ["P1","P2","P3","P4"];
+    try {
+      const saved = JSON.parse(localStorage.getItem("waitingGamesPlayerNamesV1") || "null");
+      if (Array.isArray(saved)) {
+        const raw = String(saved[i] || defaults[i] || `P${i+1}`).trim().slice(0,16).replace(/[&<>"']/g, "");
+        return raw || defaults[i] || `P${i+1}`;
+      }
+    } catch(e) {}
+    return defaults[i] || `P${i+1}`;
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.dice)) state.dice = data.dice;
+      if (Number.isInteger(data.players)) state.players = data.players;
+      if (Number.isInteger(data.rounds)) state.rounds = data.rounds;
+      if (Array.isArray(data.names)) state.names = data.names;
+      if (Array.isArray(data.scores)) state.scores = data.scores;
+      if (Array.isArray(data.roundLabels)) state.roundLabels = data.roundLabels;
+      if (Array.isArray(data.scoreFavorites)) state.scoreFavorites = data.scoreFavorites;
+      if (Array.isArray(data.timerSegments) && data.timerSegments.length) state.timerSegments = data.timerSegments;
+      if (Number.isInteger(data.timerIndex)) state.timerIndex = data.timerIndex;
+      if (Number.isFinite(data.timerRemaining)) state.timerRemaining = data.timerRemaining;
+      if (Array.isArray(data.counters)) state.counters = data.counters;
+      if (Number.isInteger(data.nextCounterNumber)) state.nextCounterNumber = data.nextCounterNumber;
+    } catch(e) {}
+  }
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function rollDie(sides) {
+    return Math.floor(Math.random() * sides) + 1;
+  }
+
+  function rollDiceItem(item) {
+    if (item.type === "coin") {
+      return Math.random() < 0.5 ? 0 : 1;
+    }
+    return rollDie(Number(item.sides));
+  }
+
+  function diceItemKey(item) {
+    return item.type === "coin" ? "coin" : String(item.sides);
+  }
+
+  function diceItemLabel(item) {
+    return item.type === "coin" ? "🪙 COIN" : `D${item.sides}`;
+  }
+
+  function addDie(kind) {
+    if (state.dice.length >= 10) {
+      alert("ダイス・コインは合計10個まで追加できます。");
+      return;
+    }
+
+    if (String(kind) === "coin") {
+      state.dice.push({ type:"coin", value:null });
+    } else {
+      state.dice.push({ sides:Number(kind), value:null });
+    }
+
+    save();
+    renderDice();
+  }
+
+  function removeDie(index) {
+    state.dice.splice(index, 1);
+    save();
+    renderDice();
+  }
+
+  function removeDieByKind(kind) {
+    const key = String(kind);
+    for (let i = state.dice.length - 1; i >= 0; i--) {
+      if (diceItemKey(state.dice[i]) === key) {
+        state.dice.splice(i, 1);
+        save();
+        renderDice();
+        return;
+      }
+    }
+  }
+
+  let rolling = false;
+
+  async function rollAll() {
+    if (!state.dice.length || rolling) return;
+    rolling = true;
+
+    const btn = $("#rollAll");
+    btn.disabled = true;
+    btn.textContent = "🎲 振っています…";
+
+    // Ensure cards exist before animation starts
+    renderDice();
+    const cards = [...document.querySelectorAll(".die-card")];
+    cards.forEach(card => card.classList.add("rolling"));
+
+    // Rapidly cycle visible numbers while the dice are "moving"
+    const started = performance.now();
+    const duration = 720;
+
+    await new Promise(resolve => {
+      const timer = setInterval(() => {
+        const elapsed = performance.now() - started;
+
+        cards.forEach((card, i) => {
+          const d = state.dice[i];
+          const valueEl = card.querySelector(".die-value");
+          if (valueEl && d) valueEl.textContent = rollDiceItem(d);
+        });
+
+        if (elapsed >= duration) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 55);
+    });
+
+    // Final result
+    state.dice = state.dice.map(d => ({...d, value: rollDiceItem(d)}));
+    save();
+    renderDice();
+
+    btn.disabled = false;
+    btn.textContent = "🎲 ダイスを振る";
+    rolling = false;
+  }
+
+  function clearDice() {
+    state.dice = [];
+    save();
+    renderDice();
+  }
+
+  function renderDice() {
+    const list = $("#diceList");
+    list.innerHTML = "";
+
+    const counts = {coin:0,3:0,6:0,10:0,100:0};
+    let total = 0;
+
+    state.dice.forEach((d, i) => {
+      const key = diceItemKey(d);
+      counts[key] = (counts[key] || 0) + 1;
+      if (typeof d.value === "number") total += d.value;
+
+      const card = document.createElement("div");
+      card.className = "die-card";
+      card.innerHTML = `
+        <button class="remove" aria-label="削除">×</button>
+        <div class="die-type">${diceItemLabel(d)}</div>
+        <div class="die-value">${d.value ?? "−"}</div>
+      `;
+      card.querySelector(".remove").addEventListener("click", () => removeDie(i));
+      list.appendChild(card);
+    });
+
+    ["coin",3,6,10,100].forEach(s => {
+      $("#count-" + s).textContent = counts[s] || 0;
+    });
+
+    $("#diceCount").textContent = state.dice.length;
+    $("#diceTotal").textContent = total;
+    $("#diceEmpty").style.display = state.dice.length ? "none" : "block";
+  }
+
+  function normalizeScoreState(newPlayers, newRounds) {
+    const oldNames = [...state.names];
+    const oldScores = state.scores.map(row => [...row]);
+
+    const oldRoundLabels = [...state.roundLabels];
+
+    state.players = newPlayers;
+    state.rounds = newRounds;
+    state.names = Array.from({length:newPlayers}, (_,i) => oldNames[i] || sharedPlayerName(i));
+    state.scores = Array.from({length:newPlayers}, (_,p) =>
+      Array.from({length:newRounds}, (_,r) =>
+        oldScores[p] && oldScores[p][r] !== undefined ? oldScores[p][r] : ""
+      )
+    );
+    state.roundLabels = Array.from(
+      {length:newRounds},
+      (_,r) => oldRoundLabels[r] || `R${r+1}`
+    );
+  }
+
+  function valueToNumber(v) {
+    if (v === "" || v === null || v === undefined) return 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function renderScoreTable() {
+    normalizeScoreState(state.players, state.rounds);
+    $("#playerCount").value = state.players;
+    $("#roundCount").value = state.rounds;
+
+    const wrap = $("#scoreTableWrap");
+    const table = document.createElement("table");
+
+    const thead = document.createElement("thead");
+    const hr = document.createElement("tr");
+
+    const playerTh = document.createElement("th");
+    playerTh.textContent = "Player";
+    hr.appendChild(playerTh);
+
+    for (let r=0; r<state.rounds; r++) {
+      const th = document.createElement("th");
+      const input = document.createElement("input");
+      input.className = "round-label-input";
+      input.value = state.roundLabels[r] || `R${r+1}`;
+      input.setAttribute("aria-label", `ラウンド${r+1}の名前`);
+      input.addEventListener("input", e => {
+        state.roundLabels[r] = e.target.value;
+        save();
+      });
+      th.appendChild(input);
+      hr.appendChild(th);
+    }
+
+    const totalTh = document.createElement("th");
+    totalTh.textContent = "合計";
+    hr.appendChild(totalTh);
+
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    for (let p=0; p<state.players; p++) {
+      const tr = document.createElement("tr");
+
+      const nameTd = document.createElement("td");
+      const nameInput = document.createElement("input");
+      nameInput.className = "name-input";
+      nameInput.value = state.names[p] || `P${p+1}`;
+      nameInput.addEventListener("input", e => {
+        state.names[p] = e.target.value;
+        save();
+      });
+      nameTd.appendChild(nameInput);
+      tr.appendChild(nameTd);
+
+      for (let r=0; r<state.rounds; r++) {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.className = "score-input";
+        input.type = "number";
+        input.inputMode = "decimal";
+        input.value = state.scores[p][r];
+        input.placeholder = "−";
+        input.dataset.p = p;
+        input.dataset.r = r;
+        input.addEventListener("input", e => {
+          state.scores[p][r] = e.target.value;
+          save();
+          updateTotals();
+        });
+
+        input.addEventListener("keydown", e => {
+          if (e.key !== "Enter") return;
+
+          e.preventDefault();
+
+          let nextP = p + 1;
+          let nextR = r;
+
+          // 最後のプレイヤーまで入力したら、次ラウンドの先頭へ
+          if (nextP >= state.players) {
+            nextP = 0;
+            nextR = r + 1;
+          }
+
+          // 最終ラウンドの最後なら、その場に留まる
+          if (nextR >= state.rounds) {
+            e.target.blur();
+            return;
+          }
+
+          const next = document.querySelector(
+            `.score-input[data-p="${nextP}"][data-r="${nextR}"]`
+          );
+
+          if (next) {
+            next.focus();
+            next.select();
+          }
+        });
+
+        td.appendChild(input);
+        tr.appendChild(td);
+      }
+
+      const totalTd = document.createElement("td");
+      totalTd.className = "total-cell";
+      totalTd.dataset.totalPlayer = p;
+      tr.appendChild(totalTd);
+
+      tbody.appendChild(tr);
+    }
+
+    const footRow = document.createElement("tr");
+    const label = document.createElement("td");
+    label.innerHTML = `<strong>ラウンド計</strong>`;
+    footRow.appendChild(label);
+
+    for (let r=0; r<state.rounds; r++) {
+      const td = document.createElement("td");
+      td.className = "round-total";
+      td.dataset.totalRound = r;
+      footRow.appendChild(td);
+    }
+
+    const grand = document.createElement("td");
+    grand.className = "total-cell";
+    grand.dataset.grandTotal = "1";
+    footRow.appendChild(grand);
+    tbody.appendChild(footRow);
+
+    table.appendChild(tbody);
+    wrap.innerHTML = "";
+    wrap.appendChild(table);
+    updateTotals();
+    save();
+  }
+
+  function updateTotals() {
+    let grandTotal = 0;
+
+    for (let p=0; p<state.players; p++) {
+      let sum = 0;
+      for (let r=0; r<state.rounds; r++) {
+        sum += valueToNumber(state.scores[p][r]);
+      }
+      grandTotal += sum;
+      const cell = document.querySelector(`[data-total-player="${p}"]`);
+      if (cell) cell.textContent = sum;
+    }
+
+    for (let r=0; r<state.rounds; r++) {
+      let sum = 0;
+      for (let p=0; p<state.players; p++) {
+        sum += valueToNumber(state.scores[p][r]);
+      }
+      const cell = document.querySelector(`[data-total-round="${r}"]`);
+      if (cell) cell.textContent = sum;
+    }
+
+    const g = document.querySelector("[data-grand-total]");
+    if (g) g.textContent = grandTotal;
+  }
+
+  function applyScoreTable() {
+    const players = clamp(parseInt($("#playerCount").value || "1",10), 1, 12);
+    const rounds = clamp(parseInt($("#roundCount").value || "1",10), 1, 30);
+    normalizeScoreState(players, rounds);
+    renderScoreTable();
+  }
+
+  function clearScores() {
+    showConfirm(
+      "スコアを全消去",
+      "現在のスコアをすべて空欄にします。\nこの操作は元に戻せません。",
+      () => {
+        state.scores = Array.from({length:state.players}, () =>
+          Array.from({length:state.rounds}, () => "")
+        );
+        save();
+        renderScoreTable();
+      }
+    );
+  }
+
+
+  // ---------- TIMER ----------
+  let timerRunning = false;
+  let timerTargetEnd = null;
+  let timerInterval = null;
+  let timerPendingAdvance = false;
+  let lastCountdownTickSecond = null;
+
+  function segmentDuration(seg) {
+    const m = clamp(parseInt(seg.minutes || 0,10) || 0, 0, 999);
+    const s = clamp(parseInt(seg.seconds || 0,10) || 0, 0, 59);
+    return m * 60 + s;
+  }
+
+  function formatTime(totalSec) {
+    totalSec = Math.max(0, Math.ceil(Number(totalSec) || 0));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  }
+
+  function normalizeTimer() {
+    if (!Array.isArray(state.timerSegments) || !state.timerSegments.length) {
+      state.timerSegments = [{
+        name:"時間1", minutes:10, seconds:0,
+        sound:true, vibrate:false, pauseAfter:false,
+        intervalSound:"beep", finalSound:"bell"
+      }];
+    }
+    state.timerSegments = state.timerSegments.map((seg, i) => ({
+      name: seg.name ?? `時間${i+1}`,
+      minutes: Number.isFinite(Number(seg.minutes)) ? Number(seg.minutes) : 10,
+      seconds: Number.isFinite(Number(seg.seconds)) ? Number(seg.seconds) : 0,
+      sound: seg.sound !== false,
+      vibrate: !!seg.vibrate,
+      pauseAfter: !!seg.pauseAfter,
+      intervalSound: seg.intervalSound || "beep",
+      finalSound: seg.finalSound || "bell"
+    }));
+    state.timerIndex = clamp(Number(state.timerIndex) || 0, 0, state.timerSegments.length - 1);
+    if (!Number.isFinite(state.timerRemaining) || state.timerRemaining < 0) {
+      state.timerRemaining = segmentDuration(state.timerSegments[state.timerIndex]);
+    }
+  }
+
+  function renderTimerList() {
+    normalizeTimer();
+    const list = $("#timerList");
+    list.innerHTML = "";
+
+    state.timerSegments.forEach((seg, i) => {
+      const row = document.createElement("div");
+      row.className = "timer-row";
+      if (i === state.timerIndex) row.classList.add("active");
+      if (i < state.timerIndex) row.classList.add("done");
+
+      row.innerHTML = `
+        <input class="timer-name" value="${escapeHtml(seg.name || `時間${i+1}`)}" aria-label="時間名">
+        <input class="timer-num timer-min" type="number" min="0" max="999" inputmode="numeric" value="${clamp(parseInt(seg.minutes||0,10)||0,0,999)}" aria-label="分">
+        <div class="timer-sep">:</div>
+        <input class="timer-num timer-sec" type="number" min="0" max="59" inputmode="numeric" value="${clamp(parseInt(seg.seconds||0,10)||0,0,59)}" aria-label="秒">
+        <button class="icon-btn" aria-label="削除">×</button>
+
+        <div class="timer-settings">
+          <div class="timer-setting compact-toggle">
+            <label class="timer-toggle" title="通知音">
+              <input class="timer-sound" type="checkbox" ${seg.sound !== false ? "checked" : ""}>
+              🔔
+            </label>
+          </div>
+          <div class="timer-setting compact-toggle">
+            <label class="timer-toggle" title="バイブ">
+              <input class="timer-vibrate" type="checkbox" ${seg.vibrate ? "checked" : ""}>
+              📳
+            </label>
+          </div>
+
+          ${i < state.timerSegments.length - 1 ? `
+            <div class="timer-setting timer-pause-wrap">
+              <label class="timer-toggle" title="区間終了後に一時停止">
+                <input class="timer-pause-after" type="checkbox" ${seg.pauseAfter ? "checked" : ""}>
+                ⏸
+              </label>
+            </div>
+            <div class="timer-setting timer-select-wrap">
+              <span class="timer-mini-label">区間</span>
+              <select class="timer-select timer-interval-sound" aria-label="区間終了音">
+                <option value="beep" ${seg.intervalSound==="beep" ? "selected" : ""}>ビープ</option>
+                <option value="double" ${seg.intervalSound==="double" ? "selected" : ""}>ダブル</option>
+                <option value="bell" ${seg.intervalSound==="bell" ? "selected" : ""}>ベル</option>
+                <option value="low" ${seg.intervalSound==="low" ? "selected" : ""}>低音</option>
+              </select>
+            </div>
+          ` : `
+            <div class="timer-setting timer-select-wrap">
+              <span class="timer-mini-label">終了</span>
+              <select class="timer-select timer-final-sound" aria-label="全工程終了音">
+                <option value="bell" ${seg.finalSound==="bell" ? "selected" : ""}>ベル</option>
+                <option value="triple" ${seg.finalSound==="triple" ? "selected" : ""}>トリプル</option>
+                <option value="beep" ${seg.finalSound==="beep" ? "selected" : ""}>ビープ</option>
+                <option value="low" ${seg.finalSound==="low" ? "selected" : ""}>低音</option>
+              </select>
+            </div>
+          `}
+        </div>
+      `;
+
+      const nameInput = row.querySelector(".timer-name");
+      const minInput = row.querySelector(".timer-min");
+      const secInput = row.querySelector(".timer-sec");
+      const soundInput = row.querySelector(".timer-sound");
+      const vibrateInput = row.querySelector(".timer-vibrate");
+      const pauseAfterInput = row.querySelector(".timer-pause-after");
+      const intervalSoundInput = row.querySelector(".timer-interval-sound");
+      const finalSoundInput = row.querySelector(".timer-final-sound");
+
+      nameInput.addEventListener("input", e => {
+        state.timerSegments[i].name = e.target.value;
+        save();
+        renderTimerDisplay();
+      });
+
+      soundInput.addEventListener("change", e => {
+        state.timerSegments[i].sound = e.target.checked;
+        save();
+      });
+
+      vibrateInput.addEventListener("change", e => {
+        state.timerSegments[i].vibrate = e.target.checked;
+        save();
+      });
+
+      if (pauseAfterInput) {
+        pauseAfterInput.addEventListener("change", e => {
+          state.timerSegments[i].pauseAfter = e.target.checked;
+          save();
+        });
+      }
+
+      if (intervalSoundInput) {
+        intervalSoundInput.addEventListener("change", e => {
+          state.timerSegments[i].intervalSound = e.target.value;
+          save();
+        });
+      }
+
+      if (finalSoundInput) {
+        finalSoundInput.addEventListener("change", e => {
+          state.timerSegments[i].finalSound = e.target.value;
+          save();
+        });
+      }
+
+      const updateDuration = () => {
+        timerStop();
+        state.timerSegments[i].minutes = clamp(parseInt(minInput.value || "0",10) || 0, 0, 999);
+        state.timerSegments[i].seconds = clamp(parseInt(secInput.value || "0",10) || 0, 0, 59);
+        minInput.value = state.timerSegments[i].minutes;
+        secInput.value = state.timerSegments[i].seconds;
+        if (i === state.timerIndex) {
+          state.timerRemaining = segmentDuration(state.timerSegments[i]);
+        }
+        save();
+        renderTimerDisplay();
+      };
+
+      minInput.addEventListener("change", updateDuration);
+      secInput.addEventListener("change", updateDuration);
+
+      row.querySelector(".icon-btn").addEventListener("click", () => {
+        timerStop();
+        if (state.timerSegments.length === 1) {
+          state.timerSegments[0] = {
+            name:"時間1", minutes:10, seconds:0,
+            sound:true, vibrate:false, pauseAfter:false,
+            intervalSound:"beep", finalSound:"bell"
+          };
+          state.timerIndex = 0;
+          state.timerRemaining = 600;
+        } else {
+          state.timerSegments.splice(i,1);
+          if (state.timerIndex > i) state.timerIndex--;
+          if (state.timerIndex >= state.timerSegments.length) state.timerIndex = state.timerSegments.length - 1;
+          state.timerRemaining = segmentDuration(state.timerSegments[state.timerIndex]);
+        }
+        save();
+        renderTimerList();
+        renderTimerDisplay();
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  function renderTimerDisplay() {
+    normalizeTimer();
+    const seg = state.timerSegments[state.timerIndex];
+    $("#timerPhase").textContent = seg ? (seg.name || `時間${state.timerIndex+1}`) : "時間を設定してください";
+    $("#timerTime").textContent = formatTime(state.timerRemaining);
+    $("#timerProgress").textContent = `${state.timerIndex + 1} / ${state.timerSegments.length}`;
+
+    const total = seg ? segmentDuration(seg) : 0;
+    const ratio = total > 0 ? Math.max(0, Math.min(1, state.timerRemaining / total)) : 0;
+    const bar = $("#timerBarFill");
+    if (bar) bar.style.width = `${ratio * 100}%`;
+
+    const display = $("#timerDisplay");
+    if (display) {
+      display.classList.toggle("warning", total > 0 && ratio <= 0.10 && state.timerRemaining > 0);
+      display.classList.toggle("final-countdown", state.timerRemaining > 0 && state.timerRemaining <= 10);
+    }
+  }
+
+  function playTone(frequency=880, duration=0.18, delay=0, type="sine", volume=0.16) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const start = ctx.currentTime + delay;
+      osc.type = type;
+      osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.03);
+      osc.onended = () => ctx.close();
+    } catch(e) {}
+  }
+
+  function playNamedSound(name) {
+    switch(name) {
+      case "double":
+        playTone(880, .12, 0);
+        setTimeout(() => playTone(1040, .16, 0), 150);
+        break;
+      case "bell":
+        playTone(740, .42, 0, "sine", .14);
+        setTimeout(() => playTone(1110, .32, 0, "sine", .10), 70);
+        break;
+      case "low":
+        playTone(420, .32, 0, "triangle", .15);
+        break;
+      case "triple":
+        playTone(820, .11, 0);
+        setTimeout(() => playTone(980, .11, 0), 145);
+        setTimeout(() => playTone(1180, .22, 0), 290);
+        break;
+      case "beep":
+      default:
+        playTone(920, .18, 0);
+        break;
+    }
+  }
+
+  function playTickSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      osc.type = "square";
+      osc.frequency.setValueAtTime(1450, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.055, now + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.055);
+      osc.onended = () => ctx.close();
+    } catch(e) {}
+  }
+
+  function vibratePattern(kind="interval") {
+    try {
+      if (!navigator.vibrate) return;
+      if (kind === "final") {
+        navigator.vibrate([180,90,180,90,420]);
+      } else {
+        navigator.vibrate([150,80,150]);
+      }
+    } catch(e) {}
+  }
+
+  function notifyTimerEnd(seg, isFinal) {
+    if (!seg) return;
+    if (seg.sound !== false) {
+      playNamedSound(isFinal ? (seg.finalSound || "bell") : (seg.intervalSound || "beep"));
+    }
+    if (seg.vibrate) {
+      vibratePattern(isFinal ? "final" : "interval");
+    }
+  }
+
+  function timerPlay() {
+    normalizeTimer();
+    if (timerRunning) return;
+
+    if (timerPendingAdvance) {
+      timerPendingAdvance = false;
+      if (state.timerIndex < state.timerSegments.length - 1) {
+        state.timerIndex++;
+        lastCountdownTickSecond = null;
+        state.timerRemaining = segmentDuration(state.timerSegments[state.timerIndex]);
+        renderTimerList();
+        renderTimerDisplay();
+      }
+    }
+
+    // Skip any zero-length segments at the front.
+    while (state.timerIndex < state.timerSegments.length && state.timerRemaining <= 0) {
+      if (state.timerIndex >= state.timerSegments.length - 1) {
+        state.timerIndex = 0;
+        state.timerRemaining = segmentDuration(state.timerSegments[0]);
+        break;
+      }
+      state.timerIndex++;
+      state.timerRemaining = segmentDuration(state.timerSegments[state.timerIndex]);
+    }
+
+    if (state.timerRemaining <= 0) return;
+
+    timerRunning = true;
+    lastCountdownTickSecond = null;
+    timerTargetEnd = Date.now() + state.timerRemaining * 1000;
+    $("#timerPlay").textContent = "▶ 再生中";
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(timerTick, 150);
+    timerTick();
+  }
+
+  function timerTick() {
+    if (!timerRunning) return;
+
+    let msLeft = timerTargetEnd - Date.now();
+
+    while (msLeft <= 0 && timerRunning) {
+      const finishedSeg = state.timerSegments[state.timerIndex];
+      const isFinalSegment = state.timerIndex >= state.timerSegments.length - 1;
+      notifyTimerEnd(finishedSeg, isFinalSegment);
+
+      const overshoot = -msLeft;
+      if (state.timerIndex < state.timerSegments.length - 1) {
+        if (finishedSeg.pauseAfter) {
+          state.timerRemaining = 0;
+          timerPendingAdvance = true;
+          timerStop(false);
+          save();
+          renderTimerList();
+          renderTimerDisplay();
+          return;
+        }
+
+        state.timerIndex++;
+        lastCountdownTickSecond = null;
+        const nextDuration = segmentDuration(state.timerSegments[state.timerIndex]);
+        state.timerRemaining = nextDuration;
+        timerTargetEnd = Date.now() + Math.max(0, nextDuration * 1000 - overshoot);
+        msLeft = timerTargetEnd - Date.now();
+        renderTimerList();
+      } else {
+        state.timerRemaining = 0;
+        timerStop(false);
+        save();
+        renderTimerDisplay();
+        return;
+      }
+    }
+
+    state.timerRemaining = Math.max(0, msLeft / 1000);
+
+    const activeSeg = state.timerSegments[state.timerIndex];
+    const secLeft = Math.ceil(state.timerRemaining);
+
+    if (
+      timerRunning &&
+      activeSeg &&
+      activeSeg.sound !== false &&
+      secLeft >= 1 &&
+      secLeft <= 10 &&
+      secLeft !== lastCountdownTickSecond
+    ) {
+      lastCountdownTickSecond = secLeft;
+      playTickSound();
+    }
+
+    renderTimerDisplay();
+  }
+
+  function timerStop(persist=true) {
+    if (timerRunning && timerTargetEnd) {
+      state.timerRemaining = Math.max(0, (timerTargetEnd - Date.now()) / 1000);
+    }
+    timerRunning = false;
+    timerTargetEnd = null;
+    lastCountdownTickSecond = null;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    const play = $("#timerPlay");
+    if (play) play.textContent = "▶ 再生";
+    if (persist) save();
+    renderTimerDisplay();
+  }
+
+  function timerReset() {
+    timerStop(false);
+    timerPendingAdvance = false;
+    state.timerIndex = 0;
+    state.timerRemaining = segmentDuration(state.timerSegments[0]);
+    save();
+    renderTimerList();
+    renderTimerDisplay();
+  }
+
+  function addTimerSegment() {
+    timerStop();
+    const n = state.timerSegments.length + 1;
+    state.timerSegments.push({
+      name:`時間${n}`, minutes:10, seconds:0,
+      sound:true, vibrate:false, pauseAfter:false,
+      intervalSound:"beep", finalSound:"bell"
+    });
+    save();
+    renderTimerList();
+    renderTimerDisplay();
+  }
+
+  // ---------- COUNT ----------
+  function alphaLabel(n) {
+    let s = "";
+    n = Math.max(1, Number(n) || 1);
+    while (n > 0) {
+      n--;
+      s = String.fromCharCode(65 + (n % 26)) + s;
+      n = Math.floor(n / 26);
+    }
+    return s;
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+
+
+  const COUNTER_STATUSES = [
+    {id:"confusion", icon:"🌀", label:"混乱"},
+    {id:"poison", icon:"☠️", label:"毒"},
+    {id:"bleeding", icon:"🩸", label:"流血"},
+    {id:"burn", icon:"🔥", label:"炎上"},
+    {id:"freeze", icon:"❄️", label:"凍結"},
+    {id:"stun", icon:"⚡", label:"麻痺"},
+    {id:"weak", icon:"💔", label:"弱体"},
+    {id:"sleep", icon:"😴", label:"睡眠"},
+    {id:"strength", icon:"💪", label:"筋力"},
+    {id:"miracle", icon:"✨", label:"奇跡"}
+  ];
+
+  function normalizeCounterStatuses() {
+    state.counters = state.counters.map(c => ({
+      name: c.name ?? "",
+      value: Number.isFinite(Number(c.value)) ? Number(c.value) : 0,
+      statuses: Array.isArray(c.statuses) ? c.statuses : []
+    }));
+  }
+
+  function renderCounters() {
+    normalizeCounterStatuses();
+    const list = $("#counterList");
+    list.innerHTML = "";
+
+    if (!state.counters.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "「＋ カウンターを追加」から追加できます";
+      list.appendChild(empty);
+      return;
+    }
+
+    state.counters.forEach((c, i) => {
+      const row = document.createElement("div");
+      row.className = "counter-row";
+      const statusButtons = COUNTER_STATUSES.map(s => {
+        const active = Array.isArray(c.statuses) && c.statuses.includes(s.id);
+        return `
+          <button class="status-btn ${active ? "active" : ""}" data-status="${s.id}" aria-pressed="${active}" aria-label="${s.label}" title="${s.label}">
+            <span class="status-icon">${s.icon}</span>
+          </button>
+        `;
+      }).join("");
+
+      row.innerHTML = `
+        <input class="counter-name" value="${escapeHtml(c.name ?? "")}" aria-label="名前">
+        <button class="counter-step" aria-label="マイナス">−</button>
+        <input class="counter-value" type="number" inputmode="numeric" value="${Number(c.value) || 0}" aria-label="値">
+        <button class="counter-step plus" aria-label="プラス">＋</button>
+        <button class="counter-delete" aria-label="削除">×</button>
+        <div class="status-wrap">${statusButtons}</div>
+      `;
+
+      const name = row.querySelector(".counter-name");
+      const value = row.querySelector(".counter-value");
+      const minus = row.querySelector(".counter-step:not(.plus)");
+      const plus = row.querySelector(".counter-step.plus");
+      const del = row.querySelector(".counter-delete");
+
+      name.addEventListener("input", e => {
+        state.counters[i].name = e.target.value;
+        save();
+      });
+
+      value.addEventListener("input", e => {
+        const v = Number(e.target.value);
+        state.counters[i].value = Number.isFinite(v) ? v : 0;
+        save();
+      });
+
+      minus.addEventListener("click", () => {
+        state.counters[i].value = (Number(state.counters[i].value) || 0) - 1;
+        save();
+        renderCounters();
+      });
+
+      plus.addEventListener("click", () => {
+        state.counters[i].value = (Number(state.counters[i].value) || 0) + 1;
+        save();
+        renderCounters();
+      });
+
+      del.addEventListener("click", () => {
+        state.counters.splice(i,1);
+        save();
+        renderCounters();
+      });
+
+      row.querySelectorAll(".status-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.status;
+          const statuses = Array.isArray(state.counters[i].statuses)
+            ? [...state.counters[i].statuses]
+            : [];
+          const idx = statuses.indexOf(id);
+          if (idx >= 0) {
+            statuses.splice(idx,1);
+          } else {
+            statuses.push(id);
+          }
+          state.counters[i].statuses = statuses;
+          save();
+          renderCounters();
+        });
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  function addCounter() {
+    const name = alphaLabel(state.nextCounterNumber || 1);
+    state.counters.push({name, value:0, statuses:[]});
+    state.nextCounterNumber = (state.nextCounterNumber || 1) + 1;
+    save();
+    renderCounters();
+  }
+
+
+
+  // ---------- CONFIRM DIALOG ----------
+  let confirmAction = null;
+
+  function showConfirm(title, message, onConfirm) {
+    confirmAction = typeof onConfirm === "function" ? onConfirm : null;
+    $("#confirmTitle").textContent = title || "確認";
+    $("#confirmMessage").textContent = message || "";
+    const overlay = $("#confirmOverlay");
+    overlay.classList.add("open");
+    overlay.setAttribute("aria-hidden", "false");
+    setTimeout(() => $("#confirmCancel").focus(), 0);
+  }
+
+  function closeConfirm() {
+    const overlay = $("#confirmOverlay");
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden", "true");
+    confirmAction = null;
+  }
+
+  // ---------- SCORE FAVORITES ----------
+  function makeScoreSnapshot() {
+    return {
+      title: `お気に入り${state.scoreFavorites.length + 1}`,
+      players: state.players,
+      rounds: state.rounds,
+      names: state.names.map(v => String(v ?? "")),
+      roundLabels: state.roundLabels.map((v, i) => String(v || `R${i+1}`)),
+      scores: state.scores.map(row => row.map(v => v ?? ""))
+    };
+  }
+
+  function renderScoreFavorites() {
+    const panel = $("#scoreFavoritePanel");
+    const list = $("#scoreFavoriteList");
+    const count = $("#scoreFavoriteCount");
+    if (!panel || !list || !count) return;
+
+    count.textContent = `${state.scoreFavorites.length} / 10`;
+    list.innerHTML = "";
+
+    if (!state.scoreFavorites.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "まだ保存されていません";
+      list.appendChild(empty);
+      return;
+    }
+
+    state.scoreFavorites.forEach((fav, i) => {
+      const row = document.createElement("div");
+      row.className = "favorite-row";
+
+      const name = document.createElement("input");
+      name.className = "favorite-name";
+      name.value = fav.title || `お気に入り${i+1}`;
+      name.setAttribute("aria-label", `お気に入り${i+1}の名前`);
+      name.addEventListener("input", e => {
+        state.scoreFavorites[i].title = e.target.value;
+        save();
+      });
+
+      const loadBtn = document.createElement("button");
+      loadBtn.className = "favorite-mini";
+      loadBtn.textContent = "読込";
+      loadBtn.addEventListener("click", () => loadScoreFavorite(i));
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "favorite-mini delete";
+      deleteBtn.textContent = "×";
+      deleteBtn.setAttribute("aria-label", "お気に入り削除");
+      deleteBtn.addEventListener("click", () => {
+        const title = state.scoreFavorites[i]?.title || `お気に入り${i+1}`;
+        showConfirm(
+          "お気に入りを削除",
+          `「${title}」を削除します。\nこの操作は元に戻せません。`,
+          () => {
+            state.scoreFavorites.splice(i, 1);
+            save();
+            renderScoreFavorites();
+          }
+        );
+      });
+
+      row.append(name, loadBtn, deleteBtn);
+      list.appendChild(row);
+    });
+  }
+
+  function saveScoreFavorite() {
+    if (state.scoreFavorites.length >= 10) {
+      alert("お気に入りは10件まで保存できます。");
+      return;
+    }
+    state.scoreFavorites.push(makeScoreSnapshot());
+    save();
+    renderScoreFavorites();
+  }
+
+  function loadScoreFavorite(index) {
+    const fav = state.scoreFavorites[index];
+    if (!fav) return;
+
+    state.players = clamp(parseInt(fav.players || 1, 10), 1, 12);
+    state.rounds = clamp(parseInt(fav.rounds || 1, 10), 1, 30);
+    state.names = Array.from(
+      {length:state.players},
+      (_,i) => Array.isArray(fav.names) && fav.names[i] !== undefined ? fav.names[i] : sharedPlayerName(i)
+    );
+    state.roundLabels = Array.from(
+      {length:state.rounds},
+      (_,r) => Array.isArray(fav.roundLabels) && fav.roundLabels[r] !== undefined
+        ? fav.roundLabels[r]
+        : `R${r+1}`
+    );
+    state.scores = Array.from(
+      {length:state.players},
+      (_,p) => Array.from(
+        {length:state.rounds},
+        (_,r) => Array.isArray(fav.scores) && Array.isArray(fav.scores[p]) && fav.scores[p][r] !== undefined
+          ? fav.scores[p][r]
+          : ""
+      )
+    );
+
+    save();
+    renderScoreTable();
+  }
+
+  $$(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $$(".tab").forEach(b => b.classList.toggle("active", b === btn));
+      $$(".page").forEach(p => p.classList.toggle("active", p.id === btn.dataset.tab));
+    });
+  });
+
+  $$("[data-add-die]").forEach(btn => {
+    btn.addEventListener("click", () => addDie(btn.dataset.addDie));
+  });
+
+  $$("[data-remove-die]").forEach(btn => {
+    btn.addEventListener("click", () => removeDieByKind(btn.dataset.removeDie));
+  });
+
+  $("#rollAll").addEventListener("click", rollAll);
+  $("#clearDice").addEventListener("click", clearDice);
+  $("#applyScoreTable").addEventListener("click", applyScoreTable);
+  $("#clearScores").addEventListener("click", clearScores);
+  $("#toggleScoreFavorites").addEventListener("click", () => {
+    $("#scoreFavoritePanel").classList.toggle("open");
+    renderScoreFavorites();
+  });
+  $("#saveScoreFavorite").addEventListener("click", saveScoreFavorite);
+
+  $("#confirmCancel").addEventListener("click", closeConfirm);
+  $("#confirmOk").addEventListener("click", () => {
+    const action = confirmAction;
+    closeConfirm();
+    if (action) action();
+  });
+  $("#confirmOverlay").addEventListener("click", e => {
+    if (e.target === $("#confirmOverlay")) closeConfirm();
+  });
+
+  $("#timerPlay").addEventListener("click", timerPlay);
+  $("#timerStop").addEventListener("click", () => timerStop());
+  $("#timerReset").addEventListener("click", timerReset);
+  $("#addTimerSegment").addEventListener("click", addTimerSegment);
+  $("#addCounter").addEventListener("click", addCounter);
+
+  load();
+  normalizeScoreState(state.players, state.rounds);
+  renderDice();
+  renderScoreTable();
+  renderScoreFavorites();
+
+  normalizeTimer();
+  // A fresh load always starts paused, retaining the current remaining time.
+  renderTimerList();
+  renderTimerDisplay();
+  renderCounters();
+})();
+</script>
+</body>
+</html>

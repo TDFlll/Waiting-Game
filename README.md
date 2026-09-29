@@ -13,7 +13,8 @@ waiting-games/
 │  ├─ cards.html
 │  ├─ auction.html
 │  ├─ robots.html
-│  └─ escape.html
+│  ├─ escape.html
+│  └─ helper.html
 └─ README.md
 ```
 
@@ -25,6 +26,7 @@ waiting-games/
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
 - `games/robots.html` from `waiting_robots_v4.7.html`
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
+- `games/helper.html` from `Board_Game_Helper_v1.01.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Notes
