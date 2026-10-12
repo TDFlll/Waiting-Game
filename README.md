@@ -7,6 +7,14 @@
 ```text
 waiting-games/
 ├─ index.html
+├─ manifest.webmanifest
+├─ service-worker.js
+├─ offline-manifest.json
+├─ offline-manager.js
+├─ offline.html
+├─ icons/
+│  ├─ icon.svg
+│  └─ maskable.svg
 ├─ games/
 │  ├─ shapes.html
 │  ├─ dice.html
@@ -29,9 +37,26 @@ waiting-games/
 - `games/helper.html` from `Board_Game_Helper_v1.01.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
+## Offline Use
+
+The launcher includes a PWA/offline manager for GitHub Pages.
+
+1. Open the published site while online.
+2. In `OFFLINE`, tap `全ゲームを一括ダウンロード`.
+3. Wait until the status says the download is complete.
+4. Use `状態更新` to confirm each game shows `保存済み`.
+5. On iPhone, add the site to the Home Screen after saving if you want app-like startup.
+
+`更新確認` reloads `offline-manifest.json` from the network and compares saved versions.
+`一括更新` downloads the current offline bundle again.
+
 ## Notes
 
 - The launcher `PLAY` buttons open the fixed game paths above.
 - Each game has a small `← GAMES` link back to `../index.html`.
 - The original game logic was left unchanged except for the added launcher return link.
 - The project is ready to upload to a GitHub Pages repository root.
+- All current games are single-file local HTML files. No external CDN, API, image, font, or audio dependency was found.
+- Offline Cache Storage is separate from each game's `localStorage` save data. Updating the offline cache does not clear existing in-game saves.
+- Browser storage is not permanent. iOS Safari and Home Screen apps can manage storage separately, so save/download in the same browser or Home Screen app you plan to use offline.
+- If the first offline save says the Service Worker is not ready, reload the launcher once and run the download again.

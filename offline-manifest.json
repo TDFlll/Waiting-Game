@@ -1,0 +1,71 @@
+{
+  "version": "2026.10.13-offline-v1",
+  "generatedAt": "2026-10-13",
+  "core": [
+    "./",
+    "index.html",
+    "offline.html",
+    "offline-manager.js",
+    "manifest.webmanifest",
+    "icons/icon.svg",
+    "icons/maskable.svg"
+  ],
+  "items": [
+    {
+      "id": "shapes",
+      "title": "WAITING SHAPES",
+      "type": "game",
+      "version": "v0.8.1 c1",
+      "url": "games/shapes.html",
+      "files": ["games/shapes.html"]
+    },
+    {
+      "id": "dice",
+      "title": "WAITING DICE",
+      "type": "game",
+      "version": "v0.3.2",
+      "url": "games/dice.html",
+      "files": ["games/dice.html"]
+    },
+    {
+      "id": "cards",
+      "title": "WAITING CARDS",
+      "type": "game",
+      "version": "v0.6.3 v13",
+      "url": "games/cards.html",
+      "files": ["games/cards.html"]
+    },
+    {
+      "id": "auction",
+      "title": "WAITING AUCTION",
+      "type": "game",
+      "version": "v0.1 UI-16",
+      "url": "games/auction.html",
+      "files": ["games/auction.html"]
+    },
+    {
+      "id": "robots",
+      "title": "WAITING ROBOTS",
+      "type": "game",
+      "version": "v4.7",
+      "url": "games/robots.html",
+      "files": ["games/robots.html"]
+    },
+    {
+      "id": "escape",
+      "title": "WAITING ESCAPE",
+      "type": "game",
+      "version": "v0.20",
+      "url": "games/escape.html",
+      "files": ["games/escape.html"]
+    },
+    {
+      "id": "helper",
+      "title": "BOARD GAME HELPER",
+      "type": "tool",
+      "version": "v1.01",
+      "url": "games/helper.html",
+      "files": ["games/helper.html"]
+    }
+  ]
+}
