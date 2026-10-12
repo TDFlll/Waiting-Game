@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.10.13-offline-v1";
+const SW_VERSION = "2026.10.13-security-v1";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

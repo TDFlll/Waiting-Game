@@ -115,9 +115,12 @@ let OPENING_AP=1,FIRST_TURN_DRAW=true;
 const STATS_KEY='waitingCards_v050_stats';
 const $=id=>document.getElementById(id);
 function sharedPlayerName(p){const defaults=['P1','P2','P3','P4'];try{const saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'null');if(Array.isArray(saved)){const raw=String(saved[p]||defaults[p]||`P${p+1}`).trim().slice(0,16).replace(/[&<>"']/g,'');return raw||defaults[p]||`P${p+1}`;}}catch(e){}return defaults[p]||`P${p+1}`;}
-function loadStats(){try{return JSON.parse(localStorage.getItem(STATS_KEY)||'null')||{games:0,p1:0,p2:0,draw:0,starterWins:0,secondWins:0,cpuGames:0,cpuWins:0};}catch(e){return{games:0,p1:0,p2:0,draw:0,starterWins:0,secondWins:0,cpuGames:0,cpuWins:0};}}
-function saveStats(st){try{localStorage.setItem(STATS_KEY,JSON.stringify(st));}catch(e){}}
-function renderStats(){const st=loadStats();const boxes=[['対戦数',st.games],['P1 勝利',st.p1],['P2 勝利',st.p2],['引き分け',st.draw],['先攻勝利',st.starterWins],['後攻勝利',st.secondWins],['CPU戦',st.cpuGames],['CPU勝利',st.cpuWins]];$('statsGrid').innerHTML=boxes.map(x=>`<div class="statBox">${x[0]}<b>${x[1]}</b></div>`).join('');}
+function defaultStats(){return{games:0,p1:0,p2:0,draw:0,starterWins:0,secondWins:0,cpuGames:0,cpuWins:0};}
+function safeStatValue(v){return Number.isSafeInteger(v)&&v>=0&&v<=999999?v:0;}
+function normalizeStats(raw){const base=defaultStats();if(!raw||typeof raw!=='object'||Array.isArray(raw))return base;Object.keys(base).forEach(k=>base[k]=safeStatValue(raw[k]));return base;}
+function loadStats(){try{return normalizeStats(JSON.parse(localStorage.getItem(STATS_KEY)||'null'));}catch(e){return defaultStats();}}
+function saveStats(st){try{localStorage.setItem(STATS_KEY,JSON.stringify(normalizeStats(st)));}catch(e){}}
+function renderStats(){const st=loadStats();const boxes=[['対戦数',st.games],['P1 勝利',st.p1],['P2 勝利',st.p2],['引き分け',st.draw],['先攻勝利',st.starterWins],['後攻勝利',st.secondWins],['CPU戦',st.cpuGames],['CPU勝利',st.cpuWins]];const grid=$('statsGrid');grid.innerHTML='';boxes.forEach(([label,value])=>{const box=document.createElement('div');box.className='statBox';box.append(document.createTextNode(label));const b=document.createElement('b');b.textContent=value;box.appendChild(b);grid.appendChild(box);});}
 function recordStats(winner){const st=loadStats();st.games++;if(winner===null)st.draw++;else{if(winner===0)st.p1++;else st.p2++;if(winner===S.starter)st.starterWins++;else st.secondWins++;}if(GAME_MODE==='CPU'){st.cpuGames++;if(winner===CPU_PLAYER)st.cpuWins++;}saveStats(st);}
 function refreshTitleControls(){if(!$('titleScreen'))return;$('mode2p').classList.toggle('on',GAME_MODE==='2P');$('modeCpu').classList.toggle('on',GAME_MODE==='CPU');$('ap1Btn').classList.toggle('on',OPENING_AP===1);$('ap2Btn').classList.toggle('on',OPENING_AP===2);$('drawOnBtn').classList.toggle('on',FIRST_TURN_DRAW);$('drawOffBtn').classList.toggle('on',!FIRST_TURN_DRAW);renderStats();}
 function showTitle(){document.querySelector('.handWrap').classList.add('privacyHidden');$('titleScreen').classList.remove('hidden');refreshTitleControls();}

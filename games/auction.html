@@ -158,10 +158,44 @@ const defaultPrices={
   5:{diamond:[2,4,6,8,10,12,14,16,18,20],relic:[1,2,3,6,12,24,36,48,60,72],painting:[2,5,10,12,17,25,27,32,40,42],curse:[-1,-2,-4,-8,-12,-16,-20,-24],red:15,star:[0,0,30],diamondTop:40,recordBonus:2,curseRate:5,rare:{red:1,star:3}}
 };
 function clone(x){return JSON.parse(JSON.stringify(x))}
+function safeInt(v,min,max,fallback=0){return Number.isInteger(v)&&v>=min&&v<=max?v:fallback}
+function safeMoney(v){return Number.isFinite(v)&&v>=0&&v<=9999999?Math.floor(v):0}
+function safeName(v,fallback){const s=String(v||fallback).trim().slice(0,16).replace(/[&<>"']/g,'');return s||fallback}
+function normalizeSupply(raw){
+  const base=clone(defaultSupply);
+  if(!raw||typeof raw!=='object')return base;
+  [3,4,5].forEach(n=>{
+    if(Array.isArray(raw[n])&&raw[n].length)base[n]=raw[n].map(row=>Array.isArray(row)?row.map(x=>safeInt(Number(x),0,20,0)).slice(0,n):[]).slice(0,12);
+  });
+  return base;
+}
+function normalizePriceList(raw,fallback,min=-999,max=999){
+  const source=Array.isArray(raw)&&raw.length?raw:fallback;
+  return source.map(x=>Number(x)).filter(Number.isFinite).map(x=>Math.max(min,Math.min(max,Math.trunc(x)))).slice(0,30);
+}
+function normalizePrices(raw){
+  const base=clone(defaultPrices);
+  if(!raw||typeof raw!=='object')return base;
+  [3,4,5].forEach(n=>{
+    const src=raw[n];if(!src||typeof src!=='object')return;
+    const q=base[n];
+    q.diamond=normalizePriceList(src.diamond,q.diamond,0,999);
+    q.relic=normalizePriceList(src.relic,q.relic,0,999);
+    q.painting=normalizePriceList(src.painting,q.painting,0,999);
+    q.curse=normalizePriceList(src.curse,q.curse,-999,0);
+    q.star=normalizePriceList(src.star,q.star,0,999);
+    q.red=safeInt(Number(src.red),0,999,q.red);
+    q.diamondTop=safeInt(Number(src.diamondTop),0,999,q.diamondTop);
+    q.recordBonus=safeInt(Number(src.recordBonus),0,999,q.recordBonus);
+    q.curseRate=safeInt(Number(src.curseRate),0,100,q.curseRate);
+    q.rare={red:safeInt(Number(src.rare&&src.rare.red),0,10,q.rare.red),star:safeInt(Number(src.rare&&src.rare.star),0,10,q.rare.star)};
+  });
+  return base;
+}
 function loadAuctionSettings(){
   try{
     const x=JSON.parse(localStorage.getItem('waitingAuctionSettingsV1')||'null');
-    if(x&&x.supply&&x.prices)return x;
+    if(x&&x.supply&&x.prices)return {supply:normalizeSupply(x.supply),prices:normalizePrices(x.prices)};
   }catch(e){}
   return {supply:clone(defaultSupply),prices:clone(defaultPrices)};
 }
@@ -186,7 +220,62 @@ const app=document.querySelector('#app');
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function title(sub=''){return `<div class='row'><div class='grow'><div class='mut'>WAITING GAMES</div><div class='big'>WAITING AUCTION</div></div><div class='pill'>v0.1 UI-16</div></div>${sub?`<div class='mut'>${sub}</div>`:''}`}
 const SAVE_KEY='waitingAuctionInProgressV1';
-function loadSavedGame(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(x&&x.version===1&&x.G&&x.screen)return x}catch(e){}return null}
+const VALID_SCREENS=['dealer','special','market','pass','bid','result','rank','pick','roundEnd'];
+function normalizeLots(lots){
+  if(!Array.isArray(lots))return [];
+  return lots.slice(0,5).map(l=>l===null?null:Array.isArray(l)?l.filter(x=>CATS.some(c=>c[0]===x)).slice(0,20):[]);
+}
+function normalizeOwned(owned,n){
+  if(!Array.isArray(owned)||owned.length!==n)return Array.from({length:n},()=>Object.fromEntries(CATS.map(c=>[c[0],0])));
+  return owned.map(row=>Object.fromEntries(CATS.map(c=>[c[0],safeInt(Number(row&&row[c[0]]),0,999,0)])));
+}
+function normalizeNumberArray(raw,n,max=9999999,nullable=false){
+  const out=Array.from({length:n},(_,i)=>nullable?null:0);
+  if(Array.isArray(raw))raw.slice(0,n).forEach((v,i)=>{out[i]=nullable&&v===null?null:safeMoney(Number(v));});
+  return out;
+}
+function normalizeOrder(raw,n){const valid=Array.isArray(raw)?raw.filter(x=>Number.isInteger(x)&&x>=0&&x<n):[];return [...new Set(valid)].slice(0,n);}
+function normalizeAuctionGame(g){
+  if(!g||typeof g!=='object')return null;
+  const n=safeInt(Number(g.n),3,5,null);if(!n)return null;
+  const supply=normalizeSupply(g.supply),prices=normalizePrices(g.prices);
+  const normalRoundIndex=safeInt(Number(g.normalRoundIndex),0,Math.max(0,supply[n].length),0);
+  const out={
+    ...G,
+    n,
+    names:Array.from({length:n},(_,i)=>safeName(Array.isArray(g.names)?g.names[i]:null,'P'+(i+1))),
+    round:safeInt(Number(g.round),0,99,0),
+    dealer:safeInt(Number(g.dealer),0,n-1,0),
+    supply,prices,
+    lots:normalizeLots(g.lots),
+    rerolls:safeInt(Number(g.rerolls),0,3,2),
+    bids:normalizeNumberArray(g.bids,n,9999999,true),
+    order:normalizeOrder(g.order,n),
+    pickIdx:safeInt(Number(g.pickIdx),0,n,0),
+    owned:normalizeOwned(g.owned,n),
+    spent:normalizeNumberArray(g.spent,n),
+    scoring:'stage',
+    rollCount:safeInt(Number(g.rollCount),0,3,0),
+    cursedMarket:!!g.cursedMarket,
+    highestBid:safeMoney(Number(g.highestBid)),
+    highestBidLog:Array.isArray(g.highestBidLog)?g.highestBidLog.slice(0,50):[],
+    bidHistory:Array.isArray(g.bidHistory)?g.bidHistory.slice(0,20):[],
+    scoreHistory:Array.isArray(g.scoreHistory)?g.scoreHistory.slice(0,20):[],
+    rareConfig:prices[n].rare,
+    rarePlan:null,
+    marketBonus:normalizeNumberArray(g.marketBonus,n,999),
+    rareRoute:['A','B','C','D'].includes(g.rareRoute)?g.rareRoute:null,
+    specialQueue:Array.isArray(g.specialQueue)?g.specialQueue.slice(0,8):[],
+    specialMarket:!!g.specialMarket,
+    specialLabel:safeName(g.specialLabel,''),
+    specialHistory:Array.isArray(g.specialHistory)?g.specialHistory.slice(0,20):[],
+    normalRoundIndex,
+    lastAllocationSnapshot:null
+  };
+  if(out.pickIdx>out.order.length)out.pickIdx=0;
+  return out;
+}
+function loadSavedGame(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(x&&x.version===1&&VALID_SCREENS.includes(x.screen)){const safeG=normalizeAuctionGame(x.G);if(safeG)return {...x,screen:x.screen,G:safeG};}}catch(e){}return null}
 function saveGame(screen){try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:1,savedAt:Date.now(),screen:screen,G:G}))}catch(e){}}
 function clearSavedGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
 function resumeSummary(x){

@@ -1121,7 +1121,7 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const data = JSON.parse(raw);
-      if (Array.isArray(data.dice)) state.dice = data.dice;
+      if (Array.isArray(data.dice)) state.dice = normalizeDiceList(data.dice);
       if (Number.isInteger(data.players)) state.players = data.players;
       if (Number.isInteger(data.rounds)) state.rounds = data.rounds;
       if (Array.isArray(data.names)) state.names = data.names;
@@ -1142,6 +1142,22 @@
 
   function rollDie(sides) {
     return Math.floor(Math.random() * sides) + 1;
+  }
+
+  function normalizeDiceItem(item) {
+    if (!item || typeof item !== "object") return null;
+    if (item.type === "coin") {
+      const value = item.value === 0 || item.value === 1 ? item.value : null;
+      return { type:"coin", value };
+    }
+    const sides = Number(item.sides);
+    if (![3,6,10,100].includes(sides)) return null;
+    const value = Number.isInteger(item.value) && item.value >= 1 && item.value <= sides ? item.value : null;
+    return { sides, value };
+  }
+
+  function normalizeDiceList(list) {
+    return list.map(normalizeDiceItem).filter(Boolean).slice(0, 10);
   }
 
   function rollDiceItem(item) {
@@ -1230,7 +1246,7 @@
     });
 
     // Final result
-    state.dice = state.dice.map(d => ({...d, value: rollDiceItem(d)}));
+    state.dice = normalizeDiceList(state.dice).map(d => ({...d, value: rollDiceItem(d)}));
     save();
     renderDice();
 
@@ -1248,6 +1264,7 @@
   function renderDice() {
     const list = $("#diceList");
     list.innerHTML = "";
+    state.dice = normalizeDiceList(state.dice);
 
     const counts = {coin:0,3:0,6:0,10:0,100:0};
     let total = 0;
@@ -1259,12 +1276,19 @@
 
       const card = document.createElement("div");
       card.className = "die-card";
-      card.innerHTML = `
-        <button class="remove" aria-label="削除">×</button>
-        <div class="die-type">${diceItemLabel(d)}</div>
-        <div class="die-value">${d.value ?? "−"}</div>
-      `;
-      card.querySelector(".remove").addEventListener("click", () => removeDie(i));
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.type = "button";
+      remove.setAttribute("aria-label", "削除");
+      remove.textContent = "×";
+      const type = document.createElement("div");
+      type.className = "die-type";
+      type.textContent = diceItemLabel(d);
+      const value = document.createElement("div");
+      value.className = "die-value";
+      value.textContent = d.value ?? "−";
+      remove.addEventListener("click", () => removeDie(i));
+      card.append(remove, type, value);
       list.appendChild(card);
     });
 
