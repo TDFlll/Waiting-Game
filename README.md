@@ -60,3 +60,13 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 - Offline Cache Storage is separate from each game's `localStorage` save data. Updating the offline cache does not clear existing in-game saves.
 - Browser storage is not permanent. iOS Safari and Home Screen apps can manage storage separately, so save/download in the same browser or Home Screen app you plan to use offline.
 - If the first offline save says the Service Worker is not ready, reload the launcher once and run the download again.
+
+## License
+
+© 2026 TDFlll. All Rights Reserved.
+
+Waiting Game is free to play for personal, non-commercial use. Offline downloads are permitted only through the official website's download feature for use on your own device. Sharing the official website URL is permitted.
+
+Unauthorized copying, redistribution (including sharing downloaded offline files), publication of modified versions, and commercial use are prohibited, except where applicable law permits or the copyright holder expressly authorizes them.
+
+See [LICENSE](LICENSE) for the full terms. This is a custom license, not an open-source license.
