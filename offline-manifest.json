@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.21-offline-panel-v1",
+  "version": "2026.10.21-helper-v103",
   "generatedAt": "2026-10-21",
   "core": [
     "./",
@@ -85,7 +85,7 @@
       "id": "helper",
       "title": "BOARD GAME HELPER",
       "type": "tool",
-      "version": "v1.01",
+      "version": "v1.03",
       "url": "games/helper.html",
       "files": [
         "games/helper.html"

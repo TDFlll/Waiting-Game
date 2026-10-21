@@ -36,7 +36,7 @@ waiting-games/
 - `games/robots.html` from `waiting_robots_v4.7.html`
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
 - `games/line.html` v2.3.1 from `Waiting_Line_DEMO_v2.2.html` (launcher and CPU integration)
-- `games/helper.html` from `Board_Game_Helper_v1.01.html`
+- `games/helper.html` from `Board_Game_Helper_v1.03.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use

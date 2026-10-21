@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#171717" />
-<title>Board Game Helper v1.01</title>
+<title>Board Game Helper v1.03</title>
 <style>
   :root{
     --bg:#101114;
@@ -275,6 +275,66 @@
     font-size:26px;
     font-weight:900;
     margin-top:2px;
+  }
+  .dice-history{
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid #2f3440;
+  }
+  .dice-history-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .dice-history-title{
+    font-size:15px;
+    font-weight:900;
+  }
+  .dice-history-list{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .dice-history-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px;
+    align-items:center;
+    background:#121419;
+    border:1px solid #303541;
+    border-radius:12px;
+    padding:9px 10px;
+  }
+  .dice-history-main{
+    min-width:0;
+  }
+  .dice-history-config{
+    font-size:13px;
+    font-weight:800;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .dice-history-result{
+    margin-top:3px;
+    color:var(--muted);
+    font-size:12px;
+    overflow-wrap:anywhere;
+  }
+  .dice-history-total{
+    min-width:56px;
+    text-align:right;
+    font-size:21px;
+    font-weight:900;
+    color:var(--accent2);
+  }
+  .dice-history-empty{
+    color:var(--muted);
+    text-align:center;
+    padding:12px 6px;
+    font-size:12px;
   }
   .empty{
     color:var(--muted);
@@ -839,7 +899,7 @@
     margin-top:12px;
   }
   @media (min-width:720px){
-    .dice-add-grid{grid-template-columns:repeat(5,1fr)}
+    .dice-add-grid{grid-template-columns:repeat(3,1fr)}
   }
   .wg-home{
     position:fixed;
@@ -857,15 +917,20 @@
     backdrop-filter:blur(6px);
     -webkit-backdrop-filter:blur(6px);
   }
+  .app{padding-top:calc(50px + env(safe-area-inset-top))}
+  .tabs{top:calc(44px + env(safe-area-inset-top))}
+  .dice-add-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+  .dice-add{min-width:0}
+  .dice-add>div:last-child{flex-shrink:0}
 </style>
 </head>
 <body>
-<a class="wg-home" href="../index.html">← GAMES</a>
+<a class="wg-home" href="../index.html" aria-label="WAITING GAMESへ戻る">← GAMES</a>
 <div class="app">
   <div class="topbar">
     <div>
       <div class="title">Board Game Helper</div>
-      <div class="version">v1.01</div>
+      <div class="version">v1.03</div>
     </div>
     <div class="hint">卓上ゲーム補助ツール</div>
   </div>
@@ -911,6 +976,18 @@
 
         <div class="dice-add">
           <div>
+            <div class="die-name">D4</div>
+            <div class="hint">4面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="4">−</button>
+            <div class="count-badge" id="count-4">0</div>
+            <button class="plus" data-add-die="4">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
             <div class="die-name">D6</div>
             <div class="hint">6面</div>
           </div>
@@ -923,6 +1000,18 @@
 
         <div class="dice-add">
           <div>
+            <div class="die-name">D8</div>
+            <div class="hint">8面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="8">−</button>
+            <div class="count-badge" id="count-8">0</div>
+            <button class="plus" data-add-die="8">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
             <div class="die-name">D10</div>
             <div class="hint">10面</div>
           </div>
@@ -930,6 +1019,30 @@
             <button class="minus" data-remove-die="10">−</button>
             <div class="count-badge" id="count-10">0</div>
             <button class="plus" data-add-die="10">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D12</div>
+            <div class="hint">12面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="12">−</button>
+            <div class="count-badge" id="count-12">0</div>
+            <button class="plus" data-add-die="12">＋</button>
+          </div>
+        </div>
+
+        <div class="dice-add">
+          <div>
+            <div class="die-name">D20</div>
+            <div class="hint">20面</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="minus" data-remove-die="20">−</button>
+            <div class="count-badge" id="count-20">0</div>
+            <button class="plus" data-add-die="20">＋</button>
           </div>
         </div>
 
@@ -965,6 +1078,14 @@
           <div class="summary-label">合計</div>
           <div class="summary-value" id="diceTotal">0</div>
         </div>
+      </div>
+
+      <div class="dice-history">
+        <div class="dice-history-head">
+          <div class="dice-history-title">履歴</div>
+          <button class="btn danger" id="clearDiceHistory">履歴削除</button>
+        </div>
+        <div id="diceHistoryList" class="dice-history-list"></div>
       </div>
     </div>
   </section>
@@ -1077,6 +1198,7 @@
 
   const state = {
     dice: [],
+    diceHistory: [],
     players: 4,
     rounds: 5,
     names: [],
@@ -1100,6 +1222,7 @@
 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => [...document.querySelectorAll(sel)];
+
   function sharedPlayerName(i) {
     const defaults = ["P1","P2","P3","P4"];
     try {
@@ -1122,6 +1245,7 @@
       if (!raw) return;
       const data = JSON.parse(raw);
       if (Array.isArray(data.dice)) state.dice = normalizeDiceList(data.dice);
+      if (Array.isArray(data.diceHistory)) state.diceHistory = data.diceHistory;
       if (Number.isInteger(data.players)) state.players = data.players;
       if (Number.isInteger(data.rounds)) state.rounds = data.rounds;
       if (Array.isArray(data.names)) state.names = data.names;
@@ -1151,7 +1275,7 @@
       return { type:"coin", value };
     }
     const sides = Number(item.sides);
-    if (![3,6,10,100].includes(sides)) return null;
+    if (![3,4,6,8,10,12,20,100].includes(sides)) return null;
     const value = Number.isInteger(item.value) && item.value >= 1 && item.value <= sides ? item.value : null;
     return { sides, value };
   }
@@ -1209,6 +1333,107 @@
     }
   }
 
+
+  function buildDiceHistoryEntry() {
+    const grouped = {};
+    state.dice.forEach(d => {
+      const key = diceItemKey(d);
+      grouped[key] = (grouped[key] || 0) + 1;
+    });
+
+    const order = ["coin","3","4","6","8","10","12","20","100"];
+    const labels = {
+      coin:"COIN",
+      "3":"D3",
+      "4":"D4",
+      "6":"D6",
+      "8":"D8",
+      "10":"D10",
+      "12":"D12",
+      "20":"D20",
+      "100":"D100"
+    };
+
+    const config = order
+      .filter(key => grouped[key])
+      .map(key => `${labels[key]}×${grouped[key]}`)
+      .join(" + ");
+
+    const results = state.dice.map(d => d.value).join(", ");
+    const total = state.dice.reduce(
+      (sum, d) => sum + (typeof d.value === "number" ? d.value : 0),
+      0
+    );
+
+    return {
+      config,
+      results,
+      total,
+      createdAt: Date.now()
+    };
+  }
+
+  function addDiceHistory() {
+    if (!state.dice.length) return;
+    state.diceHistory.unshift(buildDiceHistoryEntry());
+    state.diceHistory = state.diceHistory.slice(0, 10);
+    save();
+    renderDiceHistory();
+  }
+
+  function renderDiceHistory() {
+    const list = $("#diceHistoryList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    if (!state.diceHistory.length) {
+      const empty = document.createElement("div");
+      empty.className = "dice-history-empty";
+      empty.textContent = "まだ履歴はありません";
+      list.appendChild(empty);
+      return;
+    }
+
+    state.diceHistory.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "dice-history-row";
+
+      const main = document.createElement("div");
+      main.className = "dice-history-main";
+
+      const config = document.createElement("div");
+      config.className = "dice-history-config";
+      config.textContent = item.config || "ダイス";
+
+      const result = document.createElement("div");
+      result.className = "dice-history-result";
+      result.textContent = `出目: ${item.results ?? ""}`;
+
+      const total = document.createElement("div");
+      total.className = "dice-history-total";
+      total.textContent = `計 ${Number(item.total) || 0}`;
+
+      main.append(config, result);
+      row.append(main, total);
+      list.appendChild(row);
+    });
+  }
+
+  function clearDiceHistory() {
+    if (!state.diceHistory.length) return;
+
+    showConfirm(
+      "履歴を削除",
+      "DICEの履歴をすべて削除します。\\nこの操作は元に戻せません。",
+      () => {
+        state.diceHistory = [];
+        save();
+        renderDiceHistory();
+      }
+    );
+  }
+
   let rolling = false;
 
   async function rollAll() {
@@ -1249,6 +1474,7 @@
     state.dice = normalizeDiceList(state.dice).map(d => ({...d, value: rollDiceItem(d)}));
     save();
     renderDice();
+    addDiceHistory();
 
     btn.disabled = false;
     btn.textContent = "🎲 ダイスを振る";
@@ -1264,9 +1490,9 @@
   function renderDice() {
     const list = $("#diceList");
     list.innerHTML = "";
-    state.dice = normalizeDiceList(state.dice);
 
-    const counts = {coin:0,3:0,6:0,10:0,100:0};
+    state.dice = normalizeDiceList(state.dice);
+    const counts = {coin:0,3:0,4:0,6:0,8:0,10:0,12:0,20:0,100:0};
     let total = 0;
 
     state.dice.forEach((d, i) => {
@@ -1292,7 +1518,7 @@
       list.appendChild(card);
     });
 
-    ["coin",3,6,10,100].forEach(s => {
+    ["coin",3,4,6,8,10,12,20,100].forEach(s => {
       $("#count-" + s).textContent = counts[s] || 0;
     });
 
@@ -2233,6 +2459,7 @@
 
   $("#rollAll").addEventListener("click", rollAll);
   $("#clearDice").addEventListener("click", clearDice);
+  $("#clearDiceHistory").addEventListener("click", clearDiceHistory);
   $("#applyScoreTable").addEventListener("click", applyScoreTable);
   $("#clearScores").addEventListener("click", clearScores);
   $("#toggleScoreFavorites").addEventListener("click", () => {
@@ -2260,6 +2487,7 @@
   load();
   normalizeScoreState(state.players, state.rounds);
   renderDice();
+  renderDiceHistory();
   renderScoreTable();
   renderScoreFavorites();
 
