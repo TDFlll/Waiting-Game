@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Waiting Line DEMO v2.3</title>
+<title>Waiting Line DEMO v2.3.1</title>
 <style>
 :root{
   --bg:#101318;--panel:#191e26;--panel2:#222936;--text:#f5f7fa;--muted:#9da7b5;
@@ -175,6 +175,10 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 .cell.cpuTarget{outline:3px solid #7bd6ff;outline-offset:-4px;background:#284858}
 .cell.cpuLast{box-shadow:inset 0 0 0 3px #7bd6ff}
 .cpuThinking .pick:disabled{opacity:.75}.cpuThinking .pick.active{opacity:1}
+.scoreHint{font-size:11px;line-height:1.5;color:var(--muted);margin:0 0 8px}
+.scoreRow{grid-template-columns:34px minmax(0,1fr) minmax(60px,.7fr) minmax(60px,.7fr);overflow-wrap:anywhere}
+.scoreHeader{color:var(--muted);font-size:10px;font-weight:800}
+.scoreRow small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:3px}
 </style>
 </head>
 <body>
@@ -188,7 +192,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
   <button id="openOptions">オプション</button>
   <button id="openRules">ルール</button>
  </div>
- <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3</div>
+ <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3.1</div>
 </div>
 <div id="optionsScreen" class="menuScreen screenHidden">
  <h1 class="menuTitle" style="font-size:32px">オプション</h1>
@@ -220,7 +224,8 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
   <p>先攻と後攻が1回ずつ行動して1ターン。3ターン選ばれなかったタイルに+1P、以降は2ターン残るごとに+1Pが累積します。取得するとそのPを獲得。<strong>先攻がボーナス付きタイルを取った場合、次ターンから先攻・後攻が交代</strong>します。</p>
   <h2>④ ゴールと得点</h2>
   <table><thead><tr><th>到達順</th><th>基礎点</th></tr></thead><tbody><tr><td>1番目</td><td>2点</td></tr><tr><td>2番目</td><td>3点</td></tr><tr><td>3番目</td><td>5点</td></tr><tr><td>4番目</td><td>−3点</td></tr></tbody></table>
-  <p>得点は<strong>両プレイヤーに同時に</strong>入り、基礎点に各プレイヤー自身のゴール色倍率（×2 / ×1.5 / ×1 / ×0）を掛けます。倍率はオプションで公開・非公開を選べます。得点自体は常に公開されます。</p>
+  <p><strong>4隅・4壁とも、どちらが接続しても両プレイヤーに同時に得点が入ります。</strong>到達順位の基礎点に、各プレイヤー自身のゴール色倍率（×2 / ×1.5 / ×1 / ×0）を掛けます。4着のマイナス点も各自の倍率で計算します。倍率はオプションで公開・非公開を選べます。得点自体は常に公開されます。</p>
+  <p>例：赤へ1着で到達した場合、基礎点は2点。P1の赤が×2、P2の赤が×1.5なら、接続した人にかかわらずP1に4点、P2に3点が入ります。</p>
   <p>1枚で複数ゴールにつながったときは、置いたプレイヤーが到達順を決めます。同じゴールの得点は最初の1回だけです。</p>
   <h2>⑤ ラウンド終了</h2>
   <p>4色すべてに到達したとき、または未到達ゴールへ今後到達できる可能性がなくなったときに終了します。獲得点と順位を公開し、3ラウンド終了後に勝敗を決めます。</p>
@@ -229,7 +234,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 </div>
 <div class="app screenHidden" id="gameScreen">
   <div class="top">
-    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3</span></h1>
+    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3.1</span></h1>
     <div class="badge" id="phaseBadge">ROUND 1 / 3</div>
   </div>
 
@@ -253,7 +258,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
       </div>
       <div class="legend"><span>🔴左上</span><span>🔵右上</span><span>🟢右下</span><span>🟡左下</span></div>
       <div class="board-wrap"><div class="board" id="board"></div></div>
-      <div class="scorePanel"><h3>ゴール到達順・得点</h3><div id="scoreOrder"></div><div class="scoreTotals" id="scoreTotals"></div></div>
+      <div class="scorePanel"><h3>ゴール到達順・得点</h3><p class="scoreHint">4隅・4壁とも両者が得点：到達順位の基礎点 × 各自の色倍率</p><div id="scoreOrder"></div><div class="scoreTotals" id="scoreTotals"></div></div>
       <div class="msg" id="msg">中央からつながるようにタイルを配置してください。</div>
     </section>
 
@@ -857,7 +862,7 @@ function roundGoalTimelineHTML(){
   const g=records[i],base=[2,3,5,-3][i];
   if(!g)return `<div class="timelineRow empty"><span class="timelineRank">${i+1}着</span><span class="timelineGoal">未到達</span><span class="timelineTime">記録なし</span><strong>− / −</strong></div>`;
   const wait=g.turn>1?`開始から${g.turn}T目`:"最初のターン";
-  return `<div class="timelineRow"><span class="timelineRank">${i+1}着</span><span class="timelineGoal"><i class="timelineDot ${g.color}"></i>${COLOR_JP[g.color]}の壁</span><span class="timelineTime">${g.turn}T目・${g.order===1?"先攻":"後攻"}<small>${wait} / ${playerName(g.player)}到達</small></span><strong class="${g.pts.some(x=>x<0)?'timelineMinus':''}"><small>${playerName(0)} ${g.pts[0]>0?'+':''}${fmt(g.pts[0])}</small><small>${playerName(1)} ${g.pts[1]>0?'+':''}${fmt(g.pts[1])}</small></strong></div>`;
+  return `<div class="timelineRow"><span class="timelineRank">${i+1}着</span><span class="timelineGoal"><i class="timelineDot ${g.color}"></i>${COLOR_JP[g.color]}${state.goalMode==="walls"?"の壁":"ゴール"}</span><span class="timelineTime">${g.turn}T目・${g.order===1?"先攻":"後攻"}<small>${wait} / 接続：${playerName(g.player)}</small></span><strong class="${g.pts.some(x=>x<0)?'timelineMinus':''}"><small>${playerName(0)} ${g.pts[0]>0?'+':''}${fmt(g.pts[0])}</small><small>${playerName(1)} ${g.pts[1]>0?'+':''}${fmt(g.pts[1])}</small></strong></div>`;
  }).join('');
  return `<section class="roundTimeline"><h3>ゴール到達タイムライン</h3><p class="timelineHint">到達させた人と、その瞬間の両者の得点を振り返れます。</p>${rows}<div class="timelineFoot">${records.length} / 4 ゴール到達　｜　最終 ${state.turnNo}T目</div></section>`;
 }
@@ -902,9 +907,11 @@ function addLog(t){state.history.unshift(t);state.history=state.history.slice(0,
 function renderScoreboard(){
  const records=state.goalRecords;
  const bases=[2,3,5,-3];
- $("#scoreOrder").innerHTML=bases.map((base,i)=>{
+ const header=`<div class="scoreRow scoreHeader"><span>到達順</span><span>色・基礎点</span><span>${playerName(0)}</span><span>${playerName(1)}</span></div>`;
+ $("#scoreOrder").innerHTML=header+bases.map((base,i)=>{
    const g=records[i];
-   return `<div class="scoreRow"><span>${i+1}位</span><span class="${g?g.color:"scoreMuted"}">${g?COLOR_JP[g.color]+"（"+playerName(g.player)+"到達）":"未到達"} <span class="scoreMuted">${base>0?"+":""}${base}点</span></span><span>${g?fmt(g.pts[0])+"pt":"-"}</span><span>${g?fmt(g.pts[1])+"pt":"-"}</span></div>`;
+   const scores=[0,1].map(p=>`<span>${g?fmt(g.pts[p])+"pt":"-"}${g&&state.publicRates?`<small>${g.base} × ${fmt(g.multipliers[p])}</small>`:""}</span>`).join("");
+   return `<div class="scoreRow"><span>${i+1}着</span><span class="${g?g.color:"scoreMuted"}">${g?COLOR_JP[g.color]:"未到達"} <span class="scoreMuted">${base>0?"+":""}${base}点</span>${g?`<small>接続：${playerName(g.player)}</small>`:""}</span>${scores}</div>`;
  }).join("");
  $("#scoreTotals").innerHTML=`<span>${playerName(0)}: ${fmt(state.roundScore[0])} pt</span><span>${playerName(1)}: ${fmt(state.roundScore[1])} pt</span>`;
 }

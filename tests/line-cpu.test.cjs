@@ -25,7 +25,7 @@ function game(seed=1){
  const context=vm.createContext({Math:math,document,window:{scrollTo(){}},localStorage:{getItem(){return null},setItem(){}},crypto:webcrypto,confirm:()=>true,
   setTimeout(fn){const id=++timerId;timers.set(id,fn);return id},clearTimeout(id){timers.delete(id)},console});
  let code=fs.readFileSync(path.join(__dirname,'../games/line.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
- code=code.replace(/\}\)\(\);\s*$/,`window.api={get state(){return state},initGame,cpuObservation,cpuPlan,cpuGoalOrder,cpuDistances,rotateMask,validPlacements,tileMask,selectTile,place,skip,rotate,undoTurn,beginTurn,currentPlayer,finishRound,nextRound,checkGoals,showScreen,stopCpu,get busy(){return cpuBusy},get snapshots(){return humanSnapshots}};})();`);
+ code=code.replace(/\}\)\(\);\s*$/,`window.api={get state(){return state},initGame,blankBoard,cpuObservation,cpuPlan,cpuGoalOrder,cpuDistances,rotateMask,validPlacements,tileMask,selectTile,place,skip,rotate,undoTurn,beginTurn,currentPlayer,finishRound,nextRound,checkGoals,showScreen,stopCpu,get busy(){return cpuBusy},get snapshots(){return humanSnapshots}};})();`);
  node('#optionGoalMode').value='corners';
  vm.runInContext(code,context);
  const api=context.window.api;
@@ -39,6 +39,33 @@ test('hidden multipliers are never read by CPU planning',()=>{
  const view=api.cpuObservation();
  assert.equal(view.opponent.red,1.125);
  assert.ok(api.cpuPlan(view));
+});
+
+test('actual corner and wall placements award both players their own multipliers, whoever connects',()=>{
+ for(const mode of ['corners','walls'])for(const mover of [0,1])for(const visible of [true,false]){
+  const {api,node,plain}=game();node('#optionGoalMode').value=mode;node('#optionPublicRates').checked=visible;api.initGame('vs');
+  api.state.secrets=[{red:2,blue:1.5,green:1,yellow:0},{red:0,blue:1,green:1.5,yellow:2}];
+  const colors=['red','blue','green','yellow'];
+  const corners=[[[1,2,5],[0,2,12],[0,1,10]],[[1,2,5],[0,2,6],[0,3,10]],[[3,2,5],[4,2,3],[4,3,10]],[[3,2,5],[4,2,9],[4,1,10]]];
+  const walls=[[[2,3,5],[1,3,5],[0,3,5]],[[3,4,10],[3,5,10],[3,6,10]],[[4,3,5],[5,3,5],[6,3,5]],[[3,2,10],[3,1,10],[3,0,10]]];
+  for(let i=0;i<4;i++){
+   api.state.board=api.blankBoard();
+   const route=(mode==='corners'?corners:walls)[i];
+   for(const [r,c,mask] of route.slice(0,-1))api.state.board[r][c]={type:'B',mask};
+   const [r,c,mask]=route[2];api.state.pickIndex=mover;
+   api.state.draft[0]={type:'B',rot:mask===5?0:1,bonus:0,age:0};
+   api.selectTile(0);api.place(r,c);
+   assert.equal(api.state.goalRecords[i].color,colors[i]);
+   assert.equal(api.state.goalRecords[i].player,mover);
+   api.checkGoals(mover);assert.equal(api.state.goalRecords.length,i+1,'goals must not score twice');
+  }
+  assert.deepEqual(plain(api.state.goalRecords.map(g=>g.pts)),[[4,0],[4.5,3],[5,7.5],[0,-6]]);
+  assert.deepEqual(plain(api.state.roundScore),[13.5,4.5]);
+  assert.deepEqual(plain(api.state.players.map(p=>p.total)),[13.5,4.5]);
+  assert.match(node('#scoreOrder').innerHTML,/scoreHeader/);
+  if(visible)assert.match(node('#scoreOrder').innerHTML,/3 × 1.5/);
+  else assert.doesNotMatch(node('#scoreOrder').innerHTML,/ × /);
+ }
 });
 
 test('public multipliers affect the preferred simultaneous goal order',()=>{

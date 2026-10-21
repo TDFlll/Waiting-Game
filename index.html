@@ -69,7 +69,7 @@
   document.getElementById('modalClose').addEventListener('click',function(){modal.classList.remove('show')});modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('show')});
   document.getElementById('randomBtn').addEventListener('click',function(){var list=visibleCards();if(!list.length)return;cards.forEach(function(c){c.classList.remove('reco')});var pick=list[Math.floor(Math.random()*list.length)];pick.classList.add('reco');pick.scrollIntoView({behavior:'smooth',block:'center'});showToast('今日の候補：'+pick.querySelector('.game-name').textContent)});
   document.getElementById('rulesBtn').addEventListener('click',function(){modalTitle.textContent='WAITING GAMES';modalText.textContent='同じスマホ1台で、待ち時間にすぐ遊べる小さなゲーム集。PLAYER NAMESで設定した名前は、この端末のブラウザ内に保存され、各ゲームの表示に使われます。';modal.classList.add('show')});
-  document.getElementById('newsBtn').addEventListener('click',function(){modalTitle.textContent='UPDATE';modalText.textContent='Launcher v0.1。SHAPES v0.8.1 c1 / DICE v0.3.2 / CARDS v0.6.3 v13 / AUCTION v0.1 UI-16 / ROBOTS v4.7 / ESCAPE v0.20 / LINE v2.3 / HELPER v1.01 を固定ファイル名で組み込み済みです。';modal.classList.add('show')});
+  document.getElementById('newsBtn').addEventListener('click',function(){modalTitle.textContent='UPDATE';modalText.textContent='Launcher v0.1。SHAPES v0.8.1 c1 / DICE v0.3.2 / CARDS v0.6.3 v13 / AUCTION v0.1 UI-16 / ROBOTS v4.7 / ESCAPE v0.20 / LINE v2.3.1 / HELPER v1.01 を固定ファイル名で組み込み済みです。';modal.classList.add('show')});
   renderNameSettings();
 })();
 </script>
