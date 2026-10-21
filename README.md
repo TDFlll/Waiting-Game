@@ -44,7 +44,7 @@ waiting-games/
 The launcher includes a PWA/offline manager for GitHub Pages.
 
 1. Open the published site while online.
-2. In `OFFLINE`, tap `全ゲームを一括ダウンロード`.
+2. Open `オフラインDL` below the game list, then tap `全ゲームを一括ダウンロード`.
 3. Wait until the status says the download is complete.
 4. Use `状態更新` to confirm each game shows `保存済み`.
 5. On iPhone, add the site to the Home Screen after saving if you want app-like startup.

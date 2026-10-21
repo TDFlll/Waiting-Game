@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.21-line-scoring-v1",
+  "version": "2026.10.21-offline-panel-v1",
   "generatedAt": "2026-10-21",
   "core": [
     "./",

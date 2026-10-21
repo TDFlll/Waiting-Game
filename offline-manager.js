@@ -170,11 +170,11 @@
       location.href = url;
       return;
     }
-    setStatus("この項目はまだオフライン保存されていません。Wi-Fi接続中にOFFLINEから保存してください。");
+    setStatus("この項目はまだオフライン保存されていません。Wi-Fi接続中にページ下部の「オフラインDL」から保存してください。");
     var modal = $("modal"), title = $("modalTitle"), text = $("modalText");
     if(modal && title && text){
       title.textContent = "オフライン未保存";
-      text.textContent = "このゲームはまだ端末に保存されていません。Wi-Fiに接続して「OFFLINE」から保存してください。";
+      text.textContent = "このゲームはまだ端末に保存されていません。Wi-Fiに接続してページ下部の「オフラインDL」から保存してください。";
       modal.classList.add("show");
     }
   }
