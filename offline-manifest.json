@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.21-line-cpu-v1",
+  "version": "2026.10.21-helper-v103",
   "generatedAt": "2026-10-21",
   "core": [
     "./",
@@ -75,7 +75,7 @@
       "id": "line",
       "title": "WAITING LINE",
       "type": "game",
-      "version": "v2.3",
+      "version": "v2.3.1",
       "url": "games/line.html",
       "files": [
         "games/line.html"
@@ -85,7 +85,7 @@
       "id": "helper",
       "title": "BOARD GAME HELPER",
       "type": "tool",
-      "version": "v1.01",
+      "version": "v1.03",
       "url": "games/helper.html",
       "files": [
         "games/helper.html"
