@@ -22,6 +22,7 @@ waiting-games/
 │  ├─ auction.html
 │  ├─ robots.html
 │  ├─ escape.html
+│  ├─ line.html
 │  └─ helper.html
 └─ README.md
 ```
@@ -34,6 +35,7 @@ waiting-games/
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
 - `games/robots.html` from `waiting_robots_v4.7.html`
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
+- `games/line.html` v2.2.1 from `Waiting_Line_DEMO_v2.2.html` (launcher integration)
 - `games/helper.html` from `Board_Game_Helper_v1.01.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
@@ -54,7 +56,8 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 
 - The launcher `PLAY` buttons open the fixed game paths above.
 - Each game has a small `← GAMES` link back to `../index.html`.
-- The original game logic was left unchanged except for the added launcher return link.
+- Games include launcher return links and shared player-name integration.
+- Waiting Line v2.2.1 preserves the v2.2 rules, adds shared names and a confirmed return to GAMES during a match, and corrects the rules text to describe simultaneous scoring for both players. Turn snapshots preserve the non-existent cells of the walls board when undoing. It is included in the launcher filters, random selection, and offline downloads. Its CPU mode remains unavailable.
 - The project is ready to upload to a GitHub Pages repository root.
 - All current games are single-file local HTML files. No external CDN, API, image, font, or audio dependency was found.
 - Offline Cache Storage is separate from each game's `localStorage` save data. Updating the offline cache does not clear existing in-game saves.

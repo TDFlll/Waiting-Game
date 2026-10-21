@@ -1,6 +1,6 @@
 {
-  "version": "2026.10.13-security-v1",
-  "generatedAt": "2026-10-13",
+  "version": "2026.10.21-line-v1",
+  "generatedAt": "2026-10-21",
   "core": [
     "./",
     "index.html",
@@ -17,7 +17,9 @@
       "type": "game",
       "version": "v0.8.1 c1",
       "url": "games/shapes.html",
-      "files": ["games/shapes.html"]
+      "files": [
+        "games/shapes.html"
+      ]
     },
     {
       "id": "dice",
@@ -25,7 +27,9 @@
       "type": "game",
       "version": "v0.3.2",
       "url": "games/dice.html",
-      "files": ["games/dice.html"]
+      "files": [
+        "games/dice.html"
+      ]
     },
     {
       "id": "cards",
@@ -33,7 +37,9 @@
       "type": "game",
       "version": "v0.6.3 v13",
       "url": "games/cards.html",
-      "files": ["games/cards.html"]
+      "files": [
+        "games/cards.html"
+      ]
     },
     {
       "id": "auction",
@@ -41,7 +47,9 @@
       "type": "game",
       "version": "v0.1 UI-16",
       "url": "games/auction.html",
-      "files": ["games/auction.html"]
+      "files": [
+        "games/auction.html"
+      ]
     },
     {
       "id": "robots",
@@ -49,7 +57,9 @@
       "type": "game",
       "version": "v4.7",
       "url": "games/robots.html",
-      "files": ["games/robots.html"]
+      "files": [
+        "games/robots.html"
+      ]
     },
     {
       "id": "escape",
@@ -57,7 +67,19 @@
       "type": "game",
       "version": "v0.20",
       "url": "games/escape.html",
-      "files": ["games/escape.html"]
+      "files": [
+        "games/escape.html"
+      ]
+    },
+    {
+      "id": "line",
+      "title": "WAITING LINE",
+      "type": "game",
+      "version": "v2.2.1",
+      "url": "games/line.html",
+      "files": [
+        "games/line.html"
+      ]
     },
     {
       "id": "helper",
@@ -65,7 +87,9 @@
       "type": "tool",
       "version": "v1.01",
       "url": "games/helper.html",
-      "files": ["games/helper.html"]
+      "files": [
+        "games/helper.html"
+      ]
     }
   ]
 }
