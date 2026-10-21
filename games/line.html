@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Waiting Line DEMO v2.2.1</title>
+<title>Waiting Line DEMO v2.3</title>
 <style>
 :root{
   --bg:#101318;--panel:#191e26;--panel2:#222936;--text:#f5f7fa;--muted:#9da7b5;
@@ -171,6 +171,10 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 .wg-home{position:fixed;right:10px;top:max(10px,env(safe-area-inset-top));z-index:100;border:1px solid #57738b;border-radius:999px;background:#191e26;color:#dceaf2;text-decoration:none;font:900 11px/1 system-ui,sans-serif;padding:10px 12px}
 .app{padding-top:54px}.menuScreen{padding-top:54px}
 .playerBox .p,.resultScore{min-width:0;overflow-wrap:anywhere}
+.cpuStatus{margin:4px 0 8px;padding:8px;border:1px solid #527f9a;border-radius:8px;font-size:12px;color:#bde8ff;background:#172733}
+.cell.cpuTarget{outline:3px solid #7bd6ff;outline-offset:-4px;background:#284858}
+.cell.cpuLast{box-shadow:inset 0 0 0 3px #7bd6ff}
+.cpuThinking .pick:disabled{opacity:.75}.cpuThinking .pick.active{opacity:1}
 </style>
 </head>
 <body>
@@ -180,11 +184,11 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
  <div class="menuSub">SHARED ROAD STRATEGY</div>
  <div class="menuButtons">
   <button id="startVs">ゲームスタート VS</button>
-  <button id="startCpu" disabled>VS CPU（準備中）</button>
+  <button id="startCpu">VS CPU（標準）</button>
   <button id="openOptions">オプション</button>
   <button id="openRules">ルール</button>
  </div>
- <div class="menuHint">2人対戦・1画面共有 / DEMO v2.2.1</div>
+ <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3</div>
 </div>
 <div id="optionsScreen" class="menuScreen screenHidden">
  <h1 class="menuTitle" style="font-size:32px">オプション</h1>
@@ -204,6 +208,9 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
   <h2>ゲームの目的</h2>
   <p>2人で道路を共有し、中央から4色のゴールへ道をつなげるゲームです。オプションで「4隅」と「4壁」を選べます。3ラウンドの合計得点が高いプレイヤーの勝利です。</p>
   <p><b>4隅：</b>四隅の固定ゴールへ接続。<br><b>4壁：</b>5×5盤面の上下左右の中央に1マスずつ追加された十字型マップ。延長マスも通常の道路タイルを配置できます。外周の色付き壁（上＝赤、右＝青、下＝緑、左＝黄）へ、中央からつながった道路の出口が向いたときに到達です。追加マスそのものに置いただけでは得点せず、側面に接するだけでも得点しません。各色1回だけ得点化します。</p>
+  <h2>CPU対戦（標準）</h2>
+  <p>VS CPUではP1があなた、P2がCPUです。CPUは得点差、次に狙えるゴール、回転Pやボーナスを考えて行動します。倍率非公開時は自分の倍率だけで判断し、あなたの秘密倍率は参照しません。CPUの秘密得点表は表示できません。</p>
+  <p>CPUが複数色を同時につないだ場合はCPUが到達順を選びます。「自分の操作前に戻す」で、自分の直前の操作とその後のCPUの行動を取り消せます。対人戦の「1ターン戻す」は先攻・後攻のセットを取り消します。</p>
   <h2>① ドラフトと配置</h2>
   <p>先攻・後攻が交互に、公開された5枚から道路タイルを1枚選びます。使用後はすぐに1枚補充され、常に5枚から選べます。タイルは配置確定前なら選び直せます。</p>
   <p>新しいタイルは、中央からつながる道路に<strong>最低1本</strong>接続する空きマスへ配置します。他の出口が壁や行き止まりを向いても構いません。置ける場所があれば配置必須、どうしても置けなければスキップします。</p>
@@ -222,7 +229,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 </div>
 <div class="app screenHidden" id="gameScreen">
   <div class="top">
-    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.2.1</span></h1>
+    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3</span></h1>
     <div class="badge" id="phaseBadge">ROUND 1 / 3</div>
   </div>
 
@@ -235,6 +242,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
       </div>
 
 </div>
+      <div id="cpuStatus" class="cpuStatus screenHidden" role="status" aria-live="polite"></div>
       <h3 style="font-size:14px;margin:14px 0 8px">共有ドラフト</h3>
       <div class="draft" id="draft"></div>
       <div class="controls">
@@ -275,6 +283,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 "use strict";
 // Match the launcher and the other games' shared-name convention.
 function playerName(index){
+ if(index===1&&state?.mode==="cpu")return "CPU";
  const fallback="P"+(index+1);
  try{
   const saved=JSON.parse(localStorage.getItem("waitingGamesPlayerNamesV1")||"null");
@@ -296,10 +305,24 @@ const TYPES={
 };
 let state;
 let turnSnapshots=[];
+let humanSnapshots=[],humanCheckpointPending=false;
+let cpuTimer=null,cpuGeneration=0,cpuBusy=false,cpuActing=false,cpuPhase="";
+function stopCpu(){clearTimeout(cpuTimer);cpuTimer=null;cpuGeneration++;cpuBusy=false;cpuPhase=""}
+function canAct(){return state&&!state.gameOver&&!state.roundOver&&(state.mode!=="cpu"||currentPlayer()===0||cpuActing)}
 // JSON normally converts undefined array entries (outside the walls board) to null.
 function serializeState(){return JSON.stringify(state,(key,value)=>value===undefined?"__line_outside__":value)}
 function snapshotTurn(){turnSnapshots.push(serializeState());if(turnSnapshots.length>100)turnSnapshots.shift()}
 function undoTurn(){
+ if(state.mode==="cpu"){
+  if(!humanSnapshots.length)return;
+  if(!confirm("自分の直前の操作前に戻しますか？ その後のCPUの行動・得点・回転Pも元に戻ります。"))return;
+  stopCpu();
+  if(!state.humanStarted&&currentPlayer()===0&&!state.roundOver&&humanSnapshots.length>1)humanSnapshots.pop();
+  state=JSON.parse(humanSnapshots[humanSnapshots.length-1],(key,value)=>value==="__line_outside__"?undefined:value);
+  humanCheckpointPending=false;
+  $("#overlay").classList.remove("show");
+  render();msg.textContent="自分の操作前に戻しました。別の手を選べます。";return;
+ }
  if(!turnSnapshots.length)return;
  if(!confirm("直前の1ターンを取り消しますか？ このターンの配置・得点・回転Pも元に戻ります。"))return;
  const current=serializeState();
@@ -377,17 +400,166 @@ function reachedWallColors(){
  }
  return colors;
 }
-function initGame(){
- 
+function initGame(mode=state?.mode||"vs"){
+ stopCpu();humanSnapshots=[];humanCheckpointPending=true;
+ $("#overlay").classList.remove("show");
  state={
+   mode,roundOver:false,humanStarted:false,lastCpuCell:null,
    publicRates:document.querySelector("#optionPublicRates").checked,goalMode:document.querySelector("#optionGoalMode").value,round:1,totalRounds:3,players:[{rot:3,total:0},{rot:3,total:0}],
    secrets:assignSecrets(),board:blankBoard(),draft:[newTile(),newTile(),newTile(),newTile(),newTile()],
    turnNo:1,pickIndex:0,first:0,reverseNext:false,selected:null,swapMode:false,reached:[],roundScore:[0,0],goalRecords:[],roundHistory:[],history:[],gameOver:false
  };
- turnSnapshots=[];snapshotTurn();render(); addLog("ゲーム開始。ROUND 1");
+ turnSnapshots=[];snapshotTurn();render(); addLog("ゲーム開始。ROUND 1");beginTurn();
 }
 function orderForSet(){return [state.first,1-state.first];}
 function currentPlayer(){return orderForSet()[state.pickIndex]}
+// AI receives an explicit observation. Hidden human multipliers never enter it.
+function cpuObservation(){
+ return {
+  board:state.board.map(row=>row.map(cell=>cell?{...cell}:cell)),
+  goalMode:state.goalMode,reached:[...state.reached],
+  draft:state.draft.map(tile=>({...tile})),rot:state.players[1].rot,
+  own:{...state.secrets[1]},
+  opponent:state.publicRates?{...state.secrets[0]}:Object.fromEntries(COLORS.map(c=>[c,1.125])),
+  odds:Object.fromEntries(Object.entries(TYPES).map(([key,value])=>[key,value.weight]))
+ };
+}
+function permutations(items){
+ if(!items.length)return [[]];
+ return items.flatMap((item,i)=>permutations(items.filter((_,j)=>i!==j)).map(rest=>[item,...rest]));
+}
+function cpuGoalOrder(colors,view,rank=view.reached.length){
+ let best=[],bestValue=-Infinity;
+ for(const order of permutations(colors)){
+  const value=order.reduce((sum,color,i)=>sum+[2,3,5,-3][rank+i]*(view.own[color]-view.opponent[color]),0);
+  if(value>bestValue){bestValue=value;best=order}
+ }
+ return {order:best,value:bestValue};
+}
+// Minimum extra tiles needed to reach each goal. Existing roads retain their openings.
+function cpuDistances(view){
+ const board=view.board,size=board.length,start=view.goalMode==="walls"?3:2;
+ const inside=(r,c)=>r>=0&&c>=0&&r<size&&c<size&&board[r][c]!==undefined;
+ const dist=Array.from({length:size},()=>Array(size).fill(Infinity));
+ const seen=new Set(),result=Object.fromEntries(COLORS.map(c=>[c,Infinity]));
+ dist[start][start]=0;
+ for(let step=0;step<size*size;step++){
+  let r=-1,c=-1,best=Infinity;
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!seen.has(y+","+x)&&dist[y][x]<best){r=y;c=x;best=dist[y][x]}
+  if(r<0)break;
+  seen.add(r+","+c);
+  const cell=board[r][c],mask=cell===null?15:cell.mask;
+  if(view.goalMode==="corners"&&cell?.goal)result[cell.goal]=Math.min(result[cell.goal],best);
+  if(view.goalMode==="walls"){
+   for(const [color,dr,dc,bit] of WALL_SIDES){
+    const edge=!inside(r+dr,c+dc)&&((color==="red"&&(r===1||r===0&&c===3))||(color==="blue"&&(c===5||c===6&&r===3))||(color==="green"&&(r===5||r===6&&c===3))||(color==="yellow"&&(c===1||c===0&&r===3)));
+    if(edge&&(mask&bit))result[color]=Math.min(result[color],best);
+   }
+  }
+  for(const [dr,dc,bit,opp] of DIRS){
+   const nr=r+dr,nc=c+dc;
+   if(!(mask&bit)||!inside(nr,nc))continue;
+   const neighbor=board[nr][nc];
+   if(neighbor!==null&&!(neighbor.mask&opp))continue;
+   dist[nr][nc]=Math.min(dist[nr][nc],best+(neighbor===null?1:0));
+  }
+ }
+ return {goals:result,connected:new Set([...seen].filter(key=>{const [r,c]=key.split(',').map(Number);return dist[r][c]===0}))};
+}
+function cpuPotential(view,goals,reached){
+ const remaining=COLORS.filter(c=>!reached.includes(c)&&Number.isFinite(goals[c]));
+ let best=-Infinity;
+ for(const order of permutations(remaining)){
+  let value=0;
+  order.forEach((color,i)=>{
+   value+=[2,3,5,-3][reached.length+i]*(view.own[color]-view.opponent[color])*Math.pow(.78,goals[color]);
+   if(i)value-=.08*Math.max(0,goals[order[i-1]]-goals[color]);
+  });
+  best=Math.max(best,value);
+ }
+ return best;
+}
+function cpuPlan(view,allowSwap=true){
+ const before=cpuDistances(view),potential=cpuPotential(view,before.goals,view.reached);
+ let best=null;
+ view.draft.forEach((tile,index)=>{
+  const budget=view.rot+tile.bonus,orientations=new Set();
+  for(let steps=0;steps<4;steps++){
+   const cost=Math.min(steps,4-steps),mask=rotateMask(TYPES[tile.type].mask,(tile.rot+steps)%4);
+   if(cost>budget||orientations.has(mask))continue;
+   orientations.add(mask);
+   for(let r=0;r<view.board.length;r++)for(let c=0;c<view.board.length;c++){
+    if(view.board[r][c]!==null)continue;
+    const legal=DIRS.some(([dr,dc,bit,opp])=>mask&bit&&before.connected.has((r+dr)+","+(c+dc))&&(view.board[r+dr]?.[c+dc]?.mask&opp));
+    if(!legal)continue;
+    view.board[r][c]={type:tile.type,mask};
+    const after=cpuDistances(view).goals;
+    view.board[r][c]=null;
+    const newly=COLORS.filter(color=>!view.reached.includes(color)&&after[color]===0);
+    const immediate=cpuGoalOrder(newly,view).value;
+    const future=cpuPotential(view,after,[...view.reached,...newly]);
+    const value=immediate+.55*(future-potential)+.12*Math.min(8,budget-cost)+.04*tile.bonus;
+    if(!best||value>best.value+1e-8)best={index,steps,r,c,value,kind:"place"};
+   }
+  }
+ });
+ // Consider one paid swap only for a poor draft. Average over possible draws, never peek at RNG.
+ if(allowSwap&&view.rot>=2&&(!best||best.value<.12*Math.min(8,view.rot)-.35)){
+  let index=view.draft.findIndex((_,i)=>i!==best?.index);if(index<0)index=0;
+  view.draft.forEach((tile,i)=>{if(i!==best?.index&&tile.bonus<view.draft[index].bonus)index=i});
+  const retained=cpuPlan({...view,rot:view.rot-2,draft:view.draft.filter((_,i)=>i!==index)},false);
+  let expected=0;
+  for(const [type,weight] of Object.entries(view.odds))if(weight>0)for(let rot=0;rot<4;rot++){
+   const draw=cpuPlan({...view,rot:view.rot-2,draft:[{type,rot,bonus:0}]},false);
+   expected+=weight/400*Math.max(retained?.value??-2,draw.value??-2);
+  }
+  if(expected>(best?.value??-2)+.7)return {kind:"swap",index};
+ }
+ if(best)return best;
+ if(!view.draft.length)return null;
+ let index=0;view.draft.forEach((tile,i)=>{if(tile.bonus>view.draft[index].bonus)index=i});
+ return {kind:"skip",index};
+}
+function beginTurn(){
+ if(!state||state.gameOver||state.roundOver||$("#gameScreen").classList.contains("screenHidden")||$("#overlay").classList.contains("show"))return;
+ if(state.mode!=="cpu")return;
+ if(currentPlayer()===0){
+  if(humanCheckpointPending){
+   state.humanStarted=false;humanSnapshots.push(serializeState());
+   if(humanSnapshots.length>100)humanSnapshots.shift();humanCheckpointPending=false;
+  }
+  render();return;
+ }
+ scheduleCpu();
+}
+function scheduleCpu(){
+ if(cpuBusy)return;
+ cpuBusy=true;cpuPhase="CPUが考え中…";render();
+ const generation=cpuGeneration;
+ const active=()=>generation===cpuGeneration&&state.mode==="cpu"&&currentPlayer()===1&&!state.roundOver&&!state.gameOver&&!$("#gameScreen").classList.contains("screenHidden");
+ cpuTimer=setTimeout(()=>{
+  if(!active())return;
+  let plan=cpuPlan(cpuObservation());
+  if(plan.kind==="swap"){
+   const old=state.draft[plan.index];state.players[1].rot-=2;state.draft[plan.index]=newTile();
+   addLog(`CPU: ${old.type}を入れ替え（2P消費）`);plan=cpuPlan(cpuObservation(),false);
+  }
+  cpuActing=true;selectTile(plan.index);
+  if(plan.kind==="place"){
+   const dir=plan.steps===3?-1:1;
+   for(let i=0;i<Math.min(plan.steps,4-plan.steps);i++)rotate(dir);
+   cpuPhase=`CPU：${state.selected.type}を${plan.r+1}行${plan.c+1}列に配置します`;
+  }else cpuPhase="CPU：配置できないためスキップします";
+  cpuActing=false;render();
+  if(plan.kind==="place")$("#board").children[plan.r*boardSize()+plan.c].classList.add("cpuTarget");
+  cpuTimer=setTimeout(()=>{
+   if(!active())return;
+   cpuBusy=false;cpuActing=true;
+   if(plan.kind==="place"){state.lastCpuCell=[plan.r,plan.c];place(plan.r,plan.c)}else skip();
+   cpuActing=false;
+  },450);
+ },350);
+}
 function tileMask(tile){return rotateMask(TYPES[tile.type].mask,tile.rot)}
 function isConnectedNetwork(){
  const start=startIndex();const seen=new Set([`${start},${start}`]),q=[[start,start]];
@@ -444,6 +616,8 @@ function renderBoard(){
  const vset=new Set(valid.map(x=>x.join(",")));
  for(let r=0;r<boardSize();r++)for(let c=0;c<boardSize();c++){
    const el=document.createElement("button");el.type="button";el.className="cell";el.dataset.r=r;el.dataset.c=c;
+   el.setAttribute("aria-label",`${r+1}行${c+1}列`);
+   if(state.lastCpuCell?.[0]===r&&state.lastCpuCell?.[1]===c)el.classList.add("cpuLast");
    const cell=state.board[r][c];
    if(cell===undefined){el.classList.add("voidCell");el.disabled=true;}
    else if(cell){
@@ -452,7 +626,7 @@ function renderBoard(){
      if(r===startIndex()&&c===startIndex())el.innerHTML+='<span class="centerMark">S</span>';
      if(cell.goal){el.classList.add("wallGoalCell",cell.goal);el.innerHTML+=`<span class="goalMark ${cell.goal} ${state.reached.includes(cell.goal)?"reached":""}">${COLOR_JP[cell.goal]}</span>`;}
      el.disabled=true;
-   }else if(vset.has(r+","+c)){
+   }else if(vset.has(r+","+c)&&canAct()&&!(state.mode==="cpu"&&currentPlayer()===1)){
      el.classList.add("valid"); el.addEventListener("click",()=>place(r,c));
    }else el.disabled=true;
    for(const [color,dr,dc,bit] of wallEdges(r,c)){
@@ -469,12 +643,14 @@ function renderDraft(){
  state.draft.forEach((t,i)=>{
    const b=document.createElement("button");b.type="button";b.className="pick"+(state.selected===t?" active":"");
    b.innerHTML=roadHTML(tileMask(t))+`<span style="position:absolute;left:5px;bottom:3px;font-weight:900;font-size:11px;z-index:8">${t.type}</span>`+(t.bonus?`<span class="bonus">+${t.bonus}P</span>`:"");
-   b.disabled=state.gameOver;
+   b.disabled=!canAct()||state.mode==="cpu"&&currentPlayer()===1;
    if(state.swapMode)b.style.outline="2px dashed #f4d35e";
    b.addEventListener("click",()=>selectTile(i));draftEl.appendChild(b);
  });
 }
 function selectTile(i){
+ if(!canAct())return;
+ if(state.mode==="cpu"&&currentPlayer()===0)state.humanStarted=true;
  if(state.swapMode){
    const p=currentPlayer();
    if(state.players[p].rot<2){state.swapMode=false;render();return}
@@ -511,7 +687,7 @@ function selectTile(i){
  render();
 }
 function rotate(dir){
- if(!state.selected)return;
+ if(!canAct()||!state.selected)return;
  const p=currentPlayer(), step=dir>0?1:-1;
  if(!Array.isArray(state.rotationMoves))state.rotationMoves=[];
  const moves=state.rotationMoves;
@@ -531,11 +707,12 @@ function rotate(dir){
  render();
 }
 function place(r,c){
- if(!state.selected)return;
+ if(!canAct()||!state.selected)return;
  const p=currentPlayer(),mask=tileMask(state.selected);
  if(!validPlacements(mask).some(x=>x[0]===r&&x[1]===c))return;
  state.board[r][c]={type:state.selected.type,mask};
  addLog(`${playerName(p)}: ${state.selected.type}を (${r+1},${c+1}) に配置`);
+ if(state.mode==="cpu"&&p===1)msg.textContent=`CPUがタイル${state.selected.type}を${r+1}行${c+1}列に配置しました。`;
  if(state.pickIndex===0 && state.selected.bonus>0)state.reverseNext=true;
  state.draft.splice(state.draft.indexOf(state.selected),1);
  state.selected=null;
@@ -545,11 +722,12 @@ function place(r,c){
  advancePick();
 }
 function skip(){
- if(!state.selected)return;
+ if(!canAct()||!state.selected)return;
  const p=currentPlayer();
  const any=[0,1,2,3].some(k=>Math.min(k,4-k)<=state.players[p].rot && validPlacements(rotateMask(tileMask(state.selected),k)).length);
  if(any){msg.textContent="配置可能な向きがあります。スキップできません。";return}
  addLog(`${playerName(p)}: 配置不能のためスキップ`);
+ if(state.mode==="cpu"&&p===1)msg.textContent="CPUは配置不能のためスキップしました。";
  if(state.pickIndex===0 && state.selected.bonus>0)state.reverseNext=true;
  state.draft.splice(state.draft.indexOf(state.selected),1);
  state.selected=null;
@@ -571,6 +749,11 @@ function checkGoals(p){
  }
  if(!newly.length)return false;
  if(newly.length===1){scoreGoal(newly[0],p);return false}
+ if(state.mode==="cpu"&&p===1){
+  const {order}=cpuGoalOrder(newly,cpuObservation());
+  for(const color of order)scoreGoal(color,p);
+  return false;
+ }
  chooseGoalOrder(newly,p);return true;
 }
 function scoreGoal(color,p){
@@ -643,22 +826,24 @@ function advancePick(){
      state.reverseNext=false;
      const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
      m.innerHTML=`<h2>先攻・後攻を交代</h2><p>先攻プレイヤーがボーナス付きタイルを取得しました。</p><p>次のターンから <b>${playerName(state.first)} が先攻</b>、${playerName(1-state.first)} が後攻です。</p><button id="confirmOrder">確認して続行</button>`;
-     m.querySelector("#confirmOrder").addEventListener("click",()=>ov.classList.remove("show"));
+     m.querySelector("#confirmOrder").addEventListener("click",()=>{ov.classList.remove("show");beginTurn()});
    }
  }
  if(!canReachAnyUnreachedGoal() && state.reached.length<4){finishRound("blocked");return}
  if(state.pickIndex===0)snapshotTurn();
- render();
+ humanCheckpointPending=true;render();beginTurn();
 }
 function countEmpty(){let n=0;for(const row of state.board)for(const x of row)if(x===null)n++;return n}
 function finishRound(reason="goals"){
+ if(state.roundOver)return;
+ stopCpu();state.roundOver=true;
  const rs=state.roundScore;
  state.roundHistory.push({round:state.round,scores:[...rs],records:JSON.parse(JSON.stringify(state.goalRecords)),reason});
  state.players[0].total+=rs[0];state.players[1].total+=rs[1];
  const result=rs[0]===rs[1]?"このラウンドは同順位":rs[0]>rs[1]?playerName(0)+" がこのラウンドの上位":playerName(1)+" がこのラウンドの上位";
  addLog(`ROUND ${state.round} 終了：${result}`);
  if(state.round>=state.totalRounds){finishGame();return}
- showRoundResult(result,reason);
+ render();showRoundResult(result,reason);
 }
 function resultScoresHTML(){
  const a=state.roundScore[0],b=state.roundScore[1];
@@ -678,14 +863,16 @@ function roundGoalTimelineHTML(){
 }
 function showRoundResult(result,reason){
  const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
- m.innerHTML=`<h2>ROUND ${state.round} 終了</h2><p>${reason==="blocked"?"未到達ゴールへつながるルートをこれ以上作れません。":"4色すべてに到達しました。"}</p>${resultScoresHTML()}${roundGoalTimelineHTML()}<p>${result}</p><button id="nr">次のラウンドへ</button><button id="undoResult" style="margin-top:8px">↶ 直前のターンへ戻す</button>`;
+ m.innerHTML=`<h2>ROUND ${state.round} 終了</h2><p>${reason==="blocked"?"未到達ゴールへつながるルートをこれ以上作れません。":"4色すべてに到達しました。"}</p>${resultScoresHTML()}${roundGoalTimelineHTML()}<p>${result}</p><button id="nr">次のラウンドへ</button><button id="undoResult" style="margin-top:8px">↶ ${state.mode==="cpu"?"自分の操作前に戻す":"直前のターンへ戻す"}</button>`;
  m.querySelector("#nr").addEventListener("click",()=>{ov.classList.remove("show");nextRound()});
  m.querySelector("#undoResult").addEventListener("click",undoTurn);
 }
 function nextRound(){
+ stopCpu();humanSnapshots=[];humanCheckpointPending=true;state.roundOver=false;state.lastCpuCell=null;
+ $("#overlay").classList.remove("show");
  state.round++;state.players.forEach(p=>p.rot=3);state.board=blankBoard();state.draft=[newTile(),newTile(),newTile(),newTile(),newTile()];
  state.turnNo=1;state.pickIndex=0;state.first=0;state.reverseNext=false;state.selected=null;state.swapMode=false;state.reached=[];state.roundScore=[0,0];state.goalRecords=[];
- state.secrets=assignSecrets();turnSnapshots=[];snapshotTurn();render();addLog(`ROUND ${state.round} 開始`);
+ state.secrets=assignSecrets();turnSnapshots=[];snapshotTurn();render();addLog(`ROUND ${state.round} 開始`);beginTurn();
 }
 function allRoundsHTML(){
  return `<section class="roundTimeline"><h3>全ラウンド履歴</h3>${state.roundHistory.map(h=>{
@@ -700,12 +887,15 @@ function finishGame(){
  const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
  m.innerHTML=`<h2>${winner}</h2><p>ROUND ${state.round} の得点・順位</p>${resultScoresHTML()}${allRoundsHTML()}<p>最終累計</p><div class="multipliers"><div class="multi">${playerName(0)}<br><span style="font-size:28px">${fmt(a)}</span> pt</div><div class="multi">${playerName(1)}<br><span style="font-size:28px">${fmt(b)}</span> pt</div></div><button id="again">もう一度</button>`;
  m.querySelector("#again").addEventListener("click",()=>{ov.classList.remove("show");initGame()});
+ if(state.mode==="cpu"&&humanSnapshots.length){
+  const undo=document.createElement("button");undo.textContent="↶ 自分の操作前に戻す";undo.style.marginTop="8px";undo.addEventListener("click",undoTurn);m.appendChild(undo);
+ }
 }
 function showSecret(p){
- if(state.publicRates)return;
+ if(state.publicRates||(state.mode==="cpu"&&p===1)||cpuBusy)return;
  const s=state.secrets[p],ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
  m.innerHTML=`<h2>${playerName(p)} 秘密得点表</h2><p>相手に見えないよう確認してください。</p><div class="multipliers">${COLORS.map(c=>`<div class="multi ${c}">${COLOR_JP[c]}<br>× ${s[c]}</div>`).join("")}</div><button id="hide">隠す</button>`;
- m.querySelector("#hide").addEventListener("click",()=>ov.classList.remove("show"));
+ m.querySelector("#hide").addEventListener("click",()=>{ov.classList.remove("show");beginTurn()});
 }
 function fmt(x){return Number.isInteger(x)?x:x.toFixed(1)}
 function addLog(t){state.history.unshift(t);state.history=state.history.slice(0,16);logEl.innerHTML=state.history.map(x=>"• "+x).join("<br>")}
@@ -722,7 +912,11 @@ function render(){
  const legend=document.querySelector(".legend");if(legend)legend.style.display=state.goalMode==="walls"?"none":"flex";
  renderScoreboard();
  const p=currentPlayer();
- $("#phaseBadge").textContent=`ROUND ${state.round} / ${state.totalRounds}`;
+ $("#phaseBadge").textContent=`ROUND ${state.round} / ${state.totalRounds}${state.mode==="cpu"?" · VS CPU 標準":""}`;
+ $("#cpuStatus").classList.toggle("screenHidden",state.mode!=="cpu");
+ $("#cpuStatus").textContent=state.gameOver?"対戦終了":state.roundOver?"ラウンド終了":cpuBusy?cpuPhase:currentPlayer()===0?(state.lastCpuCell?"あなたの番です。青枠はCPUが最後に置いたタイルです。":"あなたの番です。タイルを選んで道路をつなげましょう。"):"CPUの手番です。";
+ $("#gameScreen").classList.toggle("cpuThinking",cpuBusy);
+ $("#board").setAttribute("aria-busy",String(cpuBusy));
  $("#turnText").textContent=playerName(p);$("#pickText").textContent=state.turnNo+"T / "+(state.pickIndex+1)+"/2";$("#goalText").textContent=state.reached.length+" / 4";$("#emptyText").textContent=countEmpty();
  $("#p1rot").textContent=state.players[0].rot;$("#p2rot").textContent=state.players[1].rot;
  for(let i=0;i<2;i++){
@@ -739,20 +933,23 @@ function render(){
  const moves=state.rotationMoves||[];
  $("#leftBtn").disabled=!state.selected||(state.players[p].rot<=0&&moves[moves.length-1]!==1);
  $("#rightBtn").disabled=!state.selected||(state.players[p].rot<=0&&moves[moves.length-1]!==-1);
- $("#undoTurnBtn").disabled=!turnSnapshots.length;
+ $("#undoTurnBtn").textContent=state.mode==="cpu"?"↶ 自分の操作前に戻す":"↶ 1ターン戻す";
+ $("#undoTurnBtn").disabled=state.mode==="cpu"?!(humanSnapshots.length>1||humanSnapshots.length&&(state.humanStarted||currentPlayer()===1||state.roundOver)):!turnSnapshots.length;
  if(state.selected){
    const any=[0,1,2,3].some(k=>Math.min(k,4-k)<=state.players[p].rot && validPlacements(rotateMask(tileMask(state.selected),k)).length);
    $("#skipBtn").disabled=any;
  }else $("#skipBtn").disabled=true;
  $("#swapBtn").disabled=!!state.selected||state.gameOver||state.players[p].rot<2;
  $("#swapBtn").textContent=state.swapMode?"入れ替え解除":"入れ替え（2P）";
- document.querySelectorAll(".secretBtn").forEach(b=>{b.style.display=state.publicRates?"none":"block"});
+ document.querySelectorAll(".secretBtn").forEach(b=>{b.style.display=state.publicRates||state.mode==="cpu"&&b.dataset.p==="1"?"none":"block";b.disabled=cpuBusy});
  renderBoard();renderDraft();
+ if(!canAct()||state.mode==="cpu"&&currentPlayer()===1)for(const id of ["leftBtn","rightBtn","skipBtn","swapBtn"])$("#"+id).disabled=true;
+ logEl.innerHTML=state.history.map(x=>"• "+x).join("<br>");
 }
 $("#undoTurnBtn").addEventListener("click",undoTurn);
 $("#leftBtn").addEventListener("click",()=>rotate(-1));$("#rightBtn").addEventListener("click",()=>rotate(1));$("#skipBtn").addEventListener("click",skip);
 $("#swapBtn").addEventListener("click",()=>{
- if(state.selected||state.players[currentPlayer()].rot<2)return;
+ if(!canAct()||state.selected||state.players[currentPlayer()].rot<2)return;
  state.swapMode=!state.swapMode;
  msg.textContent=state.swapMode?"入れ替える共有タイルを選んでください（確認後に2P消費）。":"入れ替えモードを解除しました。";
  render();
@@ -779,8 +976,9 @@ function saveOdds(){const v=readOdds();if(!v)return false;for(const k of Object.
  setOdds(validOdds(saved||{})?saved:DEFAULT_ODDS);saveOdds();
  document.querySelector('#oddsReset').addEventListener('click',()=>{setOdds(DEFAULT_ODDS);saveOdds()});
 })();
-const showScreen=id=>{for(const name of ["titleScreen","optionsScreen","rulesScreen","gameScreen"])document.getElementById(name).classList.toggle("screenHidden",name!==id);window.scrollTo(0,0)};
-document.querySelector("#startVs").addEventListener("click",()=>{saveOdds();initGame();showScreen("gameScreen")});
+const showScreen=id=>{if(id!=="gameScreen")stopCpu();for(const name of ["titleScreen","optionsScreen","rulesScreen","gameScreen"])document.getElementById(name).classList.toggle("screenHidden",name!==id);window.scrollTo(0,0)};
+document.querySelector("#startVs").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("vs")});
+document.querySelector("#startCpu").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("cpu")});
 document.querySelector("#openOptions").addEventListener("click",()=>showScreen("optionsScreen"));
 document.querySelector("#openRules").addEventListener("click",()=>showScreen("rulesScreen"));
 document.querySelector("#rulesBack").addEventListener("click",()=>showScreen("titleScreen"));
@@ -789,6 +987,7 @@ document.querySelector("#optionPublicRates").addEventListener("change",e=>{if(st
 document.querySelector("#returnTitleBtn").addEventListener("click",()=>{if(confirm("対戦を終了してトップに戻りますか？進行中のゲームは失われます。")){document.querySelector("#overlay").classList.remove("show");showScreen("titleScreen")}});
 document.querySelector(".wg-home").addEventListener("click",e=>{
  if(state&&!state.gameOver&&!document.querySelector("#gameScreen").classList.contains("screenHidden")&&!confirm("対戦を終了してGAMESに戻りますか？進行中のゲームは失われます。"))e.preventDefault();
+ if(!e.defaultPrevented)stopCpu();
 });
 // タイトル画面を初期表示し、VSを押すまでゲームを開始しない
 showScreen("titleScreen");

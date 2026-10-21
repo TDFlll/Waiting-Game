@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.10.21-line-v1";
+const SW_VERSION = "2026.10.21-line-cpu-v1";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [
@@ -11,6 +11,12 @@ const CORE_URLS = [
   "icons/icon.svg",
   "icons/maskable.svg"
 ];
+
+// Prefer the current bundle while retaining older saved games as a fallback.
+async function cachedResponse(request) {
+  const active = await caches.open(ACTIVE_CACHE);
+  return (await active.match(request)) || (await caches.match(request));
+}
 
 function sameOrigin(url) {
   return url.origin === self.location.origin;
@@ -101,9 +107,9 @@ self.addEventListener("fetch", event => {
         cache.put(request, response.clone());
         return response;
       } catch (error) {
-        return (await caches.match(request)) ||
-          (await caches.match("index.html")) ||
-          (await caches.match("offline.html"));
+        return (await cachedResponse(request)) ||
+          (await cachedResponse("index.html")) ||
+          (await cachedResponse("offline.html"));
       }
     })());
     return;
@@ -117,14 +123,14 @@ self.addEventListener("fetch", event => {
         cache.put(request, response.clone());
         return response;
       } catch (error) {
-        return (await caches.match(request)) || Response.error();
+        return (await cachedResponse(request)) || Response.error();
       }
     })());
     return;
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(request);
+    const cached = await cachedResponse(request);
     if (cached) return cached;
     try {
       const response = await fetch(request);
@@ -134,7 +140,7 @@ self.addEventListener("fetch", event => {
       }
       return response;
     } catch (error) {
-      return (await caches.match("offline.html")) || Response.error();
+      return (await cachedResponse("offline.html")) || Response.error();
     }
   })());
 });

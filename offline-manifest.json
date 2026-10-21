@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.21-line-v1",
+  "version": "2026.10.21-line-cpu-v1",
   "generatedAt": "2026-10-21",
   "core": [
     "./",
@@ -75,7 +75,7 @@
       "id": "line",
       "title": "WAITING LINE",
       "type": "game",
-      "version": "v2.2.1",
+      "version": "v2.3",
       "url": "games/line.html",
       "files": [
         "games/line.html"
