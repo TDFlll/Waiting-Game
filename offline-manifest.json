@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.21-helper-v103",
+  "version": "2026.10.21-draw-v025",
   "generatedAt": "2026-10-21",
   "core": [
     "./",
@@ -89,6 +89,16 @@
       "url": "games/helper.html",
       "files": [
         "games/helper.html"
+      ]
+    },
+    {
+      "id": "draw",
+      "title": "WAITING DRAW",
+      "type": "tool",
+      "version": "v0.2.5",
+      "url": "games/draw.html",
+      "files": [
+        "games/draw.html"
       ]
     }
   ]

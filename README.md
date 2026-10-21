@@ -23,7 +23,8 @@ waiting-games/
 │  ├─ robots.html
 │  ├─ escape.html
 │  ├─ line.html
-│  └─ helper.html
+│  ├─ helper.html
+│  └─ draw.html
 └─ README.md
 ```
 
@@ -37,6 +38,7 @@ waiting-games/
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
 - `games/line.html` v2.3.1 from `Waiting_Line_DEMO_v2.2.html` (launcher and CPU integration)
 - `games/helper.html` from `Board_Game_Helper_v1.03.html`
+- `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use
@@ -55,7 +57,7 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 ## Notes
 
 - The launcher `PLAY` buttons open the fixed game paths above.
-- Each game has a small `← GAMES` link back to `../index.html`.
+- Each game has a `← GAMES` link back to `../index.html`. Waiting Draw keeps this link in its left main menu so it does not cover the canvas, and waits for pending saves before returning.
 - Games include launcher return links and shared player-name integration.
 - Waiting Line v2.3.1 preserves the v2.2 rules, adds shared names and a confirmed return to GAMES during a match, and corrects the rules text to describe simultaneous scoring for both players. Turn snapshots preserve the non-existent cells of the walls board when undoing. It is included in the launcher filters, random selection, and offline downloads. VS CPU provides standard difficulty for one human (P1) against CPU (P2). With private multipliers, the AI receives only its own multipliers and a neutral estimate for the opponent. CPU mode undo restores the previous human decision, including later CPU actions.
 - The project is ready to upload to a GitHub Pages repository root.
@@ -63,6 +65,10 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 - Offline Cache Storage is separate from each game's `localStorage` save data. Updating the offline cache does not clear existing in-game saves.
 - Browser storage is not permanent. iOS Safari and Home Screen apps can manage storage separately, so save/download in the same browser or Home Screen app you plan to use offline.
 - If the first offline save says the Service Worker is not ready, reload the launcher once and run the download again.
+
+## Waiting Draw
+
+WAITING DRAW v0.2.5をツール一覧とオフライン保存対象に追加しています。ノートはIndexedDB（`waiting-draw-v01`）に自動保存します。JSONの`waiting-draw`形式・version 1を維持し、元の共有シート・コピー・ダウンロード・ファイル／貼り付け復元を利用できます。別アプリや別ブラウザのノートは、JSONの書き出しと復元で移してください。オフライン用HTMLの更新でノートを消去しません。
 
 ## CPU戦の検証
 
