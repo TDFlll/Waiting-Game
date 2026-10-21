@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Waiting Line DEMO v2.3</title>
+<style>
+:root{
+  --bg:#101318;--panel:#191e26;--panel2:#222936;--text:#f5f7fa;--muted:#9da7b5;
+  --line:#b7ad93;--edge:#3a4352;--accent:#7bd6ff;--danger:#ff6b73;--ok:#78df9a;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit} .app{max-width:980px;margin:auto;padding:14px}
+.top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;background:var(--panel2);font-size:13px}
+.main{display:grid;grid-template-columns:minmax(300px,1fr) 310px;gap:14px;margin-top:12px}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px}
+.status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.stat{background:var(--panel2);border-radius:12px;padding:8px;text-align:center;font-size:12px}.stat b{display:block;font-size:18px;margin-top:2px}
+.board-wrap{position:relative;max-width:610px;margin:auto}.board{display:grid;grid-template-columns:repeat(5,1fr);aspect-ratio:1;border:2px solid #556071;background:#11161d}
+.cell{position:relative;border:1px solid #303b4b;min-width:0;overflow:hidden;background:#11161d}
+.cell.valid{background:rgba(120,223,154,.16);cursor:pointer}.cell.valid:hover{outline:2px solid var(--ok);outline-offset:-2px}
+.cell.selected{outline:3px solid var(--accent);outline-offset:-3px}
+.cell.wallBlock{background:repeating-linear-gradient(135deg,#3a4656 0,#3a4656 9px,#28313f 9px,#28313f 18px);box-shadow:inset 0 0 0 2px #8792a2;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e2e7ee;gap:2px}
+.blockIcon{font-size:clamp(17px,4vw,30px);line-height:1}.blockLabel{font-size:clamp(8px,1.7vw,12px);font-weight:800}
+.tile{position:absolute;inset:0}.road{position:absolute;background:var(--line);border-radius:999px}
+.road.n{width:18%;height:52%;left:41%;top:-2%}.road.s{width:18%;height:52%;left:41%;bottom:-2%}
+.road.w{height:18%;width:52%;top:41%;left:-2%}.road.e{height:18%;width:52%;top:41%;right:-2%}
+.hub{position:absolute;width:22%;height:22%;left:39%;top:39%;border-radius:50%;background:var(--line)}
+.centerMark{position:absolute;inset:31%;display:grid;place-items:center;border-radius:50%;background:#111722;color:#fff;font-weight:900;font-size:clamp(9px,2vw,15px);z-index:4}
+.goalMark{position:absolute;inset:8%;border-radius:14px;border:3px solid currentColor;display:flex;align-items:flex-start;justify-content:flex-end;padding:4px;font-size:11px;font-weight:900;z-index:5;pointer-events:none}
+.goalRates{position:absolute;left:2px;bottom:2px;right:2px;z-index:7;display:flex;flex-direction:column;gap:1px;pointer-events:none}.goalRates span{font-size:clamp(8px,1.7vw,12px);font-weight:900;background:rgba(8,12,18,.88);border-radius:3px;text-align:center;line-height:1.3}.goalRates .p1rate{color:#ffb46b}.goalRates .p2rate{color:#8ecbff}.goalMark.reached:after{content:"✓";font-size:20px;background:#101318;border-radius:50%;padding:0 4px}
+.red{color:#ff646c}.blue{color:#62a8ff}.green{color:#61d68b}.yellow{color:#f4d35e}
+.draft{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.pick{aspect-ratio:1;border:1px solid #4a5565;border-radius:12px;background:#11161d;position:relative;cursor:pointer;padding:0}
+.pick:disabled{opacity:.4;cursor:not-allowed}.pick.active{outline:3px solid var(--accent)}.pick .bonus{position:absolute;right:3px;top:3px;background:#f4d35e;color:#111;border-radius:999px;font-size:11px;font-weight:900;padding:2px 5px;z-index:8}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.controls button,.secretBtn,.nextBtn{border:1px solid #4a5565;background:var(--panel2);border-radius:11px;padding:10px 12px;cursor:pointer}
+.controls button:disabled{opacity:.35}.nextBtn{width:100%;background:#27384b;border-color:#55728f;margin-top:10px;font-weight:800}
+.msg{min-height:44px;margin-top:9px;color:#d9e0e8;font-size:13px;line-height:1.5}
+.rules{font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px}
+.playerBox{display:grid;grid-template-columns:1fr 1fr;gap:8px}.p{background:var(--panel2);border-radius:12px;padding:9px}.p.current{outline:2px solid var(--accent)}
+.p b{font-size:15px}.p small{display:block;color:var(--muted);margin-top:4px}
+.secretBtn{width:100%;font-size:12px;margin-top:7px}.rank{font-size:12px;color:var(--muted);margin-top:6px}
+.overlay{position:fixed;inset:0;background:rgba(5,7,10,.94);z-index:99;display:none;align-items:center;justify-content:center;padding:18px}.overlay.show{display:flex}
+.modal{width:min(440px,100%);background:#1b212b;border:1px solid #566170;border-radius:18px;padding:18px;text-align:center}.modal h2{margin:0 0 10px}.multipliers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.multi{background:#11161d;border-radius:12px;padding:12px;font-weight:800}.modal button{border:0;border-radius:12px;background:#e8edf3;color:#111;padding:11px 18px;font-weight:900}
+.log{margin-top:10px;max-height:150px;overflow:auto;font-size:12px;color:var(--muted);border-top:1px solid var(--edge);padding-top:8px}
+.legend{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:6px 2px 10px}
+@media(max-width:760px){.main{grid-template-columns:1fr}.side{order:-1}.app{padding:9px}.card{padding:9px}.status{grid-template-columns:repeat(2,1fr)}}
+.bottomInfo{margin-top:12px}
+.main{grid-template-columns:minmax(0,1fr) 230px}
+.draft{max-width:610px;margin:auto}
+.pick.active{outline:3px solid #78df9a;outline-offset:-3px;background:#243c35}
+.pick.active:after{content:"選択中";position:absolute;top:2px;left:3px;font-size:10px;color:#78df9a;z-index:9;font-weight:900}
+@media(max-width:760px){
+ .main{display:flex;flex-direction:column}
+ .side{order:-1}
+ .playerBox{grid-template-columns:1fr 1fr}
+ .board-wrap{max-width:560px}
+ .draft{gap:5px}
+ .pick{border-radius:8px}
+ .controls{margin:8px 0}
+ .controls button{padding:8px;font-size:12px}
+ .side .playerBox .p{padding:7px}
+ .side .playerBox .p small{margin-top:0}
+ .legend{margin:3px 2px}
+ .bottomInfo .status{grid-template-columns:repeat(4,1fr)}
+ .bottomInfo .stat{font-size:10px;padding:6px 2px}
+ .bottomInfo .stat b{font-size:16px}
+}
+.scorePanel{margin-top:12px;padding:12px;border:1px solid #3a4352;border-radius:13px;background:#11161d}.scorePanel h3{font-size:14px;margin:0 0 8px}.scoreRow{display:grid;grid-template-columns:45px 1fr 62px 62px;gap:6px;align-items:center;padding:7px 5px;border-bottom:1px solid #303b4b;font-size:12px}.scoreRow span:nth-child(n+3){text-align:right;font-weight:700}.scoreTotals{display:flex;justify-content:space-around;padding:12px 4px 3px;font-weight:800}.scoreWinner{color:#78df9a}.scoreMuted{color:#9da7b5}.resultScores{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}.resultScore{padding:14px 6px;background:#11161d;border-radius:12px;font-weight:700}.resultScore strong{display:block;font-size:28px}.resultScore small{display:block;color:#9da7b5}
+
+.rateStrip{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin-top:3px}
+.rateChip{min-width:0;border-radius:5px;text-align:center;padding:4px 0 3px;font-weight:900;font-size:clamp(10px,2.6vw,14px);color:#101318;line-height:1.15}
+.rateChip.red{background:#ff646c}.rateChip.blue{background:#62a8ff}.rateChip.green{background:#61d68b}.rateChip.yellow{background:#f4d35e}
+.board .goalMark{border-width:3px;background:rgba(13,17,23,.65);inset:5%;justify-content:center;align-items:center;font-size:clamp(10px,2.8vw,19px)}
+.board .goalRates{display:none!important}
+.board .wallGoalCell.red{background:#4d2229;box-shadow:inset 0 0 0 3px #ff646c}
+.board .wallGoalCell.blue{background:#203a59;box-shadow:inset 0 0 0 3px #62a8ff}
+.board .wallGoalCell.green{background:#204d36;box-shadow:inset 0 0 0 3px #61d68b}
+.board .wallGoalCell.yellow{background:#54491e;box-shadow:inset 0 0 0 3px #f4d35e}
+.board .wallGoalCell .goalMark{border:0;background:transparent}
+.board .wallGoalCell .road{opacity:.85}
+/* v0.9 compact gameplay: players / draft / commands / board */
+.main{display:block;margin-top:8px}
+.main>.card{padding:10px}
+.topPlayers{margin-bottom:8px}
+.topPlayers>label{margin:0 0 6px!important;font-size:11px!important;justify-content:flex-end}
+.playerBox{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.p{padding:7px 10px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px}
+.p b{font-size:13px}.p small{margin:0;font-size:12px}.p .rank{margin:0;font-size:10px;grid-column:1/-1}
+.p .secretBtn{grid-column:1/-1;margin:2px 0 0;padding:5px}
+.main h3{margin:5px 0!important;font-size:12px!important}
+.draft{max-width:550px;gap:5px}
+.pick{border-radius:9px}
+.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:7px 0}
+.controls button{min-width:0;padding:8px 2px;font-size:11px;white-space:nowrap;border-radius:8px}
+.legend{margin:3px 2px 5px}
+.board-wrap{max-width:550px}
+.msg{min-height:0;font-size:12px;margin-top:5px}
+@media(max-width:760px){
+ .main{display:block}.side{order:initial}
+ .main>.card{padding:7px}
+ .app{padding:5px}
+ .topPlayers>label{font-size:10px!important}
+ .p{padding:5px 7px}
+ .p b{font-size:12px}
+ .p small{font-size:11px}
+ .p .rank{font-size:9px}
+ .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin:6px 0}
+ .controls button{font-size:10px;padding:7px 0}
+ .board-wrap{max-width:min(100%,55vh)}
+ .draft{max-width:min(100%,55vh)}
+ .legend{font-size:10px}
+ .scorePanel{margin-top:8px}
+}
+
+.screenHidden{display:none!important}
+.menuScreen{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:520px;margin:auto;padding:28px 20px}
+.menuTitle{text-align:center;font-size:clamp(38px,9vw,62px);font-weight:900;letter-spacing:.04em;margin:0}
+.menuSub{text-align:center;color:#a6b3c6;font-size:13px;letter-spacing:.2em}
+.menuButtons{display:grid;gap:12px;margin-top:15px}
+.menuButtons button{background:#222c3a;border:1px solid #57738b;border-radius:16px;padding:18px 12px;font-size:18px;font-weight:800;cursor:pointer}
+.menuButtons button:first-child{background:#29465a;border-color:#79d8fa}
+.menuButtons button:disabled{opacity:.55;cursor:not-allowed}
+.menuHint{text-align:center;color:#aab5c3;font-size:12px}
+#optionsScreen .card{padding:22px}
+.optionRow{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:22px 0}
+.optionRow input{width:24px;height:24px;accent-color:#79d8fa}
+.rulesScreen{justify-content:flex-start;max-width:680px;gap:14px;padding-top:28px}
+.rulesContent{font-size:14px;line-height:1.75;color:#d7e1ec}
+.rulesContent h2{font-size:17px;color:#7bd6ff;margin:18px 0 4px}
+.rulesContent h2:first-child{margin-top:0}
+.rulesContent p{margin:5px 0 12px}
+.rulesContent table{width:100%;border-collapse:collapse;margin:10px 0}
+.rulesContent td,.rulesContent th{border:1px solid #465263;padding:7px 12px;text-align:center}
+/* 4-wall mode: colored goal indicators sit just outside the board */
+.board-wrap{margin:26px auto;max-width:560px}
+.wallIndicator{position:absolute;z-index:8;text-align:center;pointer-events:none;font-size:12px;font-weight:900}
+.wallIndicator .wallGoal{display:inline-flex;align-items:center;gap:5px;border:1px solid currentColor;background:#11161d;border-radius:8px;padding:3px 6px;white-space:nowrap}
+.wallIndicator small{font-size:10px;color:#d8e0ec}
+.wallIndicator .done{background:#294436}
+.wall-top{top:-26px;left:0;right:0}.wall-bottom{bottom:-26px;left:0;right:0}
+.wall-left{left:-26px;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
+.wall-right{right:-26px;top:50%;transform:translate(50%,-50%) rotate(90deg)}
+@media(max-width:760px){.board-wrap{width:calc(100% - 28px);margin:30px auto}.wallIndicator{font-size:10px}.wallIndicator small{font-size:8px}.wall-left{left:-23px}.wall-right{right:-23px}}
+.tileOdds{border-top:1px solid #465161;margin-top:15px;padding-top:12px}.tileOdds h3{margin:0 0 6px}.tileOdds p{color:#aab5c3;font-size:12px}.oddsGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.oddsGrid label{display:flex;flex-direction:column;gap:5px;text-align:center;font-weight:700;font-size:12px}.oddsGrid input{width:100%;min-width:0;box-sizing:border-box;background:#11161d;color:#fff;border:1px solid #536477;border-radius:8px;padding:9px 3px;text-align:center;font:inherit}.tileOdds button{margin-top:8px;border:1px solid #536477;background:#27384b;color:#fff;padding:8px 12px;border-radius:9px}#oddsTotal{font-weight:800;margin-top:8px;font-size:13px}
+.board .voidCell{visibility:hidden;pointer-events:none}.board:has(.voidCell){background:transparent;border:0}.board:has(.voidCell) .cell{min-width:0}
+/* 4壁の外周ライン。色付きの境界は配置可能なマスの外縁に表示する */
+.board .boundaryWall{position:absolute;z-index:12;pointer-events:none;display:block;border-radius:5px;opacity:1}
+.board .boundaryWall.red{background:#fa3024}.board .boundaryWall.blue{background:#1974ff}
+.board .boundaryWall.green{background:#70bf36}.board .boundaryWall.yellow{background:#ffb21b}
+.board .boundaryWall.north{height:7px;left:0;right:0;top:0}
+.board .boundaryWall.south{height:7px;left:0;right:0;bottom:0}
+.board .boundaryWall.east{width:7px;top:0;bottom:0;right:0}
+.board .boundaryWall.west{width:7px;top:0;bottom:0;left:0}
+.board .boundaryWall.completed{filter:brightness(1.4);box-shadow:0 0 8px currentColor}
+/* ラウンド終了時：ゴール到達順とタイミングを一画面で振り返る */
+.roundTimeline{text-align:left;margin:12px 0;border:1px solid #3a4352;border-radius:12px;padding:10px;background:#11161d}
+.roundTimeline h3{font-size:15px;margin:0 0 4px}
+.roundTimeline .timelineHint{font-size:11px;color:#a8b4c4;margin:0 0 8px}
+.timelineRow{display:grid;grid-template-columns:32px minmax(58px,1fr) minmax(90px,1.3fr) minmax(86px,1fr);align-items:center;gap:5px;padding:8px 3px;border-top:1px solid #334052;font-size:12px}
+.timelineRow.empty{opacity:.55}.timelineRank{font-weight:900;color:#e4e9f0}.timelineGoal{font-weight:800;white-space:nowrap}.timelineDot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.timelineDot.red{background:#ff646c}.timelineDot.blue{background:#62a8ff}.timelineDot.green{background:#61d68b}.timelineDot.yellow{background:#f4d35e}
+.timelineTime{font-weight:700}.timelineTime small{display:block;color:#9da7b5;font-size:10px;font-weight:400}.timelineRow strong{text-align:right;color:#78df9a}.timelineRow strong.timelineMinus{color:#ff7373}
+.timelineFoot{text-align:right;font-size:11px;color:#a8b4c4;margin-top:8px}
+#modal{max-height:88dvh;overflow-y:auto}
+@media(max-width:390px){.timelineRow{grid-template-columns:26px 54px minmax(85px,1fr) minmax(74px,1fr);gap:3px;font-size:11px}.timelineTime small{font-size:9px}}
+.roundTimeline .timelineRow strong small{display:block;font-size:11px;font-weight:800;text-align:right;color:inherit;line-height:1.35}
+/* Launcher integration: keep navigation clear of game controls. */
+.wg-home{position:fixed;right:10px;top:max(10px,env(safe-area-inset-top));z-index:100;border:1px solid #57738b;border-radius:999px;background:#191e26;color:#dceaf2;text-decoration:none;font:900 11px/1 system-ui,sans-serif;padding:10px 12px}
+.app{padding-top:54px}.menuScreen{padding-top:54px}
+.playerBox .p,.resultScore{min-width:0;overflow-wrap:anywhere}
+.cpuStatus{margin:4px 0 8px;padding:8px;border:1px solid #527f9a;border-radius:8px;font-size:12px;color:#bde8ff;background:#172733}
+.cell.cpuTarget{outline:3px solid #7bd6ff;outline-offset:-4px;background:#284858}
+.cell.cpuLast{box-shadow:inset 0 0 0 3px #7bd6ff}
+.cpuThinking .pick:disabled{opacity:.75}.cpuThinking .pick.active{opacity:1}
+</style>
+</head>
+<body>
+<a class="wg-home" href="../index.html" aria-label="WAITING GAMESへ戻る">← GAMES</a>
+<div id="titleScreen" class="menuScreen">
+ <h1 class="menuTitle">WAITING<br><span style="color:#7bd6ff">LINE</span></h1>
+ <div class="menuSub">SHARED ROAD STRATEGY</div>
+ <div class="menuButtons">
+  <button id="startVs">ゲームスタート VS</button>
+  <button id="startCpu">VS CPU（標準）</button>
+  <button id="openOptions">オプション</button>
+  <button id="openRules">ルール</button>
+ </div>
+ <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3</div>
+</div>
+<div id="optionsScreen" class="menuScreen screenHidden">
+ <h1 class="menuTitle" style="font-size:32px">オプション</h1>
+ <section class="card"><label class="optionRow"><span><b>色倍率を公開</b><br><small style="color:#aab5c3">ON: プレイヤー欄にP1/P2の倍率を表示</small></span><input type="checkbox" id="optionPublicRates" checked></label><label class="optionRow"><span><b>ゴール設定</b><br><small style="color:#aab5c3">4隅：従来のゴール / 4壁：十字型の盤面外周の色付き壁へ道路を接続</small></span><select id="optionGoalMode" style="font:inherit;color:white;background:#263344;border:1px solid #526579;border-radius:9px;padding:9px"><option value="corners">4隅</option><option value="walls">4壁</option></select></label>
+ <div class="tileOdds">
+  <h3>タイル出現率</h3>
+  <p>A：十字 / B：直線 / C：T字 / D：カーブ / E：行き止まり。合計100%になるよう設定してください。</p>
+  <div class="oddsGrid" id="oddsGrid"></div>
+  <div id="oddsTotal" aria-live="polite"></div>
+  <button type="button" id="oddsReset">初期値に戻す</button>
+ </div></section>
+ <div class="menuButtons"><button id="optionsBack">トップに戻る</button></div>
+</div>
+<div id="rulesScreen" class="menuScreen screenHidden rulesScreen">
+ <h1 class="menuTitle" style="font-size:32px">ルール</h1>
+ <section class="card rulesContent">
+  <h2>ゲームの目的</h2>
+  <p>2人で道路を共有し、中央から4色のゴールへ道をつなげるゲームです。オプションで「4隅」と「4壁」を選べます。3ラウンドの合計得点が高いプレイヤーの勝利です。</p>
+  <p><b>4隅：</b>四隅の固定ゴールへ接続。<br><b>4壁：</b>5×5盤面の上下左右の中央に1マスずつ追加された十字型マップ。延長マスも通常の道路タイルを配置できます。外周の色付き壁（上＝赤、右＝青、下＝緑、左＝黄）へ、中央からつながった道路の出口が向いたときに到達です。追加マスそのものに置いただけでは得点せず、側面に接するだけでも得点しません。各色1回だけ得点化します。</p>
+  <h2>CPU対戦（標準）</h2>
+  <p>VS CPUではP1があなた、P2がCPUです。CPUは得点差、次に狙えるゴール、回転Pやボーナスを考えて行動します。倍率非公開時は自分の倍率だけで判断し、あなたの秘密倍率は参照しません。CPUの秘密得点表は表示できません。</p>
+  <p>CPUが複数色を同時につないだ場合はCPUが到達順を選びます。「自分の操作前に戻す」で、自分の直前の操作とその後のCPUの行動を取り消せます。対人戦の「1ターン戻す」は先攻・後攻のセットを取り消します。</p>
+  <h2>① ドラフトと配置</h2>
+  <p>先攻・後攻が交互に、公開された5枚から道路タイルを1枚選びます。使用後はすぐに1枚補充され、常に5枚から選べます。タイルは配置確定前なら選び直せます。</p>
+  <p>新しいタイルは、中央からつながる道路に<strong>最低1本</strong>接続する空きマスへ配置します。他の出口が壁や行き止まりを向いても構いません。置ける場所があれば配置必須、どうしても置けなければスキップします。</p>
+  <h2>② 回転P</h2>
+  <p>各プレイヤーはラウンド開始時に3P。90°回転で1P、共有ドラフトのタイル1枚を入れ替えるには2P使います。入れ替えは手番を消費しません。</p>
+  <h2>③ 売れ残りボーナス</h2>
+  <p>先攻と後攻が1回ずつ行動して1ターン。3ターン選ばれなかったタイルに+1P、以降は2ターン残るごとに+1Pが累積します。取得するとそのPを獲得。<strong>先攻がボーナス付きタイルを取った場合、次ターンから先攻・後攻が交代</strong>します。</p>
+  <h2>④ ゴールと得点</h2>
+  <table><thead><tr><th>到達順</th><th>基礎点</th></tr></thead><tbody><tr><td>1番目</td><td>2点</td></tr><tr><td>2番目</td><td>3点</td></tr><tr><td>3番目</td><td>5点</td></tr><tr><td>4番目</td><td>−3点</td></tr></tbody></table>
+  <p>得点は<strong>両プレイヤーに同時に</strong>入り、基礎点に各プレイヤー自身のゴール色倍率（×2 / ×1.5 / ×1 / ×0）を掛けます。倍率はオプションで公開・非公開を選べます。得点自体は常に公開されます。</p>
+  <p>1枚で複数ゴールにつながったときは、置いたプレイヤーが到達順を決めます。同じゴールの得点は最初の1回だけです。</p>
+  <h2>⑤ ラウンド終了</h2>
+  <p>4色すべてに到達したとき、または未到達ゴールへ今後到達できる可能性がなくなったときに終了します。獲得点と順位を公開し、3ラウンド終了後に勝敗を決めます。</p>
+ </section>
+ <div class="menuButtons"><button id="rulesBack">トップに戻る</button></div>
+</div>
+<div class="app screenHidden" id="gameScreen">
+  <div class="top">
+    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3</span></h1>
+    <div class="badge" id="phaseBadge">ROUND 1 / 3</div>
+  </div>
+
+  <div class="main">
+    <section class="card">
+      <div class="topPlayers">
+      <div class="playerBox">
+        <div class="p current" id="p1box"><b>PLAYER 1</b><small>回転P <strong id="p1rot">3</strong></small><button class="secretBtn" data-p="0">秘密得点表</button><div class="rateStrip" id="p1rates"></div><div class="rank" id="p1rank">累計順位：?</div></div>
+        <div class="p" id="p2box"><b>PLAYER 2</b><small>回転P <strong id="p2rot">3</strong></small><button class="secretBtn" data-p="1">秘密得点表</button><div class="rateStrip" id="p2rates"></div><div class="rank" id="p2rank">累計順位：?</div></div>
+      </div>
+
+</div>
+      <div id="cpuStatus" class="cpuStatus screenHidden" role="status" aria-live="polite"></div>
+      <h3 style="font-size:14px;margin:14px 0 8px">共有ドラフト</h3>
+      <div class="draft" id="draft"></div>
+      <div class="controls">
+        <button id="leftBtn" disabled>↺ 左90°</button>
+        <button id="rightBtn" disabled>右90° ↻</button>
+        <button id="skipBtn" disabled>配置不能でスキップ</button>
+        <button id="swapBtn" disabled>入れ替え（2P）</button>
+      </div>
+      <div class="legend"><span>🔴左上</span><span>🔵右上</span><span>🟢右下</span><span>🟡左下</span></div>
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+      <div class="scorePanel"><h3>ゴール到達順・得点</h3><div id="scoreOrder"></div><div class="scoreTotals" id="scoreTotals"></div></div>
+      <div class="msg" id="msg">中央からつながるようにタイルを配置してください。</div>
+    </section>
+
+
+  </div>
+  <section class="card bottomInfo">      <div class="status">
+        <div class="stat">手番<b id="turnText">P1</b></div>
+        <div class="stat">ドラフト<b id="pickText">1 / 4</b></div>
+        <div class="stat">到達<b id="goalText">0 / 4</b></div>
+        <div class="stat">残り空き<b id="emptyText">20</b></div>
+      </div>
+      <button class="nextBtn" id="resetBtn">ゲームをリセット</button>
+      <button class="nextBtn" id="returnTitleBtn">トップに戻る</button>
+      <button class="nextBtn" id="undoTurnBtn">↶ 1ターン戻す</button>
+      <div class="rules">
+        <b>操作：</b> タイルを選択（選び直し可能） → 必要なら回転 → 緑色のマスを選択。<br>
+        入れ替えは2Pで共有タイルを1枚交換（手番消費なし）。配置可能なら必ず置きます。毎手番5枚公開。先攻・後攻の2人で1ターンです。3ターン未選択のタイルに+1P、その後は2ターンごとに+1P。先攻がボーナスタイルを取ると次ターンで先後交代します。
+      </div>
+      <div class="log" id="log"></div>
+  </section>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script>
+(()=>{
+"use strict";
+// Match the launcher and the other games' shared-name convention.
+function playerName(index){
+ if(index===1&&state?.mode==="cpu")return "CPU";
+ const fallback="P"+(index+1);
+ try{
+  const saved=JSON.parse(localStorage.getItem("waitingGamesPlayerNamesV1")||"null");
+  if(Array.isArray(saved))return String(saved[index]||fallback).trim().slice(0,16).replace(/[&<>"']/g,"")||fallback;
+ }catch(e){}
+ return fallback;
+}
+const N=1,E=2,S=4,W=8;
+const COLORS=["red","blue","green","yellow"];
+const COLOR_JP={red:"赤",blue:"青",green:"緑",yellow:"黄"};
+const DIRS=[[-1,0,N,S],[0,1,E,W],[1,0,S,N],[0,-1,W,E]];
+// Excel案を反映: A=十字, B=直線, C=T字, D=カーブ, E=行き止まり
+const TYPES={
+ A:{mask:N|E|S|W,weight:8},
+ B:{mask:N|S,weight:25},
+ C:{mask:N|E|W,weight:26},
+ D:{mask:N|E,weight:30},
+ E:{mask:N,weight:11}
+};
+let state;
+let turnSnapshots=[];
+let humanSnapshots=[],humanCheckpointPending=false;
+let cpuTimer=null,cpuGeneration=0,cpuBusy=false,cpuActing=false,cpuPhase="";
+function stopCpu(){clearTimeout(cpuTimer);cpuTimer=null;cpuGeneration++;cpuBusy=false;cpuPhase=""}
+function canAct(){return state&&!state.gameOver&&!state.roundOver&&(state.mode!=="cpu"||currentPlayer()===0||cpuActing)}
+// JSON normally converts undefined array entries (outside the walls board) to null.
+function serializeState(){return JSON.stringify(state,(key,value)=>value===undefined?"__line_outside__":value)}
+function snapshotTurn(){turnSnapshots.push(serializeState());if(turnSnapshots.length>100)turnSnapshots.shift()}
+function undoTurn(){
+ if(state.mode==="cpu"){
+  if(!humanSnapshots.length)return;
+  if(!confirm("自分の直前の操作前に戻しますか？ その後のCPUの行動・得点・回転Pも元に戻ります。"))return;
+  stopCpu();
+  if(!state.humanStarted&&currentPlayer()===0&&!state.roundOver&&humanSnapshots.length>1)humanSnapshots.pop();
+  state=JSON.parse(humanSnapshots[humanSnapshots.length-1],(key,value)=>value==="__line_outside__"?undefined:value);
+  humanCheckpointPending=false;
+  $("#overlay").classList.remove("show");
+  render();msg.textContent="自分の操作前に戻しました。別の手を選べます。";return;
+ }
+ if(!turnSnapshots.length)return;
+ if(!confirm("直前の1ターンを取り消しますか？ このターンの配置・得点・回転Pも元に戻ります。"))return;
+ const current=serializeState();
+ const snap=turnSnapshots[turnSnapshots.length-1];
+ // ターン開始時点から変化していなければ、さらに前のターンへ戻す。
+ if(current===snap && turnSnapshots.length>1)turnSnapshots.pop();
+ state=JSON.parse(turnSnapshots[turnSnapshots.length-1],(key,value)=>value==="__line_outside__"?undefined:value);
+ $("#overlay").classList.remove("show");
+ msg.textContent="1ターン前の状態に戻しました。";
+ render();
+}
+
+const $=s=>document.querySelector(s);
+const boardEl=$("#board"),draftEl=$("#draft"),msg=$("#msg"),logEl=$("#log");
+
+function rotateMask(mask,steps=1){
+ let m=mask;
+ for(let k=0;k<steps;k++){m=((m<<1)&15)|((m&8)?1:0);}
+ return m;
+}
+function weightedType(){
+ let r=Math.random()*100;
+ for(const [k,v] of Object.entries(TYPES)){r-=v.weight;if(r<=0)return k}
+ return "D";
+}
+function newTile(){
+ return {type:weightedType(),rot:Math.floor(Math.random()*4),bonus:0,age:0,id:crypto.randomUUID?.()||Math.random().toString(36).slice(2)};
+}
+function assignSecrets(){
+ const top=["red","blue"]; if(Math.random()<.5) top.reverse();
+ function one(main){
+   const rest=COLORS.filter(c=>c!==main).sort(()=>Math.random()-.5);
+   return {[main]:2,[rest[0]]:1.5,[rest[1]]:1,[rest[2]]:0};
+ }
+ return [one(top[0]),one(top[1])];
+}
+function blankBoard(){
+ const walls=document.querySelector("#optionGoalMode").value==="walls";
+ if(walls){
+  const b=Array.from({length:7},()=>Array(7).fill(undefined));
+  for(let r=1;r<=5;r++)for(let c=1;c<=5;c++)b[r][c]=null;
+  b[3][3]={type:"A",mask:15,fixed:true};
+  for(const [r,c,mask,color] of [[0,3,S,"red"],[3,6,W,"blue"],[6,3,N,"green"],[3,0,E,"yellow"]])
+   b[r][c]=null; // 延長マスも通常の配置可能マス。ゴールは盤面外の色付き壁
+  return b;
+ }
+ const b=Array.from({length:5},()=>Array(5).fill(null));
+ b[2][2]={type:"A",mask:15,fixed:true};
+ b[0][0]={type:"D",mask:E|S,fixed:true,goal:"red"};
+ b[0][4]={type:"D",mask:S|W,fixed:true,goal:"blue"};
+ b[4][4]={type:"D",mask:N|W,fixed:true,goal:"green"};
+ b[4][0]={type:"D",mask:N|E,fixed:true,goal:"yellow"};
+ return b;
+}
+function boardSize(){return state.board.length}
+function startIndex(){return state.goalMode==="walls"?3:2}
+function inside(r,c){return r>=0&&c>=0&&r<boardSize()&&c<boardSize()&&state.board[r][c]!==undefined}
+// 4壁：マスではなく、盤面外へ向いた道路の出口でゴールを判定する。
+const WALL_SIDES=[["red",-1,0,N],["blue",0,1,E],["green",1,0,S],["yellow",0,-1,W]];
+function wallEdges(r,c){
+ if(state.goalMode!=="walls"||!inside(r,c))return [];
+ return WALL_SIDES.filter(([color,dr,dc])=>!inside(r+dr,c+dc)
+   && ((color==="red"&&(r===1||r===0&&c===3))
+    ||(color==="blue"&&(c===5||c===6&&r===3))
+    ||(color==="green"&&(r===5||r===6&&c===3))
+    ||(color==="yellow"&&(c===1||c===0&&r===3))));
+}
+function reachedWallColors(){
+ const connected=isConnectedNetwork(),colors=new Set();
+ for(const key of connected){
+  const [r,c]=key.split(",").map(Number),tile=state.board[r][c];
+  if(!tile)continue;
+  for(const [color,dr,dc,bit] of wallEdges(r,c))
+   if(tile.mask&bit)colors.add(color);
+ }
+ return colors;
+}
+function initGame(mode=state?.mode||"vs"){
+ stopCpu();humanSnapshots=[];humanCheckpointPending=true;
+ $("#overlay").classList.remove("show");
+ state={
+   mode,roundOver:false,humanStarted:false,lastCpuCell:null,
+   publicRates:document.querySelector("#optionPublicRates").checked,goalMode:document.querySelector("#optionGoalMode").value,round:1,totalRounds:3,players:[{rot:3,total:0},{rot:3,total:0}],
+   secrets:assignSecrets(),board:blankBoard(),draft:[newTile(),newTile(),newTile(),newTile(),newTile()],
+   turnNo:1,pickIndex:0,first:0,reverseNext:false,selected:null,swapMode:false,reached:[],roundScore:[0,0],goalRecords:[],roundHistory:[],history:[],gameOver:false
+ };
+ turnSnapshots=[];snapshotTurn();render(); addLog("ゲーム開始。ROUND 1");beginTurn();
+}
+function orderForSet(){return [state.first,1-state.first];}
+function currentPlayer(){return orderForSet()[state.pickIndex]}
+// AI receives an explicit observation. Hidden human multipliers never enter it.
+function cpuObservation(){
+ return {
+  board:state.board.map(row=>row.map(cell=>cell?{...cell}:cell)),
+  goalMode:state.goalMode,reached:[...state.reached],
+  draft:state.draft.map(tile=>({...tile})),rot:state.players[1].rot,
+  own:{...state.secrets[1]},
+  opponent:state.publicRates?{...state.secrets[0]}:Object.fromEntries(COLORS.map(c=>[c,1.125])),
+  odds:Object.fromEntries(Object.entries(TYPES).map(([key,value])=>[key,value.weight]))
+ };
+}
+function permutations(items){
+ if(!items.length)return [[]];
+ return items.flatMap((item,i)=>permutations(items.filter((_,j)=>i!==j)).map(rest=>[item,...rest]));
+}
+function cpuGoalOrder(colors,view,rank=view.reached.length){
+ let best=[],bestValue=-Infinity;
+ for(const order of permutations(colors)){
+  const value=order.reduce((sum,color,i)=>sum+[2,3,5,-3][rank+i]*(view.own[color]-view.opponent[color]),0);
+  if(value>bestValue){bestValue=value;best=order}
+ }
+ return {order:best,value:bestValue};
+}
+// Minimum extra tiles needed to reach each goal. Existing roads retain their openings.
+function cpuDistances(view){
+ const board=view.board,size=board.length,start=view.goalMode==="walls"?3:2;
+ const inside=(r,c)=>r>=0&&c>=0&&r<size&&c<size&&board[r][c]!==undefined;
+ const dist=Array.from({length:size},()=>Array(size).fill(Infinity));
+ const seen=new Set(),result=Object.fromEntries(COLORS.map(c=>[c,Infinity]));
+ dist[start][start]=0;
+ for(let step=0;step<size*size;step++){
+  let r=-1,c=-1,best=Infinity;
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!seen.has(y+","+x)&&dist[y][x]<best){r=y;c=x;best=dist[y][x]}
+  if(r<0)break;
+  seen.add(r+","+c);
+  const cell=board[r][c],mask=cell===null?15:cell.mask;
+  if(view.goalMode==="corners"&&cell?.goal)result[cell.goal]=Math.min(result[cell.goal],best);
+  if(view.goalMode==="walls"){
+   for(const [color,dr,dc,bit] of WALL_SIDES){
+    const edge=!inside(r+dr,c+dc)&&((color==="red"&&(r===1||r===0&&c===3))||(color==="blue"&&(c===5||c===6&&r===3))||(color==="green"&&(r===5||r===6&&c===3))||(color==="yellow"&&(c===1||c===0&&r===3)));
+    if(edge&&(mask&bit))result[color]=Math.min(result[color],best);
+   }
+  }
+  for(const [dr,dc,bit,opp] of DIRS){
+   const nr=r+dr,nc=c+dc;
+   if(!(mask&bit)||!inside(nr,nc))continue;
+   const neighbor=board[nr][nc];
+   if(neighbor!==null&&!(neighbor.mask&opp))continue;
+   dist[nr][nc]=Math.min(dist[nr][nc],best+(neighbor===null?1:0));
+  }
+ }
+ return {goals:result,connected:new Set([...seen].filter(key=>{const [r,c]=key.split(',').map(Number);return dist[r][c]===0}))};
+}
+function cpuPotential(view,goals,reached){
+ const remaining=COLORS.filter(c=>!reached.includes(c)&&Number.isFinite(goals[c]));
+ let best=-Infinity;
+ for(const order of permutations(remaining)){
+  let value=0;
+  order.forEach((color,i)=>{
+   value+=[2,3,5,-3][reached.length+i]*(view.own[color]-view.opponent[color])*Math.pow(.78,goals[color]);
+   if(i)value-=.08*Math.max(0,goals[order[i-1]]-goals[color]);
+  });
+  best=Math.max(best,value);
+ }
+ return best;
+}
+function cpuPlan(view,allowSwap=true){
+ const before=cpuDistances(view),potential=cpuPotential(view,before.goals,view.reached);
+ let best=null;
+ view.draft.forEach((tile,index)=>{
+  const budget=view.rot+tile.bonus,orientations=new Set();
+  for(let steps=0;steps<4;steps++){
+   const cost=Math.min(steps,4-steps),mask=rotateMask(TYPES[tile.type].mask,(tile.rot+steps)%4);
+   if(cost>budget||orientations.has(mask))continue;
+   orientations.add(mask);
+   for(let r=0;r<view.board.length;r++)for(let c=0;c<view.board.length;c++){
+    if(view.board[r][c]!==null)continue;
+    const legal=DIRS.some(([dr,dc,bit,opp])=>mask&bit&&before.connected.has((r+dr)+","+(c+dc))&&(view.board[r+dr]?.[c+dc]?.mask&opp));
+    if(!legal)continue;
+    view.board[r][c]={type:tile.type,mask};
+    const after=cpuDistances(view).goals;
+    view.board[r][c]=null;
+    const newly=COLORS.filter(color=>!view.reached.includes(color)&&after[color]===0);
+    const immediate=cpuGoalOrder(newly,view).value;
+    const future=cpuPotential(view,after,[...view.reached,...newly]);
+    const value=immediate+.55*(future-potential)+.12*Math.min(8,budget-cost)+.04*tile.bonus;
+    if(!best||value>best.value+1e-8)best={index,steps,r,c,value,kind:"place"};
+   }
+  }
+ });
+ // Consider one paid swap only for a poor draft. Average over possible draws, never peek at RNG.
+ if(allowSwap&&view.rot>=2&&(!best||best.value<.12*Math.min(8,view.rot)-.35)){
+  let index=view.draft.findIndex((_,i)=>i!==best?.index);if(index<0)index=0;
+  view.draft.forEach((tile,i)=>{if(i!==best?.index&&tile.bonus<view.draft[index].bonus)index=i});
+  const retained=cpuPlan({...view,rot:view.rot-2,draft:view.draft.filter((_,i)=>i!==index)},false);
+  let expected=0;
+  for(const [type,weight] of Object.entries(view.odds))if(weight>0)for(let rot=0;rot<4;rot++){
+   const draw=cpuPlan({...view,rot:view.rot-2,draft:[{type,rot,bonus:0}]},false);
+   expected+=weight/400*Math.max(retained?.value??-2,draw.value??-2);
+  }
+  if(expected>(best?.value??-2)+.7)return {kind:"swap",index};
+ }
+ if(best)return best;
+ if(!view.draft.length)return null;
+ let index=0;view.draft.forEach((tile,i)=>{if(tile.bonus>view.draft[index].bonus)index=i});
+ return {kind:"skip",index};
+}
+function beginTurn(){
+ if(!state||state.gameOver||state.roundOver||$("#gameScreen").classList.contains("screenHidden")||$("#overlay").classList.contains("show"))return;
+ if(state.mode!=="cpu")return;
+ if(currentPlayer()===0){
+  if(humanCheckpointPending){
+   state.humanStarted=false;humanSnapshots.push(serializeState());
+   if(humanSnapshots.length>100)humanSnapshots.shift();humanCheckpointPending=false;
+  }
+  render();return;
+ }
+ scheduleCpu();
+}
+function scheduleCpu(){
+ if(cpuBusy)return;
+ cpuBusy=true;cpuPhase="CPUが考え中…";render();
+ const generation=cpuGeneration;
+ const active=()=>generation===cpuGeneration&&state.mode==="cpu"&&currentPlayer()===1&&!state.roundOver&&!state.gameOver&&!$("#gameScreen").classList.contains("screenHidden");
+ cpuTimer=setTimeout(()=>{
+  if(!active())return;
+  let plan=cpuPlan(cpuObservation());
+  if(plan.kind==="swap"){
+   const old=state.draft[plan.index];state.players[1].rot-=2;state.draft[plan.index]=newTile();
+   addLog(`CPU: ${old.type}を入れ替え（2P消費）`);plan=cpuPlan(cpuObservation(),false);
+  }
+  cpuActing=true;selectTile(plan.index);
+  if(plan.kind==="place"){
+   const dir=plan.steps===3?-1:1;
+   for(let i=0;i<Math.min(plan.steps,4-plan.steps);i++)rotate(dir);
+   cpuPhase=`CPU：${state.selected.type}を${plan.r+1}行${plan.c+1}列に配置します`;
+  }else cpuPhase="CPU：配置できないためスキップします";
+  cpuActing=false;render();
+  if(plan.kind==="place")$("#board").children[plan.r*boardSize()+plan.c].classList.add("cpuTarget");
+  cpuTimer=setTimeout(()=>{
+   if(!active())return;
+   cpuBusy=false;cpuActing=true;
+   if(plan.kind==="place"){state.lastCpuCell=[plan.r,plan.c];place(plan.r,plan.c)}else skip();
+   cpuActing=false;
+  },450);
+ },350);
+}
+function tileMask(tile){return rotateMask(TYPES[tile.type].mask,tile.rot)}
+function isConnectedNetwork(){
+ const start=startIndex();const seen=new Set([`${start},${start}`]),q=[[start,start]];
+ while(q.length){
+   const [r,c]=q.shift(),cell=state.board[r][c]; if(!cell)continue;
+   for(const [dr,dc,bit,opp] of DIRS){
+     if(!(cell.mask&bit))continue;
+     const nr=r+dr,nc=c+dc;
+     if(!inside(nr,nc))continue;
+     const n=state.board[nr][nc];
+     if(n && (n.mask&opp)){
+       const key=nr+","+nc;if(!seen.has(key)){seen.add(key);q.push([nr,nc])}
+     }
+   }
+ }
+ return seen;
+}
+function validPlacements(mask){
+ const connected=isConnectedNetwork(), out=[];
+ for(let r=0;r<boardSize();r++)for(let c=0;c<boardSize();c++){
+   if(state.board[r][c]!==null)continue;
+   let ok=false;
+   for(const [dr,dc,bit,opp] of DIRS){
+     if(!(mask&bit))continue;
+     const nr=r+dr,nc=c+dc;
+     if(!inside(nr,nc))continue;
+     const n=state.board[nr][nc];
+     if(n && connected.has(nr+","+nc) && (n.mask&opp)){ok=true;break}
+   }
+   if(ok)out.push([r,c]);
+ }
+ return out;
+}
+function roadHTML(mask){
+ return `<div class="tile">${mask&N?'<i class="road n"></i>':''}${mask&E?'<i class="road e"></i>':''}${mask&S?'<i class="road s"></i>':''}${mask&W?'<i class="road w"></i>':''}<i class="hub"></i></div>`;
+}
+function wallGoalHTML(color){
+ const done=state.reached.includes(color);
+ return `<span class="wallGoal ${color} ${done?'done':''}">${COLOR_JP[color]}${done?' ✓':''}${state.publicRates?` <small>${playerName(0)}×${state.secrets[0][color]} / ${playerName(1)}×${state.secrets[1][color]}</small>`:''}</span>`;
+}
+function renderBoard(){
+ boardEl.innerHTML="";
+ boardEl.style.gridTemplateColumns=`repeat(${boardSize()},1fr)`;
+ const wrap=boardEl.parentElement;
+ wrap.querySelectorAll('.wallIndicator').forEach(e=>e.remove());
+ if(false){
+  for(const [color,side] of [['red','top'],['blue','right'],['green','bottom'],['yellow','left']]){
+   const label=document.createElement('div');label.className='wallIndicator wall-'+side;
+   label.innerHTML=wallGoalHTML(color);wrap.appendChild(label);
+  }
+ }
+ let valid=[];
+ if(state.selected) valid=validPlacements(tileMask(state.selected));
+ const vset=new Set(valid.map(x=>x.join(",")));
+ for(let r=0;r<boardSize();r++)for(let c=0;c<boardSize();c++){
+   const el=document.createElement("button");el.type="button";el.className="cell";el.dataset.r=r;el.dataset.c=c;
+   el.setAttribute("aria-label",`${r+1}行${c+1}列`);
+   if(state.lastCpuCell?.[0]===r&&state.lastCpuCell?.[1]===c)el.classList.add("cpuLast");
+   const cell=state.board[r][c];
+   if(cell===undefined){el.classList.add("voidCell");el.disabled=true;}
+   else if(cell){
+     if(cell.block){el.classList.add('wallBlock');el.innerHTML='<span class="blockIcon">▦</span><span class="blockLabel">障害物</span>';}
+     else el.innerHTML=roadHTML(cell.mask);
+     if(r===startIndex()&&c===startIndex())el.innerHTML+='<span class="centerMark">S</span>';
+     if(cell.goal){el.classList.add("wallGoalCell",cell.goal);el.innerHTML+=`<span class="goalMark ${cell.goal} ${state.reached.includes(cell.goal)?"reached":""}">${COLOR_JP[cell.goal]}</span>`;}
+     el.disabled=true;
+   }else if(vset.has(r+","+c)&&canAct()&&!(state.mode==="cpu"&&currentPlayer()===1)){
+     el.classList.add("valid"); el.addEventListener("click",()=>place(r,c));
+   }else el.disabled=true;
+   for(const [color,dr,dc,bit] of wallEdges(r,c)){
+     const side=dr<0?"north":dr>0?"south":dc<0?"west":"east";
+     const edge=document.createElement("span");
+     edge.className=`boundaryWall ${color} ${side} ${state.reached.includes(color)?"completed":""}`;
+     el.appendChild(edge);
+   }
+   boardEl.appendChild(el);
+ }
+}
+function renderDraft(){
+ draftEl.innerHTML="";
+ state.draft.forEach((t,i)=>{
+   const b=document.createElement("button");b.type="button";b.className="pick"+(state.selected===t?" active":"");
+   b.innerHTML=roadHTML(tileMask(t))+`<span style="position:absolute;left:5px;bottom:3px;font-weight:900;font-size:11px;z-index:8">${t.type}</span>`+(t.bonus?`<span class="bonus">+${t.bonus}P</span>`:"");
+   b.disabled=!canAct()||state.mode==="cpu"&&currentPlayer()===1;
+   if(state.swapMode)b.style.outline="2px dashed #f4d35e";
+   b.addEventListener("click",()=>selectTile(i));draftEl.appendChild(b);
+ });
+}
+function selectTile(i){
+ if(!canAct())return;
+ if(state.mode==="cpu"&&currentPlayer()===0)state.humanStarted=true;
+ if(state.swapMode){
+   const p=currentPlayer();
+   if(state.players[p].rot<2){state.swapMode=false;render();return}
+   const t=state.draft[i];
+   const yes=confirm("入れ替えますか？");
+   if(yes){
+     state.players[p].rot-=2;
+     state.draft[i]=newTile();
+     addLog(`${playerName(p)}: ${t.type}を破棄し、新しいタイルをドロー（2P消費）`);
+     msg.textContent="入れ替え完了。続けてタイルを選択してください。";
+   }else{msg.textContent="入れ替えをキャンセルしました。"}
+   state.swapMode=false;render();return;
+ }
+ const previous=state.selected;
+ if(previous && previous!==state.draft[i]){
+   // 選び直し前の回転操作を取り消し、消費したポイントを返す
+   previous.rot=state.selectionOriginalRot;
+   state.players[currentPlayer()].rot+=state.selectionRotationSpent;
+   state.players[currentPlayer()].rot-=previous.bonus;
+ }
+ if(previous===state.draft[i]){render();return}
+ state.selected=state.draft[i];
+ state.players[currentPlayer()].rot+=state.selected.bonus;
+ state.selectionOriginalRot=state.selected.rot;
+ state.selectionRotationSpent=0;
+ state.rotationMoves=[];
+ const p=currentPlayer();
+ const possibleAny=[0,1,2,3].some(k=>{
+   const cost=Math.min(k,4-k);
+   return cost<=state.players[p].rot && validPlacements(rotateMask(tileMask(state.selected),k)).length;
+ });
+ $("#skipBtn").disabled=possibleAny;
+ msg.textContent=possibleAny?`${playerName(p)}: タイル${state.selected.type}を選択中。別のタイルを押すと選び直せます。`:`${playerName(p)}: このタイルは配置できません。別のタイルも選択できます。`;
+ render();
+}
+function rotate(dir){
+ if(!canAct()||!state.selected)return;
+ const p=currentPlayer(), step=dir>0?1:-1;
+ if(!Array.isArray(state.rotationMoves))state.rotationMoves=[];
+ const moves=state.rotationMoves;
+ // 直前の回転と逆向きなら、直前の操作を取り消して1P返却する。
+ // 連続操作も履歴を逆順に取り消せるため、誤操作でPを失わない。
+ if(moves.length && moves[moves.length-1]===-step){
+   moves.pop();
+   state.players[p].rot++;
+   state.selectionRotationSpent--;
+ }else{
+   if(state.players[p].rot<=0)return;
+   state.players[p].rot--;
+   state.selectionRotationSpent++;
+   moves.push(step);
+ }
+ state.selected.rot=(state.selected.rot+(step>0?1:3))%4;
+ render();
+}
+function place(r,c){
+ if(!canAct()||!state.selected)return;
+ const p=currentPlayer(),mask=tileMask(state.selected);
+ if(!validPlacements(mask).some(x=>x[0]===r&&x[1]===c))return;
+ state.board[r][c]={type:state.selected.type,mask};
+ addLog(`${playerName(p)}: ${state.selected.type}を (${r+1},${c+1}) に配置`);
+ if(state.mode==="cpu"&&p===1)msg.textContent=`CPUがタイル${state.selected.type}を${r+1}行${c+1}列に配置しました。`;
+ if(state.pickIndex===0 && state.selected.bonus>0)state.reverseNext=true;
+ state.draft.splice(state.draft.indexOf(state.selected),1);
+ state.selected=null;
+ if(checkGoals(p)){render();return}
+ if(state.reached.length===4){finishRound();return}
+ if(!canReachAnyUnreachedGoal()){finishRound("blocked");return}
+ advancePick();
+}
+function skip(){
+ if(!canAct()||!state.selected)return;
+ const p=currentPlayer();
+ const any=[0,1,2,3].some(k=>Math.min(k,4-k)<=state.players[p].rot && validPlacements(rotateMask(tileMask(state.selected),k)).length);
+ if(any){msg.textContent="配置可能な向きがあります。スキップできません。";return}
+ addLog(`${playerName(p)}: 配置不能のためスキップ`);
+ if(state.mode==="cpu"&&p===1)msg.textContent="CPUは配置不能のためスキップしました。";
+ if(state.pickIndex===0 && state.selected.bonus>0)state.reverseNext=true;
+ state.draft.splice(state.draft.indexOf(state.selected),1);
+ state.selected=null;
+ if(!canReachAnyUnreachedGoal()){finishRound("blocked");return}
+ advancePick();
+}
+function checkGoals(p){
+ const connected=isConnectedNetwork();
+ const newly=[];
+ if(state.goalMode==='walls'){
+  for(const color of COLORS)
+   if(reachedWallColors().has(color)&&!state.reached.includes(color))newly.push(color);
+ }else{
+  const coords={red:[0,0],blue:[0,4],green:[4,4],yellow:[4,0]};
+  for(const color of COLORS){
+   if(state.reached.includes(color))continue;
+   const [r,c]=coords[color];if(connected.has(r+','+c))newly.push(color);
+  }
+ }
+ if(!newly.length)return false;
+ if(newly.length===1){scoreGoal(newly[0],p);return false}
+ if(state.mode==="cpu"&&p===1){
+  const {order}=cpuGoalOrder(newly,cpuObservation());
+  for(const color of order)scoreGoal(color,p);
+  return false;
+ }
+ chooseGoalOrder(newly,p);return true;
+}
+function scoreGoal(color,p){
+ const base=[2,3,5,-3][state.reached.length];
+ state.reached.push(color);
+ // 共有道路：ゴール到達時は両プレイヤーが各自の色倍率で得点する。
+ const pts=[0,1].map(i=>base*state.secrets[i][color]);
+ for(let i=0;i<2;i++)state.roundScore[i]+=pts[i];
+ state.goalRecords.push({color,rank:state.reached.length,base,player:p,pts,turn:state.turnNo,order:state.pickIndex+1,multipliers:[state.secrets[0][color],state.secrets[1][color]]});
+ addLog(`${playerName(p)} が${COLOR_JP[color]}ゴール到達（${state.reached.length}番目）：${playerName(0)} ${fmt(pts[0])}pt / ${playerName(1)} ${fmt(pts[1])}pt`);
+}
+function chooseGoalOrder(colors,p){
+ const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
+ const remaining=[...colors];
+ function nextChoice(){
+  if(!remaining.length){
+   ov.classList.remove("show");
+   if(state.reached.length===4)finishRound();
+   else if(!canReachAnyUnreachedGoal())finishRound("blocked");
+   else advancePick();
+   return;
+  }
+  m.innerHTML=`<h2>同時ゴール：到達順を選択</h2><p>${playerName(p)}が次の${state.reached.length+1}着を選択してください（残り${remaining.length}色）</p><div id="orderBtns"></div>`;
+  const box=m.querySelector("#orderBtns");
+  for(const c of remaining){
+   const b=document.createElement("button");b.textContent=COLOR_JP[c]+"を"+(state.reached.length+1)+"着にする";b.style.margin="6px";
+   b.addEventListener("click",()=>{scoreGoal(c,p);remaining.splice(remaining.indexOf(c),1);render();nextChoice()});box.appendChild(b);
+  }
+ }
+ nextChoice();
+}
+function canReachAnyUnreachedGoal(){
+ const remaining=new Set(COLORS.filter(color=>!state.reached.includes(color)));
+ if(!remaining.size)return false;
+ // 中央につながる道路網から出発。空きマスは将来曲がり/T字/十字を配置できると仮定。
+ // 既設タイルは入口・出口が双方開いている場合だけ通行可能。
+ const connected=isConnectedNetwork();
+ const visited=new Set(connected),queue=[...connected].map(k=>k.split(',').map(Number));
+ for(let i=0;i<queue.length;i++){
+  const [r,c]=queue[i],tile=state.board[r][c];
+  if(state.goalMode==='walls'){
+   if(wallEdges(r,c).some(([color,dr,dc,bit])=>remaining.has(color)&&(tile===null||(tile.mask&bit))))return true;
+  }else if(tile?.goal&&remaining.has(tile.goal))return true;
+  for(const [dr,dc,bit,opp] of DIRS){
+   if(tile!==null && !(tile.mask&bit))continue;
+   const nr=r+dr,nc=c+dc;
+   if(!inside(nr,nc))continue;
+   const neighbor=state.board[nr][nc];
+   if(neighbor!==null && !(neighbor.mask&opp))continue;
+   const key=`${nr},${nc}`;
+   if(!visited.has(key)){visited.add(key);queue.push([nr,nc]);}
+  }
+ }
+ return false;
+}
+function advancePick(){
+ // 常時5枚公開。使用直後に補充し、選択されたタイルは次の候補から除外する
+ while(state.draft.length<5)state.draft.push(newTile());
+ state.pickIndex++;
+ if(state.pickIndex>=2){
+   state.pickIndex=0;
+   // 3ターン未選択で+1、その後は2ターンごとに+1
+   for(const t of state.draft){
+     t.age=(t.age||0)+1;
+     if(t.age>=3 && (t.age-3)%2===0){t.bonus++;addLog(`タイル${t.type} に回転P +1（累計+${t.bonus}）`)}
+   }
+   state.turnNo++;
+   if(state.reverseNext){
+     state.first=1-state.first;
+     state.reverseNext=false;
+     const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
+     m.innerHTML=`<h2>先攻・後攻を交代</h2><p>先攻プレイヤーがボーナス付きタイルを取得しました。</p><p>次のターンから <b>${playerName(state.first)} が先攻</b>、${playerName(1-state.first)} が後攻です。</p><button id="confirmOrder">確認して続行</button>`;
+     m.querySelector("#confirmOrder").addEventListener("click",()=>{ov.classList.remove("show");beginTurn()});
+   }
+ }
+ if(!canReachAnyUnreachedGoal() && state.reached.length<4){finishRound("blocked");return}
+ if(state.pickIndex===0)snapshotTurn();
+ humanCheckpointPending=true;render();beginTurn();
+}
+function countEmpty(){let n=0;for(const row of state.board)for(const x of row)if(x===null)n++;return n}
+function finishRound(reason="goals"){
+ if(state.roundOver)return;
+ stopCpu();state.roundOver=true;
+ const rs=state.roundScore;
+ state.roundHistory.push({round:state.round,scores:[...rs],records:JSON.parse(JSON.stringify(state.goalRecords)),reason});
+ state.players[0].total+=rs[0];state.players[1].total+=rs[1];
+ const result=rs[0]===rs[1]?"このラウンドは同順位":rs[0]>rs[1]?playerName(0)+" がこのラウンドの上位":playerName(1)+" がこのラウンドの上位";
+ addLog(`ROUND ${state.round} 終了：${result}`);
+ if(state.round>=state.totalRounds){finishGame();return}
+ render();showRoundResult(result,reason);
+}
+function resultScoresHTML(){
+ const a=state.roundScore[0],b=state.roundScore[1];
+ const rank=a===b?["同率1位","同率1位"]:a>b?["1位","2位"]:["2位","1位"];
+ return `<div class="resultScores">${[0,1].map(i=>`<div class="resultScore ${rank[i]==="1位"?"scoreWinner":""}">${playerName(i)}<strong>${fmt(state.roundScore[i])} pt</strong><span>${rank[i]}</span><small>累計 ${fmt(state.players[i].total)} pt</small></div>`).join("")}</div>`;
+}
+function roundGoalTimelineHTML(){
+ const records=state.goalRecords;
+ const lastTurn=records.length?Math.max(...records.map(g=>g.turn)):0;
+ const rows=[0,1,2,3].map(i=>{
+  const g=records[i],base=[2,3,5,-3][i];
+  if(!g)return `<div class="timelineRow empty"><span class="timelineRank">${i+1}着</span><span class="timelineGoal">未到達</span><span class="timelineTime">記録なし</span><strong>− / −</strong></div>`;
+  const wait=g.turn>1?`開始から${g.turn}T目`:"最初のターン";
+  return `<div class="timelineRow"><span class="timelineRank">${i+1}着</span><span class="timelineGoal"><i class="timelineDot ${g.color}"></i>${COLOR_JP[g.color]}の壁</span><span class="timelineTime">${g.turn}T目・${g.order===1?"先攻":"後攻"}<small>${wait} / ${playerName(g.player)}到達</small></span><strong class="${g.pts.some(x=>x<0)?'timelineMinus':''}"><small>${playerName(0)} ${g.pts[0]>0?'+':''}${fmt(g.pts[0])}</small><small>${playerName(1)} ${g.pts[1]>0?'+':''}${fmt(g.pts[1])}</small></strong></div>`;
+ }).join('');
+ return `<section class="roundTimeline"><h3>ゴール到達タイムライン</h3><p class="timelineHint">到達させた人と、その瞬間の両者の得点を振り返れます。</p>${rows}<div class="timelineFoot">${records.length} / 4 ゴール到達　｜　最終 ${state.turnNo}T目</div></section>`;
+}
+function showRoundResult(result,reason){
+ const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
+ m.innerHTML=`<h2>ROUND ${state.round} 終了</h2><p>${reason==="blocked"?"未到達ゴールへつながるルートをこれ以上作れません。":"4色すべてに到達しました。"}</p>${resultScoresHTML()}${roundGoalTimelineHTML()}<p>${result}</p><button id="nr">次のラウンドへ</button><button id="undoResult" style="margin-top:8px">↶ ${state.mode==="cpu"?"自分の操作前に戻す":"直前のターンへ戻す"}</button>`;
+ m.querySelector("#nr").addEventListener("click",()=>{ov.classList.remove("show");nextRound()});
+ m.querySelector("#undoResult").addEventListener("click",undoTurn);
+}
+function nextRound(){
+ stopCpu();humanSnapshots=[];humanCheckpointPending=true;state.roundOver=false;state.lastCpuCell=null;
+ $("#overlay").classList.remove("show");
+ state.round++;state.players.forEach(p=>p.rot=3);state.board=blankBoard();state.draft=[newTile(),newTile(),newTile(),newTile(),newTile()];
+ state.turnNo=1;state.pickIndex=0;state.first=0;state.reverseNext=false;state.selected=null;state.swapMode=false;state.reached=[];state.roundScore=[0,0];state.goalRecords=[];
+ state.secrets=assignSecrets();turnSnapshots=[];snapshotTurn();render();addLog(`ROUND ${state.round} 開始`);beginTurn();
+}
+function allRoundsHTML(){
+ return `<section class="roundTimeline"><h3>全ラウンド履歴</h3>${state.roundHistory.map(h=>{
+  const lines=h.records.map(g=>`<div class="timelineRow"><span>${g.rank}着</span><span class="timelineGoal"><i class="timelineDot ${g.color}"></i>${COLOR_JP[g.color]}</span><span>${g.turn}T目・${playerName(g.player)}</span><strong>${playerName(0)} ${fmt(g.pts[0])} / ${playerName(1)} ${fmt(g.pts[1])}</strong></div>`).join("");
+  return `<div style="margin:14px 0 6px;font-weight:800">ROUND ${h.round}　${playerName(0)} ${fmt(h.scores[0])}pt / ${playerName(1)} ${fmt(h.scores[1])}pt</div>${lines||'<p>到達なし</p>'}`;
+ }).join("")}</section>`;
+}
+function finishGame(){
+ state.gameOver=true;render();
+ const a=state.players[0].total,b=state.players[1].total;
+ const winner=a===b?"DRAW":a>b?playerName(0)+" WIN":playerName(1)+" WIN";
+ const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
+ m.innerHTML=`<h2>${winner}</h2><p>ROUND ${state.round} の得点・順位</p>${resultScoresHTML()}${allRoundsHTML()}<p>最終累計</p><div class="multipliers"><div class="multi">${playerName(0)}<br><span style="font-size:28px">${fmt(a)}</span> pt</div><div class="multi">${playerName(1)}<br><span style="font-size:28px">${fmt(b)}</span> pt</div></div><button id="again">もう一度</button>`;
+ m.querySelector("#again").addEventListener("click",()=>{ov.classList.remove("show");initGame()});
+ if(state.mode==="cpu"&&humanSnapshots.length){
+  const undo=document.createElement("button");undo.textContent="↶ 自分の操作前に戻す";undo.style.marginTop="8px";undo.addEventListener("click",undoTurn);m.appendChild(undo);
+ }
+}
+function showSecret(p){
+ if(state.publicRates||(state.mode==="cpu"&&p===1)||cpuBusy)return;
+ const s=state.secrets[p],ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
+ m.innerHTML=`<h2>${playerName(p)} 秘密得点表</h2><p>相手に見えないよう確認してください。</p><div class="multipliers">${COLORS.map(c=>`<div class="multi ${c}">${COLOR_JP[c]}<br>× ${s[c]}</div>`).join("")}</div><button id="hide">隠す</button>`;
+ m.querySelector("#hide").addEventListener("click",()=>{ov.classList.remove("show");beginTurn()});
+}
+function fmt(x){return Number.isInteger(x)?x:x.toFixed(1)}
+function addLog(t){state.history.unshift(t);state.history=state.history.slice(0,16);logEl.innerHTML=state.history.map(x=>"• "+x).join("<br>")}
+function renderScoreboard(){
+ const records=state.goalRecords;
+ const bases=[2,3,5,-3];
+ $("#scoreOrder").innerHTML=bases.map((base,i)=>{
+   const g=records[i];
+   return `<div class="scoreRow"><span>${i+1}位</span><span class="${g?g.color:"scoreMuted"}">${g?COLOR_JP[g.color]+"（"+playerName(g.player)+"到達）":"未到達"} <span class="scoreMuted">${base>0?"+":""}${base}点</span></span><span>${g?fmt(g.pts[0])+"pt":"-"}</span><span>${g?fmt(g.pts[1])+"pt":"-"}</span></div>`;
+ }).join("");
+ $("#scoreTotals").innerHTML=`<span>${playerName(0)}: ${fmt(state.roundScore[0])} pt</span><span>${playerName(1)}: ${fmt(state.roundScore[1])} pt</span>`;
+}
+function render(){
+ const legend=document.querySelector(".legend");if(legend)legend.style.display=state.goalMode==="walls"?"none":"flex";
+ renderScoreboard();
+ const p=currentPlayer();
+ $("#phaseBadge").textContent=`ROUND ${state.round} / ${state.totalRounds}${state.mode==="cpu"?" · VS CPU 標準":""}`;
+ $("#cpuStatus").classList.toggle("screenHidden",state.mode!=="cpu");
+ $("#cpuStatus").textContent=state.gameOver?"対戦終了":state.roundOver?"ラウンド終了":cpuBusy?cpuPhase:currentPlayer()===0?(state.lastCpuCell?"あなたの番です。青枠はCPUが最後に置いたタイルです。":"あなたの番です。タイルを選んで道路をつなげましょう。"):"CPUの手番です。";
+ $("#gameScreen").classList.toggle("cpuThinking",cpuBusy);
+ $("#board").setAttribute("aria-busy",String(cpuBusy));
+ $("#turnText").textContent=playerName(p);$("#pickText").textContent=state.turnNo+"T / "+(state.pickIndex+1)+"/2";$("#goalText").textContent=state.reached.length+" / 4";$("#emptyText").textContent=countEmpty();
+ $("#p1rot").textContent=state.players[0].rot;$("#p2rot").textContent=state.players[1].rot;
+ for(let i=0;i<2;i++){
+   $("#p"+(i+1)+"box b").textContent=playerName(i)+(i===state.first?"（先攻）":"（後攻）");
+   const strip=$("#p"+(i+1)+"rates");
+   strip.style.display=state.publicRates?"grid":"none";
+   strip.innerHTML=state.publicRates?COLORS.map(c=>`<span class="rateChip ${c}" title="${COLOR_JP[c]} ×${fmt(state.secrets[i][c])}">×${fmt(state.secrets[i][c])}</span>`).join(""):"";
+ }
+
+ $("#p1box").classList.toggle("current",p===0);$("#p2box").classList.toggle("current",p===1);
+ const totals=state.players.map(x=>x.total);
+ $("#p1rank").textContent=state.round===1&&totals[0]===0&&totals[1]===0?"累計順位：?":`累計順位：${totals[0]===totals[1]?"同率":totals[0]>totals[1]?"1位":"2位"}`;
+ $("#p2rank").textContent=state.round===1&&totals[0]===0&&totals[1]===0?"累計順位：?":`累計順位：${totals[0]===totals[1]?"同率":totals[1]>totals[0]?"1位":"2位"}`;
+ const moves=state.rotationMoves||[];
+ $("#leftBtn").disabled=!state.selected||(state.players[p].rot<=0&&moves[moves.length-1]!==1);
+ $("#rightBtn").disabled=!state.selected||(state.players[p].rot<=0&&moves[moves.length-1]!==-1);
+ $("#undoTurnBtn").textContent=state.mode==="cpu"?"↶ 自分の操作前に戻す":"↶ 1ターン戻す";
+ $("#undoTurnBtn").disabled=state.mode==="cpu"?!(humanSnapshots.length>1||humanSnapshots.length&&(state.humanStarted||currentPlayer()===1||state.roundOver)):!turnSnapshots.length;
+ if(state.selected){
+   const any=[0,1,2,3].some(k=>Math.min(k,4-k)<=state.players[p].rot && validPlacements(rotateMask(tileMask(state.selected),k)).length);
+   $("#skipBtn").disabled=any;
+ }else $("#skipBtn").disabled=true;
+ $("#swapBtn").disabled=!!state.selected||state.gameOver||state.players[p].rot<2;
+ $("#swapBtn").textContent=state.swapMode?"入れ替え解除":"入れ替え（2P）";
+ document.querySelectorAll(".secretBtn").forEach(b=>{b.style.display=state.publicRates||state.mode==="cpu"&&b.dataset.p==="1"?"none":"block";b.disabled=cpuBusy});
+ renderBoard();renderDraft();
+ if(!canAct()||state.mode==="cpu"&&currentPlayer()===1)for(const id of ["leftBtn","rightBtn","skipBtn","swapBtn"])$("#"+id).disabled=true;
+ logEl.innerHTML=state.history.map(x=>"• "+x).join("<br>");
+}
+$("#undoTurnBtn").addEventListener("click",undoTurn);
+$("#leftBtn").addEventListener("click",()=>rotate(-1));$("#rightBtn").addEventListener("click",()=>rotate(1));$("#skipBtn").addEventListener("click",skip);
+$("#swapBtn").addEventListener("click",()=>{
+ if(!canAct()||state.selected||state.players[currentPlayer()].rot<2)return;
+ state.swapMode=!state.swapMode;
+ msg.textContent=state.swapMode?"入れ替える共有タイルを選んでください（確認後に2P消費）。":"入れ替えモードを解除しました。";
+ render();
+});
+$("#resetBtn").addEventListener("click",()=>{if(confirm("ゲームを最初からやり直しますか？"))initGame()});
+document.querySelectorAll(".secretBtn").forEach(b=>b.addEventListener("click",()=>showSecret(+b.dataset.p)));
+
+
+const DEFAULT_ODDS={A:8,B:25,C:26,D:30,E:11};
+const ODDS_KEY='waitingLineTileOdds_v1';
+function validOdds(values){return Object.keys(DEFAULT_ODDS).every(k=>Number.isInteger(values[k])&&values[k]>=0&&values[k]<=100) && Object.values(values).reduce((a,b)=>a+b,0)===100;}
+function readOdds(){const v={};for(const k of Object.keys(DEFAULT_ODDS)){const input=document.querySelector('#odds_'+k);if(!/^\d+$/.test(input.value.trim()))return null;v[k]=Number(input.value);}return validOdds(v)?v:null;}
+function setOdds(values){for(const k of Object.keys(DEFAULT_ODDS))document.querySelector('#odds_'+k).value=values[k];updateOddsTotal();}
+function updateOddsTotal(){const vals=Object.keys(DEFAULT_ODDS).map(k=>Number(document.querySelector('#odds_'+k).value));const sum=vals.reduce((a,b)=>a+b,0);const valid=readOdds();const e=document.querySelector('#oddsTotal');e.textContent=`合計 ${sum}% / 100% ${valid?'✓':'（合計を100%にしてください）'}`;e.style.color=valid?'#78df9a':'#ff8585';document.querySelector('#optionsBack').disabled=!valid;}
+function saveOdds(){const v=readOdds();if(!v)return false;for(const k of Object.keys(DEFAULT_ODDS))TYPES[k].weight=v[k];try{localStorage.setItem(ODDS_KEY,JSON.stringify(v));}catch(e){}return true;}
+(function setupOdds(){
+ const grid=document.querySelector('#oddsGrid');
+ for(const k of Object.keys(DEFAULT_ODDS)){
+  const label=document.createElement('label');label.textContent=k;
+  const input=document.createElement('input');input.type='number';input.min=0;input.max=100;input.step=1;input.id='odds_'+k;input.inputMode='numeric';input.addEventListener('input',updateOddsTotal);
+  label.appendChild(input);grid.appendChild(label);
+ }
+ let saved=null;try{saved=JSON.parse(localStorage.getItem(ODDS_KEY));}catch(e){}
+ setOdds(validOdds(saved||{})?saved:DEFAULT_ODDS);saveOdds();
+ document.querySelector('#oddsReset').addEventListener('click',()=>{setOdds(DEFAULT_ODDS);saveOdds()});
+})();
+const showScreen=id=>{if(id!=="gameScreen")stopCpu();for(const name of ["titleScreen","optionsScreen","rulesScreen","gameScreen"])document.getElementById(name).classList.toggle("screenHidden",name!==id);window.scrollTo(0,0)};
+document.querySelector("#startVs").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("vs")});
+document.querySelector("#startCpu").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("cpu")});
+document.querySelector("#openOptions").addEventListener("click",()=>showScreen("optionsScreen"));
+document.querySelector("#openRules").addEventListener("click",()=>showScreen("rulesScreen"));
+document.querySelector("#rulesBack").addEventListener("click",()=>showScreen("titleScreen"));
+document.querySelector("#optionsBack").addEventListener("click",()=>{if(saveOdds())showScreen("titleScreen")});
+document.querySelector("#optionPublicRates").addEventListener("change",e=>{if(state){state.publicRates=e.target.checked;render()}});
+document.querySelector("#returnTitleBtn").addEventListener("click",()=>{if(confirm("対戦を終了してトップに戻りますか？進行中のゲームは失われます。")){document.querySelector("#overlay").classList.remove("show");showScreen("titleScreen")}});
+document.querySelector(".wg-home").addEventListener("click",e=>{
+ if(state&&!state.gameOver&&!document.querySelector("#gameScreen").classList.contains("screenHidden")&&!confirm("対戦を終了してGAMESに戻りますか？進行中のゲームは失われます。"))e.preventDefault();
+ if(!e.defaultPrevented)stopCpu();
+});
+// タイトル画面を初期表示し、VSを押すまでゲームを開始しない
+showScreen("titleScreen");
+})();
+</script>
+</body>
+</html>
