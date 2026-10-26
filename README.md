@@ -24,7 +24,8 @@ waiting-games/
 │  ├─ escape.html
 │  ├─ line.html
 │  ├─ helper.html
-│  └─ draw.html
+│  ├─ draw.html
+│  └─ derby.html
 └─ README.md
 ```
 
@@ -39,6 +40,7 @@ waiting-games/
 - `games/line.html` v2.3.1 from `Waiting_Line_DEMO_v2.2.html` (launcher and CPU integration)
 - `games/helper.html` from `Board_Game_Helper_v1.03.html`
 - `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
+- `games/derby.html` from `占い競馬_試作版_v0.9.html` (WAITING DERBY; shared player names)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use

@@ -1,6 +1,6 @@
 {
-  "version": "2026.10.21-draw-v025",
-  "generatedAt": "2026-10-21",
+  "version": "2026.10.26-derby-v1",
+  "generatedAt": "2026-10-26",
   "core": [
     "./",
     "index.html",
@@ -99,6 +99,16 @@
       "url": "games/draw.html",
       "files": [
         "games/draw.html"
+      ]
+    },
+    {
+      "id": "derby",
+      "title": "WAITING DERBY",
+      "type": "game",
+      "version": "v0.9",
+      "url": "games/derby.html",
+      "files": [
+        "games/derby.html"
       ]
     }
   ]
