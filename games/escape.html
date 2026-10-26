@@ -24,10 +24,12 @@ button,select,input{font:inherit;border-radius:10px;border:1px solid #3e7189;bac
 .roundSettings{margin:14px 0;padding:14px;border:1px solid #3b8997;border-radius:12px;background:#091e2d}.roundSettings h3{margin:0 0 6px;font-size:17px;color:var(--accent)}.roundSettings p{margin:0 0 12px}.roundEffectList{display:grid;gap:8px}.roundEffectRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px;border:1px solid #28586c;border-radius:9px;background:#0c2635}.roundEffectRow strong{min-width:54px;color:var(--gold)}.roundEffectChoice{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border:1px solid #366879;border-radius:8px;font-size:12px;cursor:pointer}.roundEffectChoice:has(input:checked){border-color:var(--gold);background:#514328}.roundEffectChoice input{accent-color:var(--gold);margin:0;width:16px;height:16px}.node.trap{box-shadow:inset 0 0 0 2px var(--red),0 0 10px #ff5c8766}.node.trap .sub{color:var(--red)}
 .roundGuide{margin-top:18px;padding-top:16px;border-top:1px solid #3b8997}.roundGuide h4{margin:0 0 10px;color:var(--gold);font-size:15px}.roundGuideList{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:8px;margin:0}.roundGuideItem{margin:0;padding:10px;border:1px solid #28586c;border-radius:9px;background:#0c2635}.roundGuideItem dt{font-weight:850;color:#e9fcff}.roundGuideItem dd{margin:5px 0 0;color:#bad4dc;font-size:12px;line-height:1.55}
 .wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:70;border:1px solid #397b8e;border-radius:999px;background:rgba(10,40,57,.82);color:#b7fcf4;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.roundProgress{position:fixed;right:10px;top:max(10px,env(safe-area-inset-top));z-index:70;pointer-events:none;font-size:10px;padding:7px 10px}
 </style>
 </head>
 <body>
 <a class="wg-home" href="../index.html">← GAMES</a>
+<span id="roundProgress" class="badge roundProgress hidden" aria-live="polite"></span>
 <main>
 <div class="eyebrow">TACTICAL CHASE // PROTOTYPE 0.20</div>
 <h1>WAITING ESCAPE</h1><p class="heroLead">電脳迷宮で、痕跡を追う者と逃げ切る者。</p>
@@ -39,7 +41,7 @@ button,select,input{font:inherit;border-radius:10px;border:1px solid #3e7189;bac
 <label class="grow">虹鍵出現率<br><select id="rainbow"><option value=".25">25%</option><option value=".5" selected>50%</option><option value=".75">75%</option><option value="1">100%</option></select></label>
 <label class="grow">二重ロック出現率<br><select id="double"><option value=".25">25%</option><option value=".5" selected>50%</option><option value=".75">75%</option><option value="1">100%</option></select></label>
 </div>
-<p class="muted">初期配置：P1=1-B、P2=1-C、P3=1-B、捜査官=5-C。1Rのみ初期位置を公開。逃走者は各2AP、捜査官は通常3AP。捕獲された逃走者はスタートに戻り次の手番を1回休みます。探索は捜査官手番で捕獲されなかった場合に確定します。</p>
+<p class="muted">初期配置：P1=1-B、P2=1-C、P3=1-B、捜査官=5-C。1Rのみ初期位置を公開。逃走者は各2AP、捜査官は通常3AP。捕獲された逃走者はスタートに戻り次の手番を1回休みます。探索は捜査官手番で捕獲されなかった場合に確定します。18ラウンド終了時までに脱出できなければ捜査官の勝利です。</p>
 <button id="settingsToggle" type="button" aria-expanded="false" aria-controls="roundSettings">⚙ 設定：ラウンド効果</button>
 <div id="roundSettings" class="roundSettings hidden"><h3>1〜9ラウンドの効果</h3><p class="muted">各ラウンドで複数選択できます（未選択なら効果なし）。AP増加はそのラウンドから永続・重ねて選ぶと加算されます。通常アイテムはラウンド開始時に未開放マスへ1個ずつ追加し、探索が確定すると入手します。鍵と扉は追加候補に含みません。</p><div id="roundEffectList" class="roundEffectList"></div><div class="roundGuide"><h4>アイテム・効果一覧</h4><dl id="roundEffectGuide" class="roundGuideList"></dl></div></div>
 <button id="start" class="primary">ゲーム開始</button>
@@ -64,6 +66,7 @@ button,select,input{font:inherit;border-radius:10px;border:1px solid #3e7189;bac
 (function(){
 "use strict";
 const counts=[4,5,3,4,5];
+const MAX_ROUNDS=18;
 const rows=counts.map((n,r)=>Array.from({length:n},(_,i)=>(r+1)+"-"+String.fromCharCode(65+i)));
 const all=rows.flat();
 const E={};
@@ -186,7 +189,9 @@ function draw(target){
  }));
 }
 function render(){
- $("round").textContent="ROUND "+G.round;$("cap").textContent="捜査P "+G.captures+"/"+G.target;
+ const roundLabel="ROUND "+G.round+"/"+MAX_ROUNDS;
+ $("round").textContent=roundLabel;$("roundProgress").textContent=roundLabel;$("roundProgress").classList.remove("hidden");
+ $("cap").textContent="捜査P "+G.captures+"/"+G.target;
  $("detMove").textContent="捜査官 今RのAP "+detLimit();$("runnerAp").textContent="逃走者 基本AP "+(2+G.buffs.runner);
  $("mainBoard").innerHTML=boardHTML("mainBoard",null,false);
  $("status").innerHTML="<h2>TRACKING STATUS / 公開情報</h2><div class='player'><b>捜査官</b>：位置非公開</div>"+G.runners.map(p=>"<div class='player'><b>"+esc(p.name)+"</b>：位置非公開</div>").join("");
@@ -454,9 +459,10 @@ function showResult(){
  let h='<div class="eventCard '+(found?'dangerCard':'')+'"><div class="eventIcon">'+(found?'🚨':'📡')+'</div><h3>'+(found?"捕獲 "+d.turnCaptures+"件":"捜査官の手番終了")+'</h3><p>調査 '+d.turnChecks+'回・検証 '+(d.verifyUsed?1:0)+'回</p></div>';
  h+='<div class="resultSummary"><div class="resultChip">捜査P <strong>'+G.captures+' / '+G.target+'</strong></div></div>';
  h+='<div class="secret"><b>公開イベント</b><br>'+(G.events.length?G.events.map(x=>'・'+x).join('<br>'):'追加イベントなし')+'</div>';
- overlay("ラウンド結果","検証したマスと結果は捜査官だけの情報です。",false,null,h,G.captures>=G.target?'結果へ':'次のラウンド',()=>{
+ overlay("ラウンド結果","検証したマスと結果は捜査官だけの情報です。",false,null,h,G.captures>=G.target||G.round>=MAX_ROUNDS?'結果へ':'次のラウンド',()=>{
   closeOv();if(G.captures>=G.target){end('捜査官の勝利！','捜査ポイント '+G.captures+'/'+G.target);return}
   processOutcomeQueue(()=>{
+   if(G.round>=MAX_ROUNDS){end('捜査官の勝利！',MAX_ROUNDS+'ラウンド終了。逃走者の脱出を阻止しました。');return}
    G.recentOpen=new Set(G.currentOpen);G.currentOpen=new Set();G.publicOpen=new Set(G.open);
    G.round++;G.alarm=G.alarmNext;G.alarmNext=false;beginRound();
   });
@@ -506,6 +512,7 @@ function nextRound(){render();overlay("次のラウンド","端末を逃走者�
 function end(t,x){G.over=true;render();overlay(t,x,false,null,'<div class="eventCard goldCard"><div class="eventIcon">🏁</div><div class="eventLabel">SESSION COMPLETE</div><h3>ゲーム終了</h3><p>'+x+'</p></div>',"タイトルへ",returnToTitle,"result")}
 function returnToTitle(){
  closeOv();G=null;mode=null;actor=null;action="move";path=[];undoSteps=[];
+ $("roundProgress").classList.add("hidden");
  $("game").classList.add("hidden");$("setup").classList.remove("hidden");
  $("ovExtra").innerHTML="";$("ovBoard").innerHTML="";$("mainBoard").innerHTML="";
  window.scrollTo?.(0,0);
