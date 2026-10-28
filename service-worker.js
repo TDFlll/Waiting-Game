@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.10.26-derby-v1";
+const SW_VERSION = "2026.10.28-derby-open-modes-v2";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

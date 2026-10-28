@@ -40,7 +40,7 @@ waiting-games/
 - `games/line.html` v2.3.1 from `Waiting_Line_DEMO_v2.2.html` (launcher and CPU integration)
 - `games/helper.html` from `Board_Game_Helper_v1.03.html`
 - `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
-- `games/derby.html` from `占い競馬_試作版_v0.9.html` (WAITING DERBY; shared player names)
+- `games/derby.html` v0.10 (WAITING DERBY; shared player names, Free Open / Randm Open)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use
@@ -87,3 +87,9 @@ Waiting Game is free to play for personal, non-commercial use. Offline downloads
 Unauthorized copying, redistribution (including sharing downloaded offline files), publication of modified versions, and commercial use are prohibited, except where applicable law permits or the copyright holder expressly authorizes them.
 
 See [LICENSE](LICENSE) for the full terms. This is a custom license, not an open-source license.
+
+## Waiting Derby
+
+The title offers Start, Options, and Quit (return to the game launcher). Options selects Free Open (manual card choice) or Randm Open (one random face-down card every five seconds). In Randm Open, the current player presses Stop to freeze the board and buy one private ticket, then passes the device. Cancelling resumes automatic opening after five seconds; rules, ticket review, handoffs, and hidden pages pause it. At nine revealed effect cards, final purchases begin with the last card still hidden. Existing ticket limits, odds, and two-round scoring remain in effect.
+
+Run `node --test tests/derby-open-modes.test.cjs` for timer, purchase, handoff, cancellation, and Free Open regression checks.
