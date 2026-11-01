@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.02-cards-effects-v1",
+  "version": "2026.11.02-cards-derby-v1",
   "generatedAt": "2026-11-02",
   "core": [
     "./",
@@ -105,7 +105,7 @@
       "id": "derby",
       "title": "WAITING DERBY",
       "type": "game",
-      "version": "v0.9",
+      "version": "v0.10",
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
