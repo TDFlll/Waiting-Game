@@ -1,6 +1,6 @@
 {
-  "version": "2026.10.26-derby-v1",
-  "generatedAt": "2026-10-26",
+  "version": "2026.10.28-derby-open-modes-v2",
+  "generatedAt": "2026-10-28",
   "core": [
     "./",
     "index.html",
@@ -105,7 +105,7 @@
       "id": "derby",
       "title": "WAITING DERBY",
       "type": "game",
-      "version": "v0.9",
+      "version": "v0.10",
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
