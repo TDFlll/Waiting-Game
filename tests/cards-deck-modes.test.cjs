@@ -1,43 +1,7 @@
 // Run with: node --test tests/cards-deck-modes.test.cjs
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const vm=require('node:vm');
-const path=require('node:path');
-
-function game(mode='double',seed=1){
- const nodes=new Map();
- function node(id){
-  if(nodes.has(id))return nodes.get(id);
-  const classes=new Set();
-  const e={innerHTML:'',textContent:'',style:{},children:[],disabled:false,
-   classList:{add(c){classes.add(c)},remove(c){classes.delete(c)},contains(c){return classes.has(c)},toggle(c,on){if(on===undefined)on=!classes.has(c);on?classes.add(c):classes.delete(c)}},
-   appendChild(c){this.children.push(c)},append(c){this.children.push(c)},querySelectorAll(){return []},setAttribute(){}};
-  nodes.set(id,e);return e;
- }
- const math=Object.create(Math);math.random=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
- const context=vm.createContext({Math:math,document:{readyState:'loading',addEventListener(){},getElementById:node,querySelector:node,querySelectorAll:()=>[],createElement:()=>node('new'+nodes.size),createTextNode:t=>({textContent:t})},window:{addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},setTimeout(){},clearTimeout(){},console});
- const code=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
- vm.runInContext(code+`
- const realRender=render;
- let scriptedChoices=[],fieldChoice=null;
- choose=async (title,options)=>{const requested=scriptedChoices.shift();return requested===undefined?options[0]?.value:requested};
- chooseFieldSlot=async()=>fieldChoice;
- render=renderLog=showCardEffect=showEventToast=clearDigestBanners=showHandoff=function(){};
- log=function(t){S.log.push(t);S.turnEvents.push(t)};
- window.api={get state(){return S},get bases(){return BASE_CARDS},init(mode){uid=1;DECK_MODE=mode;S=newState();busy=false;scriptedChoices=[];fieldChoice=null},
- graveFor,graveEntries,putGrave,sendGrave,sendMonsterFromField,destroyWholeLane,monsterBattle,revivalEffect,magicBookEffect,faithStartOption,resolvePending,showGrave,
- deckFor,deckEntries,draw,handLimit,gamblingEffect,necromancerEffect,swapPotEffect,transformEffect,findAnywhere,locateCard,captureLocations,removeLocated,placeByDescriptor,saveSnapshot,rewindOwnField,checkStalemate,summon,takeGrave,cloneCard,useTimeMagic,startTurn,showRules,realRender,
- choices(...v){scriptedChoices=v},pick(v){fieldChoice=v},setCpu(){GAME_MODE='CPU'},
- card(id,p){const c=cloneCard(BASE_CARDS.find(b=>b.id===id));c.originalDeck=p;return c}
- };
- `,context);
- const api=context.window.api;api.init(mode);
- return {api,node,all(){return [...api.state.players.flatMap(p=>[...p.hand,...p.monster.filter(Boolean),...p.magic.filter(Boolean)]),...api.graveEntries().flatMap(e=>e.grave),...api.deckEntries().flatMap(e=>e.deck)]}};
-}
-
-function putOnField(api,card,p=0,l=0){card.controller=p;card.zone='monster';card.lane=l;api.state.players[p].monster[l]=card}
-function emptyHands(api){api.state.players.forEach(p=>{p.hand=[]})}
+const {game,putOnField,emptyHands}=require('./cards-harness.cjs');
 
 test('single mode retains one shared 24-card deck and guaranteed monster opening hands',()=>{
  const {api,all}=game('single');assert.equal(all().length,24);assert.equal(api.deckFor(0),api.deckFor(1));

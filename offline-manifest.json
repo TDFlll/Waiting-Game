@@ -1,6 +1,6 @@
 {
-  "version": "2026.10.28-derby-open-modes-v2",
-  "generatedAt": "2026-10-28",
+  "version": "2026.11.02-cards-derby-v1",
+  "generatedAt": "2026-11-02",
   "core": [
     "./",
     "index.html",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.3 v13",
+      "version": "v0.6.5 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"
