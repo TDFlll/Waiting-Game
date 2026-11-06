@@ -25,6 +25,7 @@
 .offline-toggle:focus-visible{outline:2px solid var(--p1);outline-offset:-4px;border-radius:18px}
 #offlineOnlineState{margin-left:auto;font-size:11px;font-weight:500;color:var(--muted)}
 .offline-content{padding:12px}
+.share-site{margin-top:16px;text-align:center}.share-site button{width:100%;min-height:44px;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--card);color:var(--ink);font-weight:800}.share-site p{min-height:18px;margin:7px 0 0;font-size:12px;color:var(--muted)}.share-site input{width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:12px}
 </style>
 </head>
 <body>
@@ -67,6 +68,7 @@
     </div>
   </details>
   <div class="version">WAITING GAMES • launcher • local prototype</div>
+  <div class="share-site"><button id="copyUrlBtn" type="button">URLをコピー</button><input id="shareUrl" type="url" aria-label="共有用URL" readonly hidden><p id="copyUrlStatus" role="status" aria-live="polite"></p></div>
 </div>
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="modal-card"><h3 id="modalTitle"></h3><p id="modalText"></p><button id="modalClose">CLOSE</button></div></div>
@@ -79,6 +81,18 @@
   function saveNames(names){try{localStorage.setItem(PLAYER_NAME_KEY,JSON.stringify(names))}catch(e){}}
   function renderNameSettings(){var box=document.getElementById('playerInputs');var names=loadNames();box.innerHTML='';names.forEach(function(name,i){var wrap=document.createElement('div');wrap.className='player-field';var label=document.createElement('label');label.textContent='P'+(i+1);var input=document.createElement('input');input.value=name;input.maxLength=16;input.autocomplete='off';input.setAttribute('aria-label','P'+(i+1)+' の名前');input.addEventListener('input',function(){var current=loadNames();current[i]=cleanName(input.value,defaults[i]);saveNames(current)});input.addEventListener('blur',function(){var current=loadNames();input.value=current[i]});wrap.appendChild(label);wrap.appendChild(input);box.appendChild(wrap)})}
   function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1500)}
+  document.getElementById('copyUrlBtn').addEventListener('click',async function(){
+    var url='https://tdflll.github.io/Waiting-Game/';
+    var field=document.getElementById('shareUrl'),status=document.getElementById('copyUrlStatus'),copied=false;
+    field.value=url;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(url);copied=true}}catch(e){}
+    if(!copied){
+      field.hidden=false;field.focus();field.select();field.setSelectionRange(0,url.length);
+      try{copied=document.execCommand('copy')}catch(e){}
+    }
+    if(copied){field.hidden=true;this.focus();status.textContent='URLをコピーしました';}
+    else{status.textContent='共有用URLを長押し、または選択してコピーしてください。';}
+  });
   function visibleCards(){return cards.filter(function(c){return !c.classList.contains('hidden')})}
   function applyFilter(tag,btn){var same=btn.classList.contains('active');timeButtons.forEach(function(b){b.classList.remove('active')});cards.forEach(function(c){c.classList.remove('hidden','reco')});if(!same){btn.classList.add('active');cards.forEach(function(c){if(c.getAttribute('data-tags').indexOf(tag)===-1)c.classList.add('hidden')});var shown=visibleCards();if(shown.length)shown[0].classList.add('reco')}count.textContent=visibleCards().length+' items'}
   timeButtons.forEach(function(btn){btn.addEventListener('click',function(){applyFilter(btn.getAttribute('data-time'),btn)})});
