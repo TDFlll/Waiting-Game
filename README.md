@@ -35,7 +35,7 @@ waiting-games/
 
 - `games/shapes.html` from `waiting_shapes_v0_8_1_c1.html`
 - `games/dice.html` from `waiting_dice_v0_3_2.html`
-- `games/cards.html` from `waiting_cards_v0_6_3_v13.html`
+- `games/cards.html` v0.6.6 / V1.3 (edited card effects, two-use MAGIC, persistent turn handoff summary, individual decks and graves, card catalog)
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
 - `games/robots.html` from `waiting_robots_v4.7.html`
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`

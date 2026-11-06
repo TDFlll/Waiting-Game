@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.07-shift-v091",
+  "version": "2026.11.07-cards-v066-share",
   "generatedAt": "2026-11-07",
   "core": [
     "./",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.5 v13",
+      "version": "v0.6.6 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"
