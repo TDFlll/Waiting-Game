@@ -993,12 +993,46 @@ document.querySelector("#optionsBack").addEventListener("click",()=>{if(saveOdds
 document.querySelector("#optionPublicRates").addEventListener("change",e=>{if(state){state.publicRates=e.target.checked;render()}});
 document.querySelector("#returnTitleBtn").addEventListener("click",()=>{if(confirm("対戦を終了してトップに戻りますか？進行中のゲームは失われます。")){document.querySelector("#overlay").classList.remove("show");showScreen("titleScreen")}});
 document.querySelector(".wg-home").addEventListener("click",e=>{
- if(state&&!state.gameOver&&!document.querySelector("#gameScreen").classList.contains("screenHidden")&&!confirm("対戦を終了してGAMESに戻りますか？進行中のゲームは失われます。"))e.preventDefault();
+
  if(!e.defaultPrevented)stopCpu();
 });
 // タイトル画面を初期表示し、VSを押すまでゲームを開始しない
 showScreen("titleScreen");
 })();
 </script>
+<script data-wg-home-confirm>
+(function(){
+  let pending=null;
+  window.wgConfirmHome=function(message){
+    if(pending)return pending;
+    const previous=document.activeElement;
+    const dialog=document.createElement('dialog');
+    dialog.setAttribute('aria-label','サイトTOPへ戻る確認');
+    dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:22px;width:min(90vw,380px);max-height:85dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:16px/1.6 system-ui,sans-serif;text-align:center;';
+    const text=document.createElement('p');text.textContent=message||'サイトTOPへ戻りますか？';text.style.cssText='margin:0 0 18px;font-weight:700;white-space:pre-wrap;';
+    const actions=document.createElement('div');actions.style.cssText='display:flex;gap:12px;';
+    const no=document.createElement('button'),yes=document.createElement('button');
+    for(const button of [no,yes]){button.type='button';button.style.cssText='flex:1;min-height:48px;border:1px solid #958b76;border-radius:12px;padding:10px;background:#fffaf1;color:#202522;font:700 16px system-ui,sans-serif;cursor:pointer;';}
+    no.textContent='NO';yes.textContent='YES';yes.style.background='#202522';yes.style.color='#fffaf1';
+    actions.append(no,yes);dialog.append(text,actions);document.body.append(dialog);
+    pending=new Promise(resolve=>{
+      function finish(result){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(result);}
+      no.onclick=()=>finish(false);yes.onclick=()=>finish(true);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false)});
+      dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)finish(false)}});
+    });
+    dialog.showModal();no.focus();return pending;
+  };
+  const approved=new WeakSet();
+  document.addEventListener('click',event=>{
+    const link=event.target.closest?.('a.wg-home');if(!link)return;
+    if(approved.has(link))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(pending)return;
+    window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
+  },true);
+})();
+</script>
+
 </body>
 </html>

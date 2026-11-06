@@ -84,7 +84,7 @@ function playerName(player){
 for(let p=1;p<=2;p++)$('player'+p).querySelector('strong').textContent=playerName(p)+' · '+color(p);
 $('gamesLink').onclick=event=>{
   event.preventDefault();if(busy)return;
-  if(screen==='game'&&s&&!s.result&&!confirm('対戦を終了してGAMESへ戻りますか？'))return;
+
   window.location.href='../index.html';
 };
 function start(){busy=false;$('resetModal').hidden=true;document.querySelector('main').inert=false;s={b:Array(25).fill(0),p:1,turn:1,result:null,type:selectedType,master:selectedMaster};if(s.master)s.b[12]=3;history=[];selected=null;showScreen('game')}
@@ -163,4 +163,38 @@ $('resetModal').onclick=e=>{if(e.target===$('resetModal'))closeReset()};
 document.addEventListener('keydown',e=>{if($('resetModal').hidden)return;if(e.key==='Escape'){e.preventDefault();closeReset()}else if(e.key==='Tab'){const first=$('resetCancel'),last=$('resetConfirm');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 if(window.ResizeObserver)new ResizeObserver(()=>drawVictoryLines(false)).observe($('board'));else window.addEventListener('resize',()=>drawVictoryLines(false));
 updateOptions();showScreen('title',false);
-</script></body></html>
+</script><script data-wg-home-confirm>
+(function(){
+  let pending=null;
+  window.wgConfirmHome=function(message){
+    if(pending)return pending;
+    const previous=document.activeElement;
+    const dialog=document.createElement('dialog');
+    dialog.setAttribute('aria-label','サイトTOPへ戻る確認');
+    dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:22px;width:min(90vw,380px);max-height:85dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:16px/1.6 system-ui,sans-serif;text-align:center;';
+    const text=document.createElement('p');text.textContent=message||'サイトTOPへ戻りますか？';text.style.cssText='margin:0 0 18px;font-weight:700;white-space:pre-wrap;';
+    const actions=document.createElement('div');actions.style.cssText='display:flex;gap:12px;';
+    const no=document.createElement('button'),yes=document.createElement('button');
+    for(const button of [no,yes]){button.type='button';button.style.cssText='flex:1;min-height:48px;border:1px solid #958b76;border-radius:12px;padding:10px;background:#fffaf1;color:#202522;font:700 16px system-ui,sans-serif;cursor:pointer;';}
+    no.textContent='NO';yes.textContent='YES';yes.style.background='#202522';yes.style.color='#fffaf1';
+    actions.append(no,yes);dialog.append(text,actions);document.body.append(dialog);
+    pending=new Promise(resolve=>{
+      function finish(result){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(result);}
+      no.onclick=()=>finish(false);yes.onclick=()=>finish(true);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false)});
+      dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)finish(false)}});
+    });
+    dialog.showModal();no.focus();return pending;
+  };
+  const approved=new WeakSet();
+  document.addEventListener('click',event=>{
+    const link=event.target.closest?.('a.wg-home');if(!link)return;
+    if(approved.has(link))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(pending)return;
+    window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
+  },true);
+})();
+</script>
+
+</body></html>

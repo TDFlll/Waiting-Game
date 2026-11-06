@@ -13,7 +13,7 @@ function derby(){
   nodes.set(id,e);return e;
  }
  const document={hidden:false,getElementById:node,addEventListener(name,fn){events[name]=fn}};
- const window={location:{href:''},addEventListener(name,fn){windowEvents[name]=fn}};
+ const window={location:{href:''},wgConfirmHome:async()=>true,addEventListener(name,fn){windowEvents[name]=fn}};
  function timeout(fn,ms,repeat=false){const id=++nextId;timers.set(id,{fn,at:now+ms,ms,repeat});return id}
  const context=vm.createContext({document,window,localStorage:{getItem(){return null}},confirm:()=>true,alert(){},
   setTimeout:(fn,ms)=>timeout(fn,ms),clearTimeout:id=>timers.delete(id),setInterval:(fn,ms)=>timeout(fn,ms,true),clearInterval:id=>timers.delete(id),console});
@@ -30,11 +30,13 @@ function derby(){
  };
 }
 
-test('title includes Start, Options and Quit; mode defaults to Free Open',()=>{
+test('title includes Start, Options and confirmed Quit; mode defaults to Free Open',async()=>{
  const {api,node,window}=derby();const title=node('app').innerHTML;
  assert.match(title,/スタート/);assert.match(title,/オプション/);assert.match(title,/ゲームをやめる/);
  assert.equal(api.state.settings.openMode,'free');api.openOptions();assert.match(node('app').innerHTML,/Free Open/);assert.match(node('app').innerHTML,/Randm Open/);
- api.setOpenMode('random');api.returnHome();assert.match(node('app').innerHTML,/Randm Open/);api.quitGame();assert.equal(window.location.href,'../index.html');
+ api.setOpenMode('random');api.returnHome();assert.match(node('app').innerHTML,/Randm Open/);
+ window.wgConfirmHome=async()=>false;await api.quitGame();assert.equal(window.location.href,'');
+ window.wgConfirmHome=async()=>true;await api.quitGame();assert.equal(window.location.href,'../index.html');
 });
 
 test('Free Open keeps player card choice and mandatory reveal after buying',()=>{
