@@ -93,7 +93,7 @@ const RANDOM_OPEN_MS=5000;
 function openModeLabel(mode){return mode==='random'?'Randm Open':'Free Open'}
 function openOptions(){if(game.screen!=='home')return;game.screen='options';render()}
 function setOpenMode(mode){if(game.screen!=='options'||!['free','random'].includes(mode))return;game.settings.openMode=mode;render()}
-function quitGame(){stopRandomOpen();clearInterval(countdownTimer);window.location.href='../index.html'}
+async function quitGame(){if(!await window.wgConfirmHome())return;stopRandomOpen();clearInterval(countdownTimer);window.location.href='../index.html'}
 function stopRandomOpen(){clearTimeout(randomOpenTimer);randomOpenTimer=null;randomOpenEpoch++}
 function canRandomOpen(){return game.openMode==='random'&&game.screen==='play'&&game.mode==='view'&&!modalHost.innerHTML&&!document.hidden}
 function syncRandomOpen(){
@@ -173,4 +173,38 @@ function finishRound(){let r=game.result;game.history.push({payouts:[...r.totals
 function returnHome(){stopRandomOpen();if(!['home','options','final'].includes(game.screen)&&!confirm('対戦を終了してタイトルに戻りますか？')){syncRandomOpen();return}clearInterval(countdownTimer);closeModal(false);game.screen='home';game.mode='view';render()}
 function openRules(){stopRandomOpen();modalHost.innerHTML=`<div class="overlay"><div class="modal"><h2>📖 WAITING DERBYのルール</h2><div class="rulelist"><p>◆ <b>2人・2ラウンド</b>。各ラウンド10,000円から開始し、終了時残金の合計で勝負します。</p><p>◆ 馬6頭は初期公開。裏向きの効果カード10枚を公開します。Free Openは従来どおり、交互に選んで占います。Randm Openは手番開始後、5秒ごとにランダムな1枚が自動公開されます。</p><p>◆ 人参🥕は同じ行・列の上下左右にいるすべての馬へ+1（途中のカードで遮られません）、金人参🌟🥕は同じ範囲へ+2。体調❤️◎は隣接+1.5、💔×は隣接−1。体重⚖️は隣接する人参・体調カードを無効にします。</p><p>◆ 敗北予兆🔮は1枚で、指定された毛色の2頭を強制失格にします。残る4頭の得点が高い順で1着・2着を決め、同点時は出走番号が小さい順です。失格した馬には❌を表示します。</p><p>◆ Free Openの手番は「占う」か「馬券を買う→必ず1枚占う」。馬券は各ラウンド最大2枚で、賭け金は残金の範囲内で自由です（試作版は100円単位）。</p><p>◆ Randm Openでは手番プレイヤーが任意のタイミングで<b>Stop</b>。その時点の倍率で馬券を1枚購入すると交代します。購入取消・確認画面を閉じた後は5秒後から公開を再開します。購入・馬券確認・ルール表示・画面非表示中は公開を一時停止します。購入後の手動公開はありません。</p><p>◆ 両者が2枚購入または残金0円になれば早期終了。そうでなければ効果カード9枚（馬を含め15枚）公開後に最終購入へ進みます。最終購入では一人最大1枚です。</p><p>◆ 購入内容・残金は相手に秘密。確認フェイズでは双方の馬券を先に公開し、最後にカードを開いて結果を発表します。</p><p>◆ 裏向きカードの種類ごとの残り枚数を盤面下に表示します。敗北予兆の毛色など、未公開の詳細は秘密です。</p><p>◆ <b>倍率は試作値</b>。購入時点で確定し、払戻には元金を含みます。</p></div><button class="primary full" onclick="closeModal()">閉じる</button></div></div>`}
 render();
-</script></body></html>
+</script><script data-wg-home-confirm>
+(function(){
+  let pending=null;
+  window.wgConfirmHome=function(message){
+    if(pending)return pending;
+    const previous=document.activeElement;
+    const dialog=document.createElement('dialog');
+    dialog.setAttribute('aria-label','サイトTOPへ戻る確認');
+    dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:22px;width:min(90vw,380px);max-height:85dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:16px/1.6 system-ui,sans-serif;text-align:center;';
+    const text=document.createElement('p');text.textContent=message||'サイトTOPへ戻りますか？';text.style.cssText='margin:0 0 18px;font-weight:700;white-space:pre-wrap;';
+    const actions=document.createElement('div');actions.style.cssText='display:flex;gap:12px;';
+    const no=document.createElement('button'),yes=document.createElement('button');
+    for(const button of [no,yes]){button.type='button';button.style.cssText='flex:1;min-height:48px;border:1px solid #958b76;border-radius:12px;padding:10px;background:#fffaf1;color:#202522;font:700 16px system-ui,sans-serif;cursor:pointer;';}
+    no.textContent='NO';yes.textContent='YES';yes.style.background='#202522';yes.style.color='#fffaf1';
+    actions.append(no,yes);dialog.append(text,actions);document.body.append(dialog);
+    pending=new Promise(resolve=>{
+      function finish(result){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(result);}
+      no.onclick=()=>finish(false);yes.onclick=()=>finish(true);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false)});
+      dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)finish(false)}});
+    });
+    dialog.showModal();no.focus();return pending;
+  };
+  const approved=new WeakSet();
+  document.addEventListener('click',event=>{
+    const link=event.target.closest?.('a.wg-home');if(!link)return;
+    if(approved.has(link))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(pending)return;
+    window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
+  },true);
+})();
+</script>
+
+</body></html>

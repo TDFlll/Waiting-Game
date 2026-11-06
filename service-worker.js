@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.11.07-cards-v066-share";
+const SW_VERSION = "2026.11.07-home-confirm";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

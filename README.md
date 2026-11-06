@@ -65,6 +65,7 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 - The launcher `PLAY` buttons open the fixed game paths above.
 - Each game has a `← GAMES` link back to `../index.html`. Waiting Draw keeps this link in its left main menu so it does not cover the canvas, and waits for pending saves before returning.
 - Games include launcher return links and shared player-name integration.
+- All launcher return links require a YES/NO confirmation, including on game title screens. NO or Escape keeps the current screen; DRAW still saves pending edits before leaving after YES.
 - Waiting Line v2.3.1 preserves the v2.2 rules, adds shared names and a confirmed return to GAMES during a match, and corrects the rules text to describe simultaneous scoring for both players. Turn snapshots preserve the non-existent cells of the walls board when undoing. It is included in the launcher filters, random selection, and offline downloads. VS CPU provides standard difficulty for one human (P1) against CPU (P2). With private multipliers, the AI receives only its own multipliers and a neutral estimate for the opponent. CPU mode undo restores the previous human decision, including later CPU actions.
 - The project is ready to upload to a GitHub Pages repository root.
 - All current games are single-file local HTML files. No external CDN, API, image, font, or audio dependency was found.
