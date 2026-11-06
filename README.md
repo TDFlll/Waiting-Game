@@ -26,7 +26,8 @@ waiting-games/
 │  ├─ helper.html
 │  ├─ draw.html
 │  ├─ derby.html
-│  └─ memory-line.html
+│  ├─ memory-line.html
+│  └─ shift.html
 └─ README.md
 ```
 
@@ -43,6 +44,7 @@ waiting-games/
 - `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
 - `games/derby.html` v0.10 (WAITING DERBY; shared player names, Free Open / Randm Open)
 - `games/memory-line.html` from `Waiting_Memory_Line_v0.5.html` (shared player names and launcher return links)
+- `games/shift.html` from `Waiting_Shift_v0.9.1.html` (shared player names and confirmed launcher return)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use
@@ -95,6 +97,10 @@ See [LICENSE](LICENSE) for the full terms. This is a custom license, not an open
 The title offers Start, Options, and Quit (return to the game launcher). Options selects Free Open (manual card choice) or Randm Open (one random face-down card every five seconds). In Randm Open, the current player presses Stop to freeze the board and buy one private ticket, then passes the device. Cancelling resumes automatic opening after five seconds; rules, ticket review, handoffs, and hidden pages pause it. At nine revealed effect cards, final purchases begin with the last card still hidden. Existing ticket limits, odds, and two-round scoring remain in effect.
 
 Run `node --test tests/derby-open-modes.test.cjs` for timer, purchase, handoff, cancellation, and Free Open regression checks.
+
+## Waiting Shift
+
+Waiting Shift v0.9.1 includes shared player names, a confirmed return to GAMES during a match, and offline downloads. The supplied wall/free rules, master object, slide animation, undo, and victory conditions are preserved. Run `node --test tests/shift.test.cjs` for selection rules, segment shifts, master movement, wins, and draws.
 
 ## Waiting Memory Line
 
