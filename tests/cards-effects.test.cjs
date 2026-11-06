@@ -166,8 +166,8 @@ test('magic book cancellation before discarding its cost preserves cards and AP'
 test('CPU refuses high-attack futile child-dragon battles and prioritizes actual removal',async()=>{
  const {api}=setup();api.setCpu();api.state.turn=1;const a=api.card(8,1),child=api.card(3,0);putOnField(api,a,1);putOnField(api,child,0);
  assert.equal(api.cpuAttackScore(0),-99);assert.equal(api.cpuPickField('破壊する場のモンスターをタップ',(p,l,z,c)=>z==='monster'&&!!c).p,0);
- assert.ok(api.cpuCardScore(api.card(1,1))>10);api.pick(api.cpuPickField('破壊する場のモンスターをタップ',(p,l,z,c)=>z==='monster'&&!!c));const result=await api.cpuMaybeTime();assert.equal(result,true);
- assert.ok(api.graveFor(0).includes(child));assert.equal(api.state.players[1].timeUsed,true);
+ assert.ok(api.cpuCardScore(api.card(1,1))>10);api.pick(api.cpuPickField('破壊する場のモンスターをタップ',(p,l,z,c)=>z==='monster'&&!!c));const result=await api.cpuMaybeMagic();assert.equal(result,true);
+ assert.ok(api.graveFor(0).includes(child));assert.equal(api.state.players[1].magicUses,1);
 });
 
 test('snapshot restores stolen-control return destination and does not restore a destroyed emblem',async()=>{

@@ -35,6 +35,8 @@
 .digestItem{opacity:1;transform:none;animation:none}
 .wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:75;border:1px solid rgba(149,139,118,.85);border-radius:999px;background:rgba(255,250,240,.82);color:#292823;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .cardListOverlay{z-index:80}.cardListPanel{width:min(94vw,600px);max-height:88dvh;background:var(--paper);border-radius:17px;padding:16px;display:flex;flex-direction:column;box-shadow:0 20px 50px #0006}.cardListHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.cardListHead h2{margin:0;font-size:20px}.cardListClose{flex-shrink:0;border:1px solid var(--line);background:#eee4d2;border-radius:9px;padding:10px 14px;font-weight:800}.cardListIntro{font-size:12px;line-height:1.6;color:var(--muted)}.cardListBody{overflow-y:auto;overscroll-behavior:contain;min-height:0;padding-right:3px}.cardListSection h3{font-size:15px;margin:14px 0 9px}.catalogCard{background:#fffdf7;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:10px;padding:12px;margin:0 0 9px}.catalogCard.magiccard{border-top-color:#586b87}.catalogCard h4{font-size:15px;margin:0 0 6px}.catalogCard .catalogType{font-size:11px;color:var(--muted);margin:0 0 7px}.catalogCard .catalogEffect{font-size:12px;line-height:1.65;margin:0}#cardListBtn{font-size:12px;padding:11px}
+
+.handoff{max-height:86dvh;overflow:auto}#handoffMsg{white-space:pre-wrap;text-align:left;overflow-wrap:anywhere}.turnDigestList{display:block;white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:190px;font-size:11px;line-height:1.6}.eventToast,.effectFlash{display:none!important}
 </style>
 </head>
 <body>
@@ -54,7 +56,7 @@
   </div>
   <div class="controls">
     <button class="btn primary" id="attackBtn">ATTACK</button>
-    <button class="btn time" id="timeBtn">TIME MAGIC</button>
+    <button class="btn time" id="magicBtn">MAGIC</button>
     <button class="btn" id="endBtn">END TURN</button>
   </div>
   <div class="handWrap">
@@ -192,23 +194,31 @@ function newState(){
  const deck=DECK_MODE==='single'?makeDeck(null):[];
  const decks=DECK_MODE==='double'?[makeDeck(0),makeDeck(1)]:null;
  const players=[0,1].map(()=>({
-  life:4,timeUsed:false,hand:[],monster:[null,null],magic:[null,null],snapshot:null,
+  life:4,magicUses:0,hand:[],monster:[null,null],magic:[null,null],snapshot:null,
   possessionEmblem:false,faithEmblem:false,pierceEmblem:false,faithUsedTurn:null
  }));
  players[0].hand=dealOpeningHand(decks?decks[0]:deck);
  players[1].hand=dealOpeningHand(decks?decks[1]:deck);
  return{players,deck,decks,deckMode:DECK_MODE,grave:[],graves:DECK_MODE==='double'?[[],[]]:null,turn:0,turnNo:1,starter:Math.random()<.5?0:1,actions:0,
- firstTurn:true,gameover:false,log:[],pending:[],turnEvents:[],lastTurnEvents:[],mode:GAME_MODE};
+ firstTurn:true,gameover:false,log:[],pending:[],turnEvents:[],lastTurnEvents:[],lastTurnPlayer:null,mode:GAME_MODE};
 }
 function pName(p){return GAME_MODE==='CPU'&&p===CPU_PLAYER?'CPU':sharedPlayerName(p);}
 function isEffectEvent(t){
  return /発動|効果で|CHOICE|チョイス|貫通|脱力|コントロール|憑依|信仰|憎悪|踏破|特殊勝利|除去時効果/.test(t);
 }
-function log(t,publicEvent=true){S.log.push(t);if(S.log.length>80)S.log.shift();if(publicEvent)S.turnEvents.push(t);renderLog();if(GAME_MODE==='CPU'){if(isEffectEvent(t))showCardEffect(t);else showEventToast(t);}else if(isEffectEvent(t)){showCardEffect(t);}}
+function log(t,publicEvent=true){S.log.push(t);if(S.log.length>80)S.log.shift();if(publicEvent)S.turnEvents.push(t);renderLog();}
 function renderLog(){$('log').innerHTML=S.log.slice(-7).map(x=>`<div>• ${x}</div>`).join('')||'ゲーム開始待ち';$('log').scrollTop=$('log').scrollHeight;}
 function showEventToast(t){toastQueue.push(t);if(toastShowing)return;const next=()=>{if(!toastQueue.length){toastShowing=false;return;}toastShowing=true;const el=$('eventToast');el.textContent=toastQueue.shift();el.classList.add('show');setTimeout(()=>{el.classList.remove('show');setTimeout(next,130);},800);};next();}
 function showCardEffect(t){effectQueue.push(t);if(effectShowing)return;const next=()=>{if(!effectQueue.length){effectShowing=false;return;}effectShowing=true;const el=$('effectFlash');$('effectFlashText').textContent=effectQueue.shift();el.classList.remove('show');void el.offsetWidth;el.classList.add('show');setTimeout(()=>{el.classList.remove('show');setTimeout(next,150);},1000);};next();}
-function showDigestBanners(events){const bar=$('turnDigestBar'),list=$('turnDigestList'),count=$('turnDigestCount');const shown=(events||[]).filter(x=>!/^P[12] が 1枚ドロー$/.test(x)).slice(-10);list.innerHTML='';if(!shown.length){bar.classList.remove('show');count.textContent='';return;}shown.forEach(t=>{const d=document.createElement('div');d.className='turnDigestChip'+(isEffectEvent(t)?' effect':'');d.textContent=t;d.title=t;list.appendChild(d);});count.textContent=shown.length+' EVENTS';bar.classList.add('show');list.scrollLeft=0;}
+function summarizeTurn(events,player){
+ const counts=new Map();
+ for(const t of events||[]){if(/のターン開始$/.test(t))continue;counts.set(t,(counts.get(t)||0)+1);}
+ const lines=[...counts].map(([t,n])=>'・'+t+(n>1?'（'+n+'回）':''));
+ return (isPlayerIndex(player)?pName(player)+' のターンの記録\n':'')+(lines.length?lines.join('\n'):'行動はありませんでした。');
+}
+function showDigestBanners(events){
+ const text=summarizeTurn(events,S.lastTurnPlayer);$('turnDigestList').textContent=text;$('turnDigestCount').textContent='';$('turnDigestBar').classList.toggle('show',isPlayerIndex(S.lastTurnPlayer));
+}
 function clearDigestBanners(){const bar=$('turnDigestBar');if(bar)bar.classList.remove('show');const list=$('turnDigestList');if(list)list.innerHTML='';}
 function clearTransientEffects(){toastQueue=[];effectQueue=[];toastShowing=false;effectShowing=false;const t=$('eventToast'),e=$('effectFlash');if(t)t.classList.remove('show');if(e)e.classList.remove('show');}
 function cardAtk(c){
@@ -231,11 +241,11 @@ function renderField(p){let h='';for(let l=0;l<2;l++)h+=`<div class="lane">${p==
 function render(){
  $('p1field').innerHTML=renderField(0);$('p2field').innerHTML=renderField(1);
  $('p1SideLabel').textContent=`${pName(0)} FIELD`;$('p2SideLabel').textContent=`${pName(1)} FIELD`;
- $('score1').innerHTML=`<span class="playerName">${pName(0)}</span><br><span class="p1c"><b>♥ ${S.players[0].life}</b></span><br>TIME ${S.players[0].timeUsed?'USED':'READY'} / HAND ${S.players[0].hand.length}<br>${emblemOptions(0).map(x=>x.label).join(' / ')}`;
- $('score2').innerHTML=`<span class="playerName">${pName(1)}</span><br><span class="p2c"><b>♥ ${S.players[1].life}</b></span><br>TIME ${S.players[1].timeUsed?'USED':'READY'} / HAND ${S.players[1].hand.length}<br>${emblemOptions(1).map(x=>x.label).join(' / ')}`;
+ $('score1').innerHTML=`<span class="playerName">${pName(0)}</span><br><span class="p1c"><b>♥ ${S.players[0].life}</b></span><br>MAGIC ${2-S.players[0].magicUses}/2 / HAND ${S.players[0].hand.length}<br>${emblemOptions(0).map(x=>x.label).join(' / ')}`;
+ $('score2').innerHTML=`<span class="playerName">${pName(1)}</span><br><span class="p2c"><b>♥ ${S.players[1].life}</b></span><br>MAGIC ${2-S.players[1].magicUses}/2 / HAND ${S.players[1].hand.length}<br>${emblemOptions(1).map(x=>x.label).join(' / ')}`;
  const app=document.querySelector('.app');app.classList.toggle('turn-p1',S.turn===0);app.classList.toggle('turn-p2',S.turn===1);$('score1').classList.toggle('turnOwner',S.turn===0);$('score2').classList.toggle('turnOwner',S.turn===1);
  $('turnText').textContent=`TURN ${S.turnNo} · ${pName(S.turn)} ${S.turn===0?'🟢':'🔴'}`;$('actionText').textContent=`AP ${S.actions}`;$('deckText').textContent=S.deckMode==='double'?`山札 P1:${deckFor(0).length} P2:${deckFor(1).length}`:`DECK ${S.deck.length}`;$('handTitle').textContent=`${pName(S.turn)} PRIVATE HAND`;$('graveText').textContent=S.deckMode==='double'?`墓地 P1:${graveFor(0).length} P2:${graveFor(1).length}`:`GRAVE ${S.grave.length}`;
- renderHand();renderLog();setupFieldInteractions();const cpuTurn=GAME_MODE==='CPU'&&S.turn===CPU_PLAYER;$('attackBtn').disabled=cpuTurn||S.gameover||S.actions<=0||!S.players[S.turn].monster.some((c,l)=>c&&canAttack(c,S.turn,l));$('timeBtn').disabled=cpuTurn||S.gameover||S.players[S.turn].timeUsed;$('endBtn').disabled=cpuTurn||S.gameover;
+ renderHand();renderLog();setupFieldInteractions();const cpuTurn=GAME_MODE==='CPU'&&S.turn===CPU_PLAYER;$('attackBtn').disabled=cpuTurn||S.gameover||S.actions<=0||!S.players[S.turn].monster.some((c,l)=>c&&canAttack(c,S.turn,l));$('magicBtn').disabled=cpuTurn||S.gameover||S.players[S.turn].magicUses>=2;$('endBtn').disabled=cpuTurn||S.gameover;
 }
 function renderHand(){const p=S.turn;if(GAME_MODE==='CPU'&&p===CPU_PLAYER){$('handTitle').textContent='CPU HAND';$('hand').innerHTML='<div class="tiny">CPUの手札は非公開です。思考中の行動だけが公開されます。</div>';return;}$('hand').innerHTML=S.players[p].hand.map(c=>`<div class="handCard ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="type">${cardTypeText(c)}</div><div class="effect">${c.text}</div><button class="play" data-uid="${c.uid}" ${S.actions<=0?'disabled':''}>PLAY</button></div>`).join('')||'<div class="tiny">手札なし</div>';document.querySelectorAll('.play').forEach(b=>b.onclick=e=>{e.stopPropagation();playFromHand(Number(b.dataset.uid));});document.querySelectorAll('.handCard').forEach((el,i)=>el.onclick=()=>showCardDetail(S.players[p].hand[i],p));}
 function setupFieldInteractions(){document.querySelectorAll('.slot[data-p]').forEach(el=>{const p=+el.dataset.p,l=+el.dataset.l,z=el.dataset.zone,c=z==='monster'?S.players[p].monster[l]:S.players[p].magic[l];if(fieldPickResolve&&fieldPickFilter&&fieldPickFilter(p,l,z,c)){el.classList.add('pickable');el.onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r({p,l,zone:z});};}else if(c&&!(c.faceDown&&c.controller!==S.turn)){el.classList.add('inspectable');el.onclick=()=>showCardDetail(c,S.turn);}});}
@@ -243,12 +253,21 @@ function activeDecisionPlayer(){return decisionPlayer===null||decisionPlayer===u
 function cpuShouldAuto(title){const dp=activeDecisionPlayer();if(GAME_MODE!=='CPU'||dp!==CPU_PLAYER)return false;if(!(cpuDecisionContext||decisionPlayer===CPU_PLAYER))return false;if(title&&title.indexOf('P1')>=0&&dp!==0)return false;return true;}
 function waitDecisionHandoff(player,title,msg){return new Promise(res=>{setHandPrivate(true);clearTransientEffects();$('handoffTitle').textContent=title||`${pName(player)} の選択です`;$('handoffMsg').textContent=msg||'選択するプレイヤーに端末を渡してください。手札は表示されません。';$('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');setHandPrivate(true);render();res();};});}
 async function withDecisionPlayer(player,label,fn){const old=decisionPlayer;if(old===player){return await fn();}const turnOwner=S.turn;decisionPlayer=player;let oldCpu=cpuDecisionContext;try{if(GAME_MODE==='CPU'&&player===CPU_PLAYER){cpuDecisionContext=true;return await fn();}if(player!==turnOwner){await waitDecisionHandoff(player,`${pName(player)} REACTION`,label||'効果の選択権があります。端末を渡してください。');const result=await fn();if(GAME_MODE==='2P'){await waitDecisionHandoff(turnOwner,`${pName(turnOwner)} のターンへ戻ります`,'選択処理が完了しました。元のターンプレイヤーに端末を戻してください。');setHandPrivate(false);render();}else if(GAME_MODE==='CPU'&&turnOwner===CPU_PLAYER){setHandPrivate(false);render();}return result;}return await fn();}finally{cpuDecisionContext=oldCpu;decisionPlayer=old;}}
-function cpuPickOption(title,opts){if(!opts||!opts.length)return null;let scored=opts.map((o,i)=>({i:i,s:0.15*Math.random(),o:o}));for(const x of scored){const label=(x.o.label||'')+' '+(x.o.sub||'');if(/相手ライフ|直接攻撃/.test(label))x.s+=4;if(/コントロール/.test(label))x.s+=3;if(/手札をランダム1枚奪/.test(label))x.s+=2.4;if(/墓地.*手札/.test(label))x.s+=2;if(/召喚|復活/.test(label))x.s+=1.8;if(/即時発動/.test(label))x.s+=1.2;if(/罠としてセット/.test(label))x.s+=1.5;if(/デッキの底へ/.test(label))x.s+=0.4;if(/LEFT|RIGHT/.test(label))x.s+=0.2;if(/場のモンスター.*破壊/.test(label)&&S.players[1-CPU_PLAYER].monster.some(c=>c&&c.id===3))x.s+=20;if(/エンブレム.*破壊/.test(label))x.s+=3;if(/1ドロー/.test(label))x.s+=1;if(/突撃/.test(label))x.s+=2;if(/相手の錆びたゴーレム.*墓地/.test(label))x.s+=6;const m=label.match(/ATK\s*(\d+)/);if(m)x.s+=Number(m[1])*.12;}
+function cpuPickOption(title,opts){if(!opts||!opts.length)return null;let scored=opts.map((o,i)=>({i:i,s:0.15*Math.random(),o:o}));for(const x of scored){const label=(x.o.label||'')+' '+(x.o.sub||'');if(title.startsWith('MAGIC /')&&x.o.value==='destroy')x.s+=10;if(/相手ライフ|直接攻撃/.test(label))x.s+=4;if(/コントロール/.test(label))x.s+=3;if(/手札をランダム1枚奪/.test(label))x.s+=2.4;if(/墓地.*手札/.test(label))x.s+=2;if(/召喚|復活/.test(label))x.s+=1.8;if(/即時発動/.test(label))x.s+=1.2;if(/罠としてセット/.test(label))x.s+=1.5;if(/デッキの底へ/.test(label))x.s+=0.4;if(/LEFT|RIGHT/.test(label))x.s+=0.2;if(/場のモンスター.*破壊/.test(label)&&S.players[1-CPU_PLAYER].monster.some(c=>c&&c.id===3))x.s+=20;if(/エンブレム.*破壊/.test(label))x.s+=3;if(/1ドロー/.test(label))x.s+=1;if(/突撃/.test(label))x.s+=2;if(/相手の錆びたゴーレム.*墓地/.test(label))x.s+=6;const m=label.match(/ATK\s*(\d+)/);if(m)x.s+=Number(m[1])*.12;}
 scored.sort((a,b)=>b.s-a.s);return scored[0].i;}
 function cpuPickField(title,filter){const cand=[];for(let p=0;p<2;p++)for(let l=0;l<2;l++)for(const z of ['monster','magic']){const c=S.players[p][z][l];if(filter(p,l,z,c))cand.push({p:p,l:l,zone:z,c:c});}if(!cand.length)return null;let best=cand[0],bestS=-999;for(const x of cand){let sc=Math.random()*.4;if(/攻撃するモンスター/.test(title)){sc+=cpuAttackScore(x.l)*2;}if(/召喚先|復活先|MONSTER/.test(title)){if(x.p===CPU_PLAYER)sc+=2;if(!S.players[1-CPU_PLAYER].monster[x.l])sc+=1.2;else sc+=0.5;}if(/強化/.test(title)){if(x.p===CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.15;}if(/脱力/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/コントロール/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/入れ替える場/.test(title)){if(x.p!==CPU_PLAYER)sc+=1.5;}if(/墓地へ|破壊|半減/.test(title)){if(x.p!==CPU_PLAYER)sc+=6;else sc-=8;if(x.p!==CPU_PLAYER&&x.c?.id===3)sc+=12;}if(/コストにする/.test(title)&&x.p===CPU_PLAYER)sc-=x.c?cardAtk(x.c):0;if(/突撃/.test(title)&&x.p===CPU_PLAYER)sc+=4;if(/配置先/.test(title)&&x.p===CPU_PLAYER)sc+=2;if(sc>bestS){bestS=sc;best=x;}}return{p:best.p,l:best.l,zone:best.zone};}
 function chooseFieldSlot(msg,filter){if(cpuShouldAuto(msg)){return new Promise(res=>setTimeout(()=>res(cpuPickField(msg,filter)),260));}return new Promise(res=>{fieldPickResolve=res;fieldPickFilter=filter;$('pickHint').textContent=msg+' ｜ ここをタップでキャンセル';$('pickHint').classList.remove('hidden');$('pickHint').onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r(null);};render();});}
 function choose(title,opts,cancel=true){if(cpuShouldAuto(title)){return new Promise(res=>setTimeout(()=>{const ix=cpuPickOption(title,opts);res(ix===null?null:opts[ix].value);},240));}return new Promise(res=>{choiceResolve=res;$('modalTitle').textContent=title;$('modalOptions').innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}">${o.label}${o.sub?`<small>${o.sub}</small>`:''}</button>`).join('');$('modalCancel').style.display=cancel?'block':'none';$('modalCancel').textContent='キャンセル';$('modal').classList.remove('hidden');document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const v=opts[+b.dataset.i].value;$('modal').classList.add('hidden');choiceResolve=null;res(v);});$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');choiceResolve=null;res(null);};});}
-function showHandoff(next,msg='相手に画面を見せないように端末を渡してください。'){setHandPrivate(true);clearDigestBanners();if(GAME_MODE==='2P')clearTransientEffects();if(GAME_MODE==='CPU'&&next===CPU_PLAYER){setTimeout(()=>{setHandPrivate(false);runCpuTurn();},420);return;}$('handoffTitle').textContent=`${pName(next)} の番です`;$('handoffMsg').textContent=GAME_MODE==='CPU'?'CPUターンが終了しました。READYで開始してください。':msg;$('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');if(GAME_MODE==='2P')showDigestBanners(S.lastTurnEvents);else clearDigestBanners();setHandPrivate(false);render();};}
+function showHandoff(next,msg='相手に画面を見せないように端末を渡してください。'){
+ setHandPrivate(true);clearTransientEffects();showDigestBanners(S.lastTurnEvents);
+ if(GAME_MODE==='CPU'&&next===CPU_PLAYER){setTimeout(()=>{setHandPrivate(false);runCpuTurn();},420);return;}
+ $('handoffTitle').textContent=pName(next)+' の番です';
+ const summary=isPlayerIndex(S.lastTurnPlayer)?summarizeTurn(S.lastTurnEvents,S.lastTurnPlayer)+'\n\n':'';
+ const startEvents=S.turnEvents.filter(t=>!t.endsWith('のターン開始'));
+ const opening=isPlayerIndex(S.lastTurnPlayer)&&startEvents.length?'ターン開始時\n'+summarizeTurn(startEvents,null)+'\n\n':'';
+ $('handoffMsg').textContent=summary+opening+(GAME_MODE==='CPU'?'内容を確認してREADYで開始してください。':msg);
+ $('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');setHandPrivate(false);render();};
+}
 function draw(p,n=1,publicEvent=true){const deck=deckFor(p);let got=0;for(let i=0;i<n;i++){if(!deck.length)break;S.players[p].hand.push(deck.pop());got++;}if(got)log(`${pName(p)} が ${got}枚ドロー`,publicEvent);return got;}
 async function faithStartOption(p){
  if(S.gameover||!S.players[p].faithEmblem||S.players[p].faithUsedTurn===S.turnNo)return;
@@ -329,7 +348,7 @@ async function startTurn(p,initial=false){
  render();
  if(!initial)showHandoff(p);
 }
-async function endTurn(){if(busy||S.gameover)return;busy=true;await triggerEndPhaseTraps();await resolvePending();if(S.gameover){busy=false;return;}await handLimit(S.turn);if(S.gameover){busy=false;return;}saveSnapshot(S.turn);const prev=S.turn;S.lastTurnEvents=S.turnEvents.slice();S.turnEvents=[];S.firstTurn=false;S.turnNo++;busy=false;await startTurn(1-prev);checkStalemate();}
+async function endTurn(){if(busy||S.gameover)return;busy=true;await triggerEndPhaseTraps();await resolvePending();if(S.gameover){busy=false;return;}await handLimit(S.turn);if(S.gameover){busy=false;return;}saveSnapshot(S.turn);const prev=S.turn;S.lastTurnPlayer=prev;S.lastTurnEvents=S.turnEvents.slice();S.turnEvents=[];S.firstTurn=false;S.turnNo++;busy=false;await startTurn(1-prev);checkStalemate();}
 async function handLimit(p){while(S.players[p].hand.length>5&&!S.gameover){const id=await choose(`${pName(p)} 手札上限5枚：デッキ下へ戻すカード`,S.players[p].hand.map(c=>({label:c.name,value:c.uid})),false);const i=S.players[p].hand.findIndex(c=>c.uid===id);if(i>=0){const[c]=S.players[p].hand.splice(i,1);deckFor(p).unshift(c);log(`${pName(p)} が1枚をデッキ下へ戻した`);}}}
 function canAttack(c){return !!c&&(c.summonedTurn!==S.turnNo||c.hasCharge)&&c.attackedTurn!==S.turnNo;}
 function addAP(p,n){const before=S.actions;if(p===S.turn)S.actions=Math.min(4,S.actions+n);const added=S.actions-before;if(added>0)log(`${pName(p)} AP+${added}（現在${S.actions}）`);}
@@ -873,40 +892,32 @@ function removeLocated(loc){const c=loc.card;if(loc.area==='hand')S.players[loc.
 function placeByDescriptor(c,d){if(d&&['hand','deck','grave'].includes(d.area)&&isPlayerIndex(c.returnTo))d={...d,p:leaveControlledField(c,d.p)};if(!d){putGrave(c);c.zone='grave';c.lane=null;return;}if(d.area==='hand'){S.players[d.p].hand.splice(Math.min(d.i,S.players[d.p].hand.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='grave'){const grave=graveFor(d.p);grave.splice(Math.min(d.i,grave.length),0,c);c.zone='grave';c.lane=null;}else if(d.area==='deck'){const deck=deckFor(d.p);deck.splice(Math.min(d.i,deck.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='monster'){if(!S.players[d.p].monster[d.l]){S.players[d.p].monster[d.l]=c;c.controller=d.p;c.zone='monster';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}else if(d.area==='magic'){if(!S.players[d.p].magic[d.l]){S.players[d.p].magic[d.l]=c;c.controller=d.p;c.zone='magic';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}}
 function restoreState(c,s,wasSick){Object.assign(c,s);if(wasSick)c.summonedTurn=S.turnNo;else if(c.summonedTurn===S.turnNo)c.summonedTurn=S.turnNo-1;}
 function rewindOwnField(p){const snap=S.players[p].snapshot;if(!snap)return false;const snapUids=new Set();for(const z of ['monster','magic'])for(let l=0;l<2;l++)if(snap.slots[z][l])snapUids.add(snap.slots[z][l].uid);const current=[];for(const z of ['monster','magic'])for(let l=0;l<2;l++){const c=S.players[p][z][l];if(c)current.push(c.uid);}const relevant=[...new Set([...current,...snapUids])],cards={};for(const id of relevant){const loc=locateCard(id);if(loc)cards[id]=removeLocated(loc);}for(const id of current){if(!snapUids.has(id)&&cards[id])placeByDescriptor(cards[id],snap.locations[id]);}for(const z of ['monster','magic'])for(let l=0;l<2;l++){const x=snap.slots[z][l];if(!x)continue;let c=cards[x.uid];if(!c){const loc=locateCard(x.uid);if(loc)c=removeLocated(loc);}if(!c)continue;restoreState(c,x.state,x.wasSick);c.controller=p;c.zone=z;c.lane=l;c.faceDown=z==='magic'?x.state.faceDown:false;S.players[p][z][l]=c;}log(`${pName(p)} の場を前回ターン終了時へ巻き戻した`);return true;}
-async function useTimeMagic(){
+async function useMagic(){
  if(busy||S.gameover)return;
- const p=S.turn;if(S.players[p].timeUsed)return;
- const isCpu=(GAME_MODE==='CPU'&&p===CPU_PLAYER);
+ const p=S.turn;if(S.players[p].magicUses>=2)return;
  const options=[];
- if(fieldCards().some(c=>c.kind==='monster'))options.push({label:'場のモンスター1体を破壊して墓地へ',sub:'AP消費なし',value:'destroy'});
- if(!isCpu&&S.actions>=1)options.push({label:'3枚ドロー → 手札1枚をデッキの底へ',sub:'AP 1消費',value:'draw'});
- if(S.actions>=2&&S.players[p].snapshot)options.push({label:'自分の場を前ターン終了時へ戻し、ターンをスキップ',sub:'AP 2消費。カード状態も巻き戻す',value:'rewind'});
+ if(S.players[1-p].monster.some(Boolean))options.push({label:'相手の場のモンスター1体を墓地へ送る',sub:'ライフ−1 / AP消費なし',value:'destroy'});
+ if(deckFor(p).length>=2)options.push({label:'デッキから2枚引き、手札1枚をデッキの底へ戻す',sub:'ライフ−1 / AP消費なし',value:'draw'});
  if(!options.length)return;
- const mode=await choose('TIME MAGIC / ゲーム中1回',options);
- if(!mode)return;
- busy=true;S.players[p].timeUsed=true;
- const before=S.players[p].life;
- S.players[p].life=Math.max(1,Math.floor(S.players[p].life/2));
- log(`${pName(p)} が TIME MAGIC を使用：ライフ ${before} → ${S.players[p].life}`);
- if(mode==='destroy'){
-  const pick=await chooseFieldSlot('破壊する場のモンスターをタップ',(pp,ll,z,cc)=>z==='monster'&&!!cc);
-  if(pick){
-   const m=S.players[pick.p].monster[pick.l];
-   if(m)await sendMonsterFromField(pick.p,pick.l,'time-magic-destroy');
-  }
- }
- if(mode==='draw'){
-  S.actions--;draw(p,3);
-  if(S.players[p].hand.length){
-   const id=await choose('デッキの底へ戻す手札1枚',S.players[p].hand.map(c=>({label:c.name,value:c.uid})),false);
+ busy=true;
+ try{
+  const mode=await choose('MAGIC / 残り'+(2-S.players[p].magicUses)+'回',options);if(!mode)return;
+  let target=null;
+  if(mode==='destroy'){
+   const pick=await chooseFieldSlot('墓地へ送る相手のモンスターをタップ',(pp,l,z,c)=>pp===1-p&&z==='monster'&&!!c);if(!pick)return;
+   target=S.players[pick.p].monster[pick.l];if(pick.p!==1-p||!target)return;
+  }else if(mode!=='draw'||deckFor(p).length<2)return;
+  S.players[p].magicUses++;log(pName(p)+' がMAGICを使用（残り'+(2-S.players[p].magicUses)+'回）');damage(p,1,'MAGICのコスト');
+  if(S.gameover)return;
+  if(mode==='destroy')await removeFieldByUid(target.uid,'magic-remove');
+  else{
+   draw(p,2);
+   const id=await choose('MAGIC：デッキの底へ戻す手札1枚',S.players[p].hand.map(c=>({label:c.name,value:c.uid})),false);
    const i=S.players[p].hand.findIndex(c=>c.uid===id);
-   if(i>=0){const c=S.players[p].hand.splice(i,1)[0];deckFor(p).unshift(c);log(`TIME MAGIC：${c.name} をデッキの底へ戻した`);}
+   if(i>=0){const c=S.players[p].hand.splice(i,1)[0];c.zone=null;c.lane=null;c.faceDown=false;deckFor(p).unshift(c);log(pName(p)+' がMAGICで手札1枚をデッキの底へ戻した');}
   }
- }
- if(mode==='rewind'){
-  S.actions-=2;rewindOwnField(p);await resolvePending();await evaluateAutoTraps();busy=false;render();await endTurn();return;
- }
- await resolvePending();await evaluateAutoTraps();busy=false;render();checkStalemate();
+  await resolvePending();await evaluateAutoTraps();checkStalemate();
+ }finally{busy=false;render();}
 }
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -954,8 +965,15 @@ function cpuCardScore(c){
 }
 async function cpuPlayBestCard(){const hand=S.players[CPU_PLAYER].hand;if(!hand.length||S.actions<=0)return false;const ranked=hand.map(c=>({c:c,s:cpuCardScore(c)})).filter(x=>x.s>-20).sort((a,b)=>b.s-a.s);if(!ranked.length||ranked[0].s<1.2)return false;cpuCurrentCard=ranked[0].c;cpuDecisionContext=true;await playFromHand(ranked[0].c.uid);cpuDecisionContext=false;cpuCurrentCard=null;return true;}
 async function cpuAttackBest(){const choices=[0,1].map(l=>({l:l,s:cpuAttackScore(l)})).filter(x=>x.s>-90).sort((a,b)=>b.s-a.s);if(!choices.length||choices[0].s<0.5)return false;cpuDecisionContext=true;await attackFlow();cpuDecisionContext=false;return true;}
-async function cpuMaybeTime(){const p=CPU_PLAYER;if(S.players[p].timeUsed)return false;const diff=cpuBoardValue(p)-cpuBoardValue(1-p);const protectedChild=S.players[1-p].monster.some((m,l)=>m&&m.id===3&&S.players[p].monster[l]&&cardAtk(S.players[p].monster[l])>=8);if(!(S.players[p].life<=2||diff<-5||protectedChild))return false;cpuDecisionContext=true;await useTimeMagic();cpuDecisionContext=false;return true;}
-async function runCpuTurn(){if(GAME_MODE!=='CPU'||S.turn!==CPU_PLAYER||S.gameover||cpuThinking)return;cpuThinking=true;$('cpuThinking').classList.remove('hidden');render();await sleep(650);try{await cpuMaybeTime();let guard=0;while(!S.gameover&&S.turn===CPU_PLAYER&&S.actions>0&&guard++<8){await sleep(430);const attackBest=Math.max(cpuAttackScore(0),cpuAttackScore(1));const cardBest=Math.max.apply(null,S.players[CPU_PLAYER].hand.map(cpuCardScore).concat([-99]));let acted=false;if(attackBest>=cardBest*.85&&attackBest>0.5)acted=await cpuAttackBest();else acted=await cpuPlayBestCard();if(!acted&&attackBest>0.5)acted=await cpuAttackBest();if(!acted)break;}if(!S.gameover&&S.turn===CPU_PLAYER){await sleep(400);cpuDecisionContext=true;await endTurn();cpuDecisionContext=false;}}finally{cpuThinking=false;$('cpuThinking').classList.add('hidden');render();}}
+async function cpuMaybeMagic(){return cpuUseMagic()}
+async function cpuUseMagic(){
+ const p=CPU_PLAYER;if(S.players[p].magicUses>=2||S.players[p].life<=1)return false;
+ const enemy=S.players[1-p].monster.filter(Boolean),diff=cpuBoardValue(p)-cpuBoardValue(1-p);
+ if(!enemy.length&&!(S.players[p].hand.length<=2&&deckFor(p).length>=2))return false;
+ if(enemy.length&&!(diff<0||enemy.some(m=>m.id===3||cardAtk(m)>=7)))return false;
+ const before=S.players[p].magicUses;cpuDecisionContext=true;try{await useMagic()}finally{cpuDecisionContext=false}return S.players[p].magicUses>before;
+}
+async function runCpuTurn(){if(GAME_MODE!=='CPU'||S.turn!==CPU_PLAYER||S.gameover||cpuThinking)return;cpuThinking=true;$('cpuThinking').classList.remove('hidden');render();await sleep(650);try{await cpuMaybeMagic();let guard=0;while(!S.gameover&&S.turn===CPU_PLAYER&&S.actions>0&&guard++<8){await sleep(430);const attackBest=Math.max(cpuAttackScore(0),cpuAttackScore(1));const cardBest=Math.max.apply(null,S.players[CPU_PLAYER].hand.map(cpuCardScore).concat([-99]));let acted=false;if(attackBest>=cardBest*.85&&attackBest>0.5)acted=await cpuAttackBest();else acted=await cpuPlayBestCard();if(!acted&&attackBest>0.5)acted=await cpuAttackBest();if(!acted)break;}if(!S.gameover&&S.turn===CPU_PLAYER){await sleep(400);cpuDecisionContext=true;await endTurn();cpuDecisionContext=false;}}finally{cpuThinking=false;$('cpuThinking').classList.add('hidden');render();}}
 function checkStalemate(){if(S.gameover||deckEntries().some(({deck})=>deck.length>0))return;const mons=S.players[0].monster.filter(Boolean).length+S.players[1].monster.filter(Boolean).length;if(mons>0)return;const l0=S.players[0].life,l1=S.players[1].life;if(l0!==l1)return finish(l0>l1?0:1,'山札0・場にモンスターなし：ライフ判定');const f0=S.players[0].monster.filter(Boolean).length+S.players[0].magic.filter(Boolean).length,f1=S.players[1].monster.filter(Boolean).length+S.players[1].magic.filter(Boolean).length;if(f0!==f1)return finish(f0<f1?0:1,'ライフ同点：場のカードが少ない方の勝利');finish(null,'ライフ・場のカード数とも同じため引き分け');}
 function finish(winner,msg){if(S.gameover)return;S.gameover=true;S.pending=[];recordStats(winner);$('gameoverTitle').textContent=winner===null?'DRAW':`${pName(winner)} WIN`;$('gameoverMsg').textContent=msg;$('gameover').classList.remove('hidden');render();}
 function showGrave(){
@@ -982,7 +1000,7 @@ function showRules(){
  '激おこドラゴン：通常召喚不可。AP1と自分の場のモンスター1体をコストに手札から特殊召喚。場に出た時、相手の場のカード1枚を墓地へ送る。貫通1。直接攻撃は通常どおり1ダメージ。',
  '錆びたゴーレム：最初の2回はATKで負けても同値でも戦闘では破壊されない。3回目の戦闘後に墓地へ。カード効果では通常どおり墓地へ送られる。',
  '反攻の儀：同列の自分のモンスターを墓地へ送ることを選んで発動し、攻撃モンスターをその枠へ移す。攻撃を中断し相手AP+1。反魔の死人はコントロールを奪えない。奪ったカードが場を離れるときは、処理に応じて元のプレイヤーの手札・山札・墓地へ戻す。',
- '偽造の書で相手のエンブレムを破壊できる。破壊前に適用されたATK・貫通などは取り消さない。エンブレムはTIME MAGICの巻き戻し対象外。',
+ '偽造の書で相手のエンブレムを破壊できる。破壊前に適用されたATK・貫通などは取り消さない。',
  '復活の書は即時発動専用で、罠としてセットできない。加速の儀：自分ターン開始時または破壊時に2ドロー。自分ターン中に発動した場合AP+1（最大4）。脱出の儀は同列への攻撃時に発動し、攻撃モンスターを手札へ戻して両者1ドロー。',
  '守護の儀：同列の自分のモンスターへの脱力を無効化してATK+2、または同列の相手の攻撃時に正面の自分のモンスターにこのターンのみATK+3。どちらかの発動後に墓地へ。反魔の死人には適用しない。',
  '死霊師：召喚時に同列の相手の伏せ罠を奪って後ろにセット。自分の同列の罠は墓地へ送り置き換える。手札以外からの召喚でも発動する。',
@@ -991,8 +1009,8 @@ function showRules(){
  '魔導の書：別の手札1枚を捨て、相手の錆びたゴーレム1体を墓地へ送るか、自分のモンスター1体に突撃を付与してAP+1（最大4）。',
  '山札切れだけでは敗北せず、両者の山札が0枚・場にモンスターなしでライフ判定を行う。',
  '破壊の儀：罠専用。セットした次の相手エンドフェイズに同じ列のカードをすべて墓地へ送る。',
- 'TIME MAGIC：各プレイヤー1ゲーム1回。使用時ライフ半減（最低1）。①場のモンスター1体を破壊して墓地へ(AP0) ②3ドロー1枚をデッキ下へ(AP1) ③自分の場とカード状態を前ターン終了時へ戻してターンスキップ(AP2)。',
- 'TIME MAGICの巻き戻し対象は配置・ATK増減・ATK半減・貫通・脱力・戦闘回数・召喚回数・召喚酔い・コントロール状態。手札・墓地・ライフ・デッキ・通常ドロー・乱数結果・エンブレムは巻き戻さない。',
+ 'MAGIC：各プレイヤー1ゲーム2回、自分のターン中にAP消費なしで使用。ライフ1を払い、①相手の場のモンスター1体を墓地へ送る、または②自分の山札から2ドローし手札1枚を山札の底へ戻す。ライフが0になれば敗北。対象選択のキャンセルでは消費しない。山札が2枚未満なら②は使用不可。',
+ 'ターン交代時：直前のターンの公開された出来事を1つのメッセージで確認してからREADYで引き継ぐ。確認後もPREVIOUS TURNに同じ記録が残る。',
  '手札上限5。ターン終了時に超過分を選びデッキ下へ。V1.3試作デッキはモンスター12種＋マジック12種を各1枚。',
  'ダブル戦：ドロー・進化の書の山札からの召喚は自分の山札から。手札をデッキへ戻す効果は、その手札を持っているプレイヤーの山札へ戻す。変身などで取得した相手由来のカードも同様。墓地は各自で分かれ、カードは元デッキの持ち主の墓地へ送る。復活・憑依・信仰は自分の墓地のみが対象。',
  'ダブル戦の進化の書：交換先が複数ある場合、対象と同じ元デッキ由来の個体を優先し、両者の墓地も検索対象。憑依・信仰のエンブレム取得と憎悪の回数は個体ごとに判定する（信仰の使用は従来どおり1ターン1回）。',
@@ -1009,7 +1027,7 @@ async function startNewGame(){
  else showHandoff(S.starter,GAME_MODE==='CPU'?'初手4枚（モンスター1枚以上保証）を確認してREADYを押してください。':'初手4枚（両プレイヤーともモンスター1枚以上保証）は相手に見せず、READYを押してください。');
 }
 function boot(){if(!S){uid=1;S=newState();render();}showTitle();}
-$('attackBtn').onclick=attackFlow;$('timeBtn').onclick=useTimeMagic;$('endBtn').onclick=endTurn;$('rulesBtn').onclick=showRules;$('graveBtn').onclick=showGrave;$('resetBtn').onclick=()=>{if(confirm('ゲームを終了してタイトルへ戻りますか？')){['handoff','modal','gameover','digest'].forEach(id=>$(id).classList.add('hidden'));showTitle();}};$('againBtn').onclick=()=>{$('gameover').classList.add('hidden');showTitle();};
+$('attackBtn').onclick=attackFlow;$('magicBtn').onclick=useMagic;$('endBtn').onclick=endTurn;$('rulesBtn').onclick=showRules;$('graveBtn').onclick=showGrave;$('resetBtn').onclick=()=>{if(confirm('ゲームを終了してタイトルへ戻りますか？')){['handoff','modal','gameover','digest'].forEach(id=>$(id).classList.add('hidden'));showTitle();}};$('againBtn').onclick=()=>{$('gameover').classList.add('hidden');showTitle();};
 $('cardListBtn').onclick=showCardList;$('closeCardListBtn').onclick=closeCardList;
 $('singleDeckBtn').onclick=()=>{DECK_MODE='single';refreshTitleControls();};$('doubleDeckBtn').onclick=()=>{DECK_MODE='double';refreshTitleControls();};
 $('mode2p').onclick=()=>{GAME_MODE='2P';refreshTitleControls();};$('modeCpu').onclick=()=>{GAME_MODE='CPU';refreshTitleControls();};$('ap1Btn').onclick=()=>{OPENING_AP=1;refreshTitleControls();};$('ap2Btn').onclick=()=>{OPENING_AP=2;refreshTitleControls();};$('drawOnBtn').onclick=()=>{FIRST_TURN_DRAW=true;refreshTitleControls();};$('drawOffBtn').onclick=()=>{FIRST_TURN_DRAW=false;refreshTitleControls();};$('clearStatsBtn').onclick=()=>{if(confirm('対戦統計をリセットしますか？')){try{localStorage.removeItem(STATS_KEY);}catch(e){}renderStats();}};$('startGameBtn').onclick=startNewGame;

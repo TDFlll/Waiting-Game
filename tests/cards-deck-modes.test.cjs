@@ -85,10 +85,10 @@ test('snapshot returns a newly summoned card to the correct original deck locati
  assert.equal(api.deckFor(1)[5],c);assert.equal(api.state.players[0].monster[0],null);
 });
 
-test('TIME MAGIC draws and returns only through the current player deck',async()=>{
+test('MAGIC draws and returns only through the current player deck',async()=>{
  const {api}=game();api.state.turn=1;api.state.actions=2;
- api.choices('draw');await api.useTimeMagic();assert.equal(api.state.players[1].timeUsed,true);
- assert.equal(api.deckFor(1).length,18);assert.equal(api.deckFor(0).length,20);
+ api.choices('draw');await api.useMagic();assert.equal(api.state.players[1].magicUses,1);
+ assert.equal(api.deckFor(1).length,19);assert.equal(api.deckFor(0).length,20);
 });
 
 test('individual graves hold each copy and summoning tracks emblems and hatred per UID',async()=>{
