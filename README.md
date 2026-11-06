@@ -25,7 +25,8 @@ waiting-games/
 │  ├─ line.html
 │  ├─ helper.html
 │  ├─ draw.html
-│  └─ derby.html
+│  ├─ derby.html
+│  └─ memory-line.html
 └─ README.md
 ```
 
@@ -41,6 +42,7 @@ waiting-games/
 - `games/helper.html` from `Board_Game_Helper_v1.03.html`
 - `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
 - `games/derby.html` v0.10 (WAITING DERBY; shared player names, Free Open / Randm Open)
+- `games/memory-line.html` from `Waiting_Memory_Line_v0.5.html` (shared player names and launcher return links)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use
@@ -93,3 +95,9 @@ See [LICENSE](LICENSE) for the full terms. This is a custom license, not an open
 The title offers Start, Options, and Quit (return to the game launcher). Options selects Free Open (manual card choice) or Randm Open (one random face-down card every five seconds). In Randm Open, the current player presses Stop to freeze the board and buy one private ticket, then passes the device. Cancelling resumes automatic opening after five seconds; rules, ticket review, handoffs, and hidden pages pause it. At nine revealed effect cards, final purchases begin with the last card still hidden. Existing ticket limits, odds, and two-round scoring remain in effect.
 
 Run `node --test tests/derby-open-modes.test.cjs` for timer, purchase, handoff, cancellation, and Free Open regression checks.
+
+## Waiting Memory Line
+
+Waiting Memory Line v0.5 includes shared player names and a confirmed return to GAMES during a match. The normal and advanced modes, CALL animation, undo, and first-player double-three restriction retain the supplied rules. Ownership remains hidden during play; end-of-game tiles use compact P1/P2 labels with the shared name in their tooltip.
+
+Run `node --test tests/memory-line.test.cjs` for placement, hand refill, undo, wins, CALL, full-board draws, and basic double-three boundaries. The v0.5 advanced CALL issue is corrected: a mixed-owner five-color or five-shape line can be claimed only by the player who placed its last piece. Placement order is preserved by undo. The double-three implementation is the supplied six-cell-window rule, not a verified full Renju rules engine.

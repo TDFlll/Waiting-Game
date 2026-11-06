@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.11.02-cards-derby-v1";
+const SW_VERSION = "2026.11.07-memory-line-v05";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

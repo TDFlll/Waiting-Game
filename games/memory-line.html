@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Waiting Memory Line v0.5</title>
+<style>
+:root{color-scheme:dark;--bg:#101521;--panel:#1b2435;--cell:#293449;--edge:#41506a;--accent:#65d6b0;--txt:#f0f4fa}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#25324a,var(--bg) 70%);font-family:system-ui,-apple-system,'Noto Sans JP',sans-serif;color:var(--txt);min-height:100dvh}main{max-width:650px;margin:auto;padding:16px 12px 35px}h1{font-size:clamp(24px,6vw,34px);letter-spacing:.025em;margin:8px 0 3px;text-align:center}header p{text-align:center;color:#9bacc3;margin:0 0 18px;font-size:12px}.panel{background:var(--panel);border:1px solid #35445c;border-radius:16px;padding:13px;margin:12px 0;box-shadow:0 10px 30px #0002}.status{display:flex;align-items:center;justify-content:space-between;gap:10px}.status strong{font-size:19px}.muted{color:#a8b7cc;font-size:12px}.piece{width:52px;height:52px;display:grid;place-items:center;flex-shrink:0}.piece svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px #0006)}.next{display:flex;align-items:center;gap:13px}.next .piece{width:65px;height:65px;background:#111b2b;border:1px solid #53627c;border-radius:13px;padding:8px}.next .small{font-size:12px;color:#a8b7cc}.board{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;max-width:600px;margin:auto}.cell{appearance:none;border:1px solid var(--edge);border-radius:5px;aspect-ratio:1;background:var(--cell);padding:2px;display:grid;place-items:center;min-width:0;touch-action:manipulation;position:relative}.cell:focus-visible{outline:2px solid #fff;outline-offset:1px}.cell.legal{background:#235345;border-color:#5ab997;cursor:pointer}.cell.legal:before{content:'+';color:#87e2c0;font-size:clamp(12px,3.5vw,21px);font-weight:400;opacity:.8}.cell.occupied{background:#283346}.cell svg{width:100%;height:100%;max-width:44px}.cell.winline{background:#725a20;box-shadow:inset 0 0 0 3px #ffd76a}.owner{position:absolute;bottom:0;right:1px;background:#0c1420e6;border:1px solid #eee8;border-radius:3px;font-weight:900;font-size:clamp(8px,2.1vw,12px);line-height:1.15;padding:1px 2px}.owner.p1{color:#83b9ff}.owner.p2{color:#ffab9e}.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}button.action{background:#34445e;border:1px solid #5b6e8d;border-radius:10px;padding:11px 14px;color:white;font-size:14px;font-weight:700;cursor:pointer}button.action.primary{background:#197a61;border-color:#49c6a1}button.action:disabled{opacity:.45;cursor:not-allowed}.note{color:#b1c0d4;font-size:12px;line-height:1.7}.stats{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#b1c0d4}.result{font-size:18px;font-weight:800;color:#ffe28b}.hidden{display:none!important}dialog{border:1px solid #526582;background:#1b2639;color:#f3f5fa;border-radius:18px;max-width:min(94vw,420px);padding:23px;box-shadow:0 20px 80px #0009}dialog::backdrop{background:#050911ba}dialog h2{margin:0 0 10px}dialog p{line-height:1.7}.legend{display:flex;gap:12px;justify-content:center;font-size:12px;color:#afbdd1}.legend b{color:#6cddbb}#message{min-height:19px;text-align:center;font-size:13px;color:#ffdd8b;margin:8px 0}#announce{font-size:12px;color:#a8b7cc}.instructions{line-height:1.8;font-size:13px;color:#c3cee0}footer{text-align:center;font-size:11px;color:#8c9cb1;margin-top:16px}@media(max-width:400px){main{padding:12px 8px 24px}.panel{padding:10px}.board{gap:2px}.cell{border-radius:3px;padding:1px}.status strong{font-size:16px}}
+
+.turn-banner{border:2px solid #53627c;border-radius:14px;padding:12px 14px;text-align:center;margin-bottom:12px;transition:background .15s,border-color .15s}.turn-banner.p1{background:#18395c;border-color:#76b8ff}.turn-banner.p2{background:#5a302d;border-color:#ffab9e}.turn-banner.idle{background:#263145}.turn-banner .turn-main{font-size:clamp(23px,6vw,32px);font-weight:900;letter-spacing:.05em}.turn-banner .turn-sub{font-size:12px;margin-top:3px;color:#d8e2ef}.status strong{font-size:16px}button.action.undo{background:#51436a;border-color:#9580bd}button.action.undo:disabled{opacity:.35}
+
+.start-screen{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at top,#2b405d,#101521 75%);display:flex;align-items:center;justify-content:center;padding:20px}.start-card{width:min(100%,440px);text-align:center;background:#1b2435;border:1px solid #51617a;border-radius:24px;padding:32px 22px;box-shadow:0 24px 80px #0008}.start-card h1{font-size:clamp(29px,8vw,42px)}.start-card p{color:#bac8dc;line-height:1.8}.menu-buttons{display:grid;gap:12px;margin-top:25px}.menu-buttons button{font-size:19px;padding:16px}.option-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-top:1px solid #43516a}.option-row input{width:24px;height:24px;accent-color:#65d6b0}.call{background:#9a6420!important;border-color:#e7b15b!important}.mode-label{font-size:12px;color:#f2d493;text-align:center;margin-top:8px}.hand-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.hand-slot{background:#26354b;border:2px solid #52647f;border-radius:12px;min-height:86px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}.hand-slot.selected{border-color:#6be6b7;background:#234e48;box-shadow:0 0 0 2px #64d9ac55}.hand-slot .piece{width:49px;height:49px}.hand-slot:disabled{opacity:.45;cursor:default}.hand-slot small{font-size:11px}.mode-label{line-height:1.7}.hand-group{margin-top:12px}.hand-group.compact{opacity:.83}.hand-group .hand-heading{font-size:13px;font-weight:800;margin:0 0 7px}.hand-group.compact .hand-row{gap:7px}.hand-group.compact .hand-slot{min-height:54px;padding:4px;cursor:default;background:#202c3d}.hand-group.compact .hand-slot .piece{width:29px;height:29px}.hand-group.compact .hand-slot small{font-size:10px}.hand-group.compact .hand-slot:disabled{opacity:1}.hand-group.active .hand-heading{color:#8ce6c7}.hand-group.compact .hand-heading{color:#b6c4d8}.hand-slot.empty{opacity:.45}.call-overlay{position:fixed;inset:0;z-index:60;background:#060a15eb;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}.call-overlay.hidden{display:none!important}.call-card{position:relative;padding:25px;width:min(92vw,500px)}.call-kicker{font-weight:900;letter-spacing:.25em;color:#f6ce7b;font-size:clamp(17px,5vw,25px)}.call-number{font-size:clamp(125px,35vw,230px);font-weight:1000;line-height:1.15;color:#fff;text-shadow:0 0 20px #8dbdff,0 0 65px #4a6fff;animation:countPop .8s both}.call-result{font-size:clamp(52px,13vw,90px);font-weight:1000;line-height:1.25;animation:resultPop .65s both}.call-result.success{color:#ffe187;text-shadow:0 0 22px #e8a922,0 0 85px #e8a922}.call-result.failure{color:#ff8e9b;text-shadow:0 0 22px #e34c64,0 0 85px #e34c64}.call-detail{font-size:clamp(16px,4vw,23px);font-weight:800;margin-top:14px}.call-overlay.success{background:radial-gradient(circle,#76531d 0%,#14101a 65%,#060a15 100%)}.call-overlay.failure{background:radial-gradient(circle,#602131 0%,#14101a 65%,#060a15 100%)}.call-overlay.success:before{content:'✦  ✨  ✦  ★  ✨  ✦  ★  ✨  ✦';position:absolute;inset:10% -20%;font-size:clamp(22px,7vw,54px);letter-spacing:24px;color:#ffe187;animation:shimmer 1.4s ease-in-out infinite alternate;pointer-events:none}@keyframes countPop{0%{transform:scale(2);opacity:0}25%{transform:scale(.95);opacity:1}70%{transform:scale(1)}100%{opacity:1}}@keyframes resultPop{0%{transform:scale(.2) rotate(-9deg);opacity:0}70%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}@keyframes shimmer{from{opacity:.2;transform:rotate(-7deg) scale(.85)}to{opacity:1;transform:rotate(7deg) scale(1.15)}}
+.turn-main,.turn-sub,.hand-heading,#counts,#turnLabel,#announce,.call-detail{overflow-wrap:anywhere;min-width:0}.status>div:first-child{min-width:0}#moveCount{flex-shrink:0}.start-screen{overflow:auto}.wg-home{display:inline-block;color:#b1c0d4;font-size:12px;margin-top:12px;padding:8px;text-decoration:none}
+</style></head><body><section id="startScreen" class="start-screen"><div class="start-card"><h1>MEMORY LINE</h1><p>Waiting Game<br>記憶力 × 五目並べ</p><div class="menu-buttons"><button class="action primary" id="menuStart">スタート</button><button class="action" id="menuRules">ルール</button><button class="action" id="menuOptions">オプション</button></div><a class="wg-home" id="menuGames" href="../index.html">← GAMES</a><p class="muted">v0.5 · 2人用</p></div></section><main><header><h1>MEMORY LINE</h1><p>Waiting Game · 記憶力 × 五目並べ · v0.5</p></header>
+<section class="panel"><div id="turnBanner" class="turn-banner idle" aria-live="polite"><div class="turn-main" id="turnMain">ゲーム準備中</div><div class="turn-sub" id="turnSub">開始すると先手をランダムで決定します</div></div><div class="status"><div><strong id="turnLabel">ゲーム準備中</strong><div id="announce">先手はランダムで決定します</div></div><div id="moveCount" class="muted">0 / 81 手</div></div><div class="next" id="normalHand" style="margin-top:12px"><div class="piece" id="nextPiece"></div><div><div class="small">次に置く駒</div><strong id="nextText">ゲーム開始を押してください</strong></div></div>
+<div id="advancedHand" class="hidden"><div class="muted" style="margin:12px 0 8px">自分の駒を選択してください。相手の駒も確認できます。</div><div id="bothHands"></div></div></section>
+<section class="panel"><div class="stats"><span>9 × 9 BOARD</span><span id="counts">P1: 0個　P2: 0個</span></div><div id="board" class="board" role="grid" aria-label="9×9ゲーム盤" style="margin-top:12px"></div><div id="message" aria-live="polite"></div><div class="legend"><span><b>＋</b> 配置可能</span><span>駒の所有者は終了まで非公開</span></div></section>
+<section class="panel"><div class="mode-label" id="modeLabel">勝利判定：AUTO</div><div class="controls"><button class="action call hidden" id="callBtn">🏆 CALL！ 完成を宣言</button><button class="action primary" id="startBtn">ゲーム開始</button><button class="action undo" id="undoBtn" disabled>↶ 1手戻る</button><button class="action" id="restartBtn" disabled>最初から</button><button class="action" id="rulesBtn">ルール</button><button class="action" id="titleBtn">タイトルへ</button></div><p class="note" style="margin-bottom:0;text-align:center">所有者は確認できません。「1手戻る」で直前の配置のみ取り消せます。</p></section><div class="controls"><a class="wg-home" id="gamesLink" href="../index.html">← GAMES</a></div><footer>Waiting Memory Line · Offline single-file game</footer></main>
+<dialog id="optionsDialog"><h2>オプション</h2><label class="option-row"><span><strong>CALL制度</strong><br><small>ON：5個並べたら自分の手番で宣言して勝利<br>OFF：5個並べた瞬間に自動勝利</small></span><input type="checkbox" id="callOption"></label>
+<label class="option-row"><span><strong>CALL失敗時のペナルティ</strong><br><small>有り：失敗すると自分の手番を飛ばす</small></span><input type="checkbox" id="penaltyOption"></label>
+<label class="option-row"><span><strong>先手三三禁止</strong><br><small>先手が所有する駒で活三を2方向同時に作る手を禁止（両モード共通）</small></span><input type="checkbox" id="doubleThreeOption"></label>
+<label class="option-row"><span><strong>上級モード</strong><br><small>5色×5形状・各プレイヤー3個の手持ち<br>自分の駒5連続／異なる5色／異なる5形状で勝利</small></span><input type="checkbox" id="advancedOption"></label>
+<p class="note">設定は次に開始するゲームから適用されます。ペナルティはCALL制度がONのときのみ有効です。</p><div class="controls"><button class="action primary" id="closeOptions">閉じる</button></div></dialog><dialog id="titleDialog"><h2>タイトルに戻りますか？</h2><p>現在の対局は終了します。</p><div class="controls"><button class="action" id="cancelTitle">キャンセル</button><button class="action primary" id="confirmTitle">タイトルへ</button></div></dialog><dialog id="rulesDialog"><h2>遊び方</h2><div class="instructions" id="rulesContent">2人で1台の画面を共有して遊びます。<br>① 先手はP1・P2からランダムに決まります。<br>② 毎手、4色×4形状からランダムに1個の駒が配られます。<br>③ 最初の1手はどこでも配置できます。以降は、既存の駒の縦・横・斜め1マス以内にある緑色の空きマスに置きます。<br>④ 自分が置いた駒を、縦・横・斜めに5個連続させると勝利です。色と形は問いません。<br>⑤ 対戦中、駒の所有者は表示されません。配置場所を覚えてください。<br>⑥ 終了時に全駒の所有者を公開し、勝利ラインを金色で強調します。81マスが埋まって勝者がいなければ引き分けです。<br>⑦ 「1手戻る」で直前の配置を取り消せます。<br>⑧ オプションのCALL制度をONにすると、5個並んでも自動勝利せず、自分の手番で「CALL！」を押して宣言します。成功なら勝利、失敗ならそのまま手番を続けます。戻した駒と手番は元に戻ります。</div><div class="controls" style="margin-top:16px"><button class="action primary" id="closeRules">閉じる</button></div></dialog>
+<dialog id="confirmDialog"><h2>最初からやり直しますか？</h2><p>現在の盤面は消去され、新しいゲームが始まります。</p><div class="controls"><button class="action" id="cancelRestart">キャンセル</button><button class="action primary" id="confirmRestart">やり直す</button></div></dialog>
+<div id="callOverlay" class="call-overlay hidden" role="status" aria-live="assertive" aria-atomic="true"><div class="call-card"><div class="call-kicker" id="callKicker">CALL!</div><div id="callStage" class="call-number">3</div><div id="callDetail" class="call-detail"></div></div></div>
+<script>
+(()=>{'use strict';
+const N=9,S=81,$=id=>document.getElementById(id);
+const colors=['#f0796d','#e7bf59','#59c9a5','#78aaf7','#b78adb'],names=['赤','黄','緑','青','紫'],shapes=['丸','四角','三角','菱形','五角形'];
+const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+let board,turn,next,active=false,ended=false,winlines=[],moves=0,first,history=[],hands,selected=0,locked=false,callToken=0,settings={call:false,penalty:false,advanced:false,doubleThree:false},game={...settings},result='',message='';
+const rand=n=>Math.floor(Math.random()*n);
+const makePiece=()=>({color:rand(game.advanced?5:4),shape:rand(game.advanced?5:4)});
+const clone=x=>JSON.parse(JSON.stringify(x));
+function playerName(player){
+ try{
+  const saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'null');
+  const name=Array.isArray(saved)&&typeof saved[player-1]==='string'?saved[player-1].trim().slice(0,16):'';
+  if(name)return name;
+ }catch(error){}
+ return 'P'+player;
+}
+function quitGames(event){
+ event.preventDefault();
+ if(locked)return;
+ if(active&&!ended&&!confirm('対局を終了してGAMESへ戻りますか？'))return;
+ cancelCallAnimation();window.location.href='../index.html';
+}
+$('menuGames').addEventListener('click',quitGames);
+$('gamesLink').addEventListener('click',quitGames);
+function pieceSvg(p){if(!p)return '';const element=[
+'<circle cx="24" cy="24" r="17"/>',
+'<rect x="8" y="8" width="32" height="32" rx="2"/>',
+'<polygon points="24,5 44,41 4,41"/>',
+'<polygon points="24,4 44,24 24,44 4,24"/>',
+'<polygon points="24,4 43,18 36,42 12,42 5,18"/>'][p.shape];
+return `<svg viewBox="0 0 48 48" aria-hidden="true"><g fill="${colors[p.color]}" stroke="#ffffff66" stroke-width="1.2">${element}</g></svg>`}
+function legal(i){
+ if(board[i]||!active||ended||locked)return false;
+ if(moves===0)return true;
+ const r=Math.floor(i/N),c=i%N;
+ const reach=game.advanced?2:1;
+ for(let dr=-reach;dr<=reach;dr++)for(let dc=-reach;dc<=reach;dc++){
+  if(!dr&&!dc)continue;
+  let rr=r+dr,cc=c+dc;
+  if(rr>=0&&rr<N&&cc>=0&&cc<N&&board[rr*N+cc])return true;
+ }
+ return false;
+}
+function isOpenThreeDirection(index,owner,dr,dc){
+ const r=Math.floor(index/N),c=index%N;
+ // A live three is a three-stone threat which can become an open four in one move.
+ // Test all 6-cell windows containing the new stone: empty + 4 owned + empty,
+ // where exactly one of the 4 inner cells is currently empty.
+ for(let offset=-5;offset<=0;offset++){
+  const cells=[];
+  for(let k=0;k<6;k++){
+   const rr=r+(offset+k)*dr,cc=c+(offset+k)*dc;
+   if(rr<0||rr>=N||cc<0||cc>=N){cells.length=0;break}
+   cells.push(rr*N+cc);
+  }
+  if(cells.length!==6||!cells.includes(index))continue;
+  if(board[cells[0]]||board[cells[5]])continue;
+  const middle=cells.slice(1,5);
+  if(middle.filter(i=>board[i]?.owner===owner).length===3&&middle.filter(i=>!board[i]).length===1)return true;
+ }
+ return false;
+}
+function createsDoubleThree(index,owner){
+ if(!game.doubleThree||owner!==first)return false;
+ return dirs.filter(([dr,dc])=>isOpenThreeDirection(index,owner,dr,dc)).length>=2;
+}
+function linesAt(index){
+ const r=Math.floor(index/N),c=index%N,lines=[];
+ for(const [dr,dc] of dirs){
+  for(let offset=-4;offset<=0;offset++){
+   const cells=[];
+   for(let k=0;k<5;k++){
+    const rr=r+(offset+k)*dr,cc=c+(offset+k)*dc;
+    if(rr<0||rr>=N||cc<0||cc>=N){cells.length=0;break}
+    cells.push(rr*N+cc);
+   }
+   if(cells.length===5&&cells.every(i=>board[i]))lines.push(cells);
+  }
+ }
+ return lines;
+}
+function lineType(line,owner){
+ const ps=line.map(i=>board[i]);
+ if(ps.every(p=>p.owner===owner))return '自分の駒5連続';
+ if(game.advanced&&new Set(ps.map(p=>p.color)).size===5)return '異なる5色';
+ if(game.advanced&&new Set(ps.map(p=>p.shape)).size===5)return '異なる5形状';
+ return '';
+}
+function completedByLast(index,owner){
+ for(const line of linesAt(index)){
+  const type=lineType(line,owner);
+  if(type)return {line,type};
+ }
+ return null;
+}
+function anyOwnerLine(owner){
+ for(let i=0;i<S;i++)if(board[i]){
+  for(const line of linesAt(i)){
+   const type=lineType(line,owner);
+   if(!type)continue;
+   if(type!=='自分の駒5連続'){
+    // A mixed line belongs to whoever placed its last piece, even on a later CALL.
+    const latest=line.reduce((a,b)=>board[a].placedAt>board[b].placedAt?a:b);
+    if(!Number.isInteger(board[latest].placedAt)||board[latest].owner!==owner)continue;
+   }
+   return {line,type};
+  }
+ }
+ return null;
+}
+function finish(owner,found){
+ ended=true;result=String(owner);winlines=found.line;
+ message=`${playerName(owner)} 勝利！ ${found.type}（${moves}手）`;
+}
+function drawHand(){
+ $('normalHand').classList.toggle('hidden',game.advanced);
+ $('advancedHand').classList.toggle('hidden',!game.advanced);
+ $('nextPiece').innerHTML=active&&!ended&&!game.advanced?pieceSvg(next):'';
+ $('nextText').textContent=active&&!ended&&!game.advanced?`${names[next.color]}・${shapes[next.shape]}`:'ゲーム終了 / 待機中';
+ const host=$('bothHands');host.replaceChildren();
+ if(!game.advanced)return;
+ const players=active&&!ended?[turn,3-turn]:[1,2];
+ for(const player of players){
+  const mine=player===turn&&active&&!ended;
+  const group=document.createElement('div');group.className='hand-group '+(mine?'active':'compact');
+  const heading=document.createElement('div');heading.className='hand-heading';heading.textContent=`${playerName(player)} ${mine?'｜ 手番・選択可能':'｜ 手持ち公開'}`;group.append(heading);
+  const row=document.createElement('div');row.className='hand-row';
+  for(let k=0;k<3;k++){
+   const p=hands?.[player]?.[k],b=document.createElement('button');b.type='button';
+   b.className='hand-slot'+(mine&&k===selected?' selected':'')+(!p?' empty':'');
+   b.disabled=!mine||locked||!p;
+   b.innerHTML=p?`<span class="piece">${pieceSvg(p)}</span><small>${names[p.color]}・${shapes[p.shape]}</small>`:'<small>使用済み</small>';
+   b.setAttribute('aria-label',`${playerName(player)} 手持ち${k+1} ${p?names[p.color]+' '+shapes[p.shape]:'空き枠'}`);
+   if(mine)b.addEventListener('click',()=>{if(locked)return;selected=k;render()});row.append(b);
+  }
+  group.append(row);host.append(group);
+ }
+}
+function render(){
+ const grid=$('board');grid.replaceChildren();
+ for(let i=0;i<S;i++){
+  const p=board[i],b=document.createElement('button');b.type='button';
+  b.className='cell'+(p?' occupied':'')+(legal(i)?' legal':'')+(winlines.includes(i)?' winline':'');
+  b.setAttribute('role','gridcell');
+  b.setAttribute('aria-label',`行${Math.floor(i/N)+1} 列${i%N+1} ${p?'配置済み':legal(i)?'配置可能':'配置不可'}`);
+  if(p){
+   b.innerHTML=pieceSvg(p);
+   if(ended){const label=document.createElement('span');label.className='owner p'+p.owner;label.textContent='P'+p.owner;label.title=playerName(p.owner);b.append(label)}
+  }
+  b.disabled=!legal(i);b.addEventListener('click',()=>place(i));grid.append(b);
+ }
+ const banner=$('turnBanner');
+ banner.className='turn-banner '+(active&&!ended?'p'+turn:'idle');
+ $('turnMain').textContent=ended?(result?playerName(Number(result))+' 勝利！':'引き分け'):active?playerName(turn)+' の番！':'ゲーム準備中';
+ $('turnSub').textContent=ended?'対戦終了・所有者公開中':active?playerName(turn)+' が緑色のマスに駒を置いてください':'開始すると先手をランダムで決定します';
+ $('undoBtn').disabled=!history.length||locked;
+ $('callBtn').classList.toggle('hidden',!active||ended||!game.call);$('callBtn').disabled=locked;
+ $('modeLabel').textContent=`${game.advanced?'上級モード':'通常モード'} ｜ ${game.call?'CALL（自己宣言）':'AUTO（自動判定）'}${game.call&&game.penalty?' ｜ CALL失敗で手番スキップ':''}${game.doubleThree?' ｜ 先手三三禁止':''}`;
+ $('moveCount').textContent=`${moves} / 81 手`;
+ $('counts').textContent=`${playerName(1)}: ${board.filter(p=>p?.owner===1).length}個　${playerName(2)}: ${board.filter(p=>p?.owner===2).length}個`;
+ $('turnLabel').textContent=ended?(result?`${playerName(Number(result))} の勝利！`:'引き分け'):active?`${playerName(turn)} の手番`:'ゲーム準備中';
+ $('announce').textContent=ended?'全駒の所有者を公開しました':active?`先手：${playerName(first)}　｜　現在：${playerName(turn)}`:'先手はランダムで決定します';
+ $('startBtn').disabled=active||ended;$('startBtn').classList.toggle('hidden',active||ended);
+ $('restartBtn').disabled=!active&&!ended;
+ $('message').textContent=message;
+ drawHand();
+}
+function snapshot(){history.push({board:clone(board),turn,next:next?clone(next):null,hands:clone(hands),selected,moves,ended,winlines:clone(winlines),result,message})}
+function refill(player){if(!game.advanced)return;hands[player]=hands[player].map(p=>p||makePiece())}
+function advance(){
+ turn=3-turn;
+ if(game.advanced){refill(turn);selected=0}else next=makePiece();
+}
+function place(i){
+ if(!legal(i)||locked)return;
+ const p=game.advanced?hands[turn][selected]:next;
+ if(!p)return;
+ snapshot();board[i]={...p,owner:turn,placedAt:moves+1};
+ if(createsDoubleThree(i,turn)){
+  board[i]=null;history.pop();message='先手三三禁止：この場所には置けません。別のマスを選んでください。';render();return;
+ }
+ moves++;
+ if(game.advanced)hands[turn][selected]=null;
+ const found=completedByLast(i,turn);
+ if(found&&!game.call)finish(turn,found);
+ else if(moves===S){
+  if(game.call){
+   // On a full board the current player gets one last chance to CALL.
+   message='盤面が埋まりました。完成していればCALLしてください。';
+   // The full-board draw is handled after the last player's CALL decision.
+  }else{ended=true;result='';message='引き分け！ 盤面がすべて埋まりました。'}
+ }else{advance();message=''}
+ render();
+}
+function undo(){
+ if(!history.length||locked)return;
+ const h=history.pop();
+ ({board,turn,next,hands,selected,moves,ended,winlines,result,message}=h);
+ message='直前の操作を取り消しました';
+ render();
+}
+function start(){
+ cancelCallAnimation();game={...settings};board=Array(S).fill(null);hands={1:[],2:[]};
+ if(game.advanced){hands[1]=Array.from({length:3},makePiece);hands[2]=Array.from({length:3},makePiece)}
+ history=[];first=rand(2)+1;turn=first;selected=0;
+ next=game.advanced?null:makePiece();
+ active=true;ended=false;winlines=[];moves=0;result='';message='';
+ $('startScreen').classList.add('hidden');render();
+}
+function cancelCallAnimation(){
+ callToken++;locked=false;$('callOverlay').className='call-overlay hidden';
+}
+function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+async function call(){
+ if(!active||ended||!game.call||locked)return;
+ locked=true;const token=++callToken;
+ const overlay=$('callOverlay'),stage=$('callStage'),detail=$('callDetail');
+ overlay.className='call-overlay';$('callKicker').textContent='CALL CHALLENGE';detail.textContent='';render();
+ for(let n=3;n>=1;n--){
+  if(token!==callToken)return;
+  stage.className='call-number';stage.textContent=String(n);
+  stage.style.animation='none';void stage.offsetWidth;stage.style.animation='';
+  await wait(1000);
+ }
+ if(token!==callToken)return;
+ const found=anyOwnerLine(turn);
+ if(found){snapshot();finish(turn,found)}
+ else if(game.penalty){snapshot();const caller=turn;advance();message=`CALL失敗！ ${playerName(caller)} の手番を飛ばしました。`}
+ else message='CALL失敗！ 手番はそのままです。';
+ if(moves===S&&!found){ended=true;result='';message+=' 盤面が満杯のため引き分けです。'}
+ overlay.className='call-overlay '+(found?'success':'failure');
+ $('callKicker').textContent=found?'✦ VICTORY ✦':'CALL RESULT';
+ stage.className='call-result '+(found?'success':'failure');stage.textContent=found?'SUCCESS!':'FAILED!';
+ detail.textContent=found?`${playerName(turn)} WIN! ${found.type}`:game.penalty?'失敗：手番スキップ':'失敗：手番継続';
+ await wait(2100);
+ if(token!==callToken)return;
+ locked=false;overlay.className='call-overlay hidden';render();
+}
+function openRules(){
+ $('rulesContent').innerHTML=`2人で1台の画面を共有して遊びます。<br>
+① 先手はP1・P2からランダムに決まります。<br>
+② 最初の1手は自由配置。以降は既存の駒から通常モードは周囲1マス、上級モードは周囲2マス以内に配置します。<br>
+③ 所有者は対戦中は非表示です。終了時に公開されます。<br>
+④ 通常モード：4色×4形状から毎手ランダム配布。自分の駒5連続で勝利。<br>
+⑤ 上級モード：5色×5形状。P1・P2それぞれ3個の手持ちは双方に公開。手番側を大きく表示し、1つ選んで配置します。使用枠は次の自分の手番開始時に補充。<br>
+⑥ 上級モードの勝利条件は「自分の駒5連続」「異なる5色」「異なる5形状」のいずれか。後者2つは所有者が混在してもよく、最後の駒を置いて完成させた人が勝ちです。<br>
+⑦ CALLがONなら、自分の手番でCALLを宣言して勝利します。5色・5形状のラインは、最後の駒を置いて完成させた人だけがCALLできます。失敗時の手番スキップはオプションで設定できます。<br>
+⑧ 先手三三禁止ONでは、先手が自分の所有する駒で2方向以上に活三を同時に作る配置は禁止です。色・形状は判定対象外です。<br>⑨ CALLは3→2→1の後に成功・失敗を発表します。<br>⑩ 1手戻るで直前の配置や手番スキップを取り消せます。`;
+ $('rulesDialog').showModal();
+}
+$('startBtn').addEventListener('click',start);
+$('menuStart').addEventListener('click',start);
+$('menuRules').addEventListener('click',openRules);
+$('rulesBtn').addEventListener('click',openRules);
+$('menuOptions').addEventListener('click',()=>$('optionsDialog').showModal());
+$('closeOptions').addEventListener('click',()=>$('optionsDialog').close());
+$('callOption').addEventListener('change',e=>{settings.call=e.target.checked;$('penaltyOption').disabled=!settings.call});
+$('penaltyOption').addEventListener('change',e=>settings.penalty=e.target.checked);
+$('advancedOption').addEventListener('change',e=>settings.advanced=e.target.checked);
+$('doubleThreeOption').addEventListener('change',e=>settings.doubleThree=e.target.checked);
+$('penaltyOption').disabled=true;
+$('callBtn').addEventListener('click',call);
+$('titleBtn').addEventListener('click',()=>$('titleDialog').showModal());
+$('cancelTitle').addEventListener('click',()=>$('titleDialog').close());
+$('confirmTitle').addEventListener('click',()=>{
+ $('titleDialog').close();cancelCallAnimation();active=false;ended=false;history=[];board=Array(S).fill(null);
+ moves=0;winlines=[];result='';message='';$('startScreen').classList.remove('hidden');render();
+});
+$('undoBtn').addEventListener('click',undo);
+$('restartBtn').addEventListener('click',()=>$('confirmDialog').showModal());
+$('cancelRestart').addEventListener('click',()=>$('confirmDialog').close());
+$('confirmRestart').addEventListener('click',()=>{$('confirmDialog').close();start()});
+$('closeRules').addEventListener('click',()=>$('rulesDialog').close());
+board=Array(S).fill(null);hands={1:[],2:[]};next=null;render();
+})();
+</script></body></html>

@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.02-cards-derby-v1",
-  "generatedAt": "2026-11-02",
+  "version": "2026.11.07-memory-line-v05",
+  "generatedAt": "2026-11-07",
   "core": [
     "./",
     "index.html",
@@ -109,6 +109,16 @@
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
+      ]
+    },
+    {
+      "id": "memory-line",
+      "title": "WAITING MEMORY LINE",
+      "type": "game",
+      "version": "v0.5",
+      "url": "games/memory-line.html",
+      "files": [
+        "games/memory-line.html"
       ]
     }
   ]
