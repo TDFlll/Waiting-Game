@@ -25,7 +25,7 @@ function game(mode='double',seed=1){
  log=function(t){S.log.push(t);S.turnEvents.push(t)};
  window.api={get state(){return S},get bases(){return BASE_CARDS},init(mode){uid=1;DECK_MODE=mode;S=newState();busy=false;scriptedChoices=[];fieldChoice=null;fieldChoices=[];choiceHistory=[]},
  get uid(){return uid},get choiceHistory(){return choiceHistory},playFromHand,specialSummonDragon,resolveMagicEffect,activateInstant,forgeryEffect,vampireEffect,attackFlow,triggerAttackTraps,cpuAttackScore,cpuCardScore,cpuPickField,cpuPickOption,cpuMaybeTime,canAttack,cardAtk,pierceValue,gainPierceEmblem,emblemOptions,graveFor,graveEntries,putGrave,sendGrave,sendMonsterFromField,destroyWholeLane,monsterBattle,revivalEffect,magicBookEffect,faithStartOption,resolvePending,showGrave,
- deckFor,deckEntries,draw,handLimit,gamblingEffect,necromancerEffect,swapPotEffect,transformEffect,findAnywhere,locateCard,captureLocations,removeLocated,placeByDescriptor,saveSnapshot,rewindOwnField,checkStalemate,summon,takeGrave,cloneCard,useTimeMagic,startTurn,showRules,realRender,
+ deckFor,deckEntries,draw,handLimit,applyDebilitate,necromancerEffect,swapPotEffect,transformEffect,findAnywhere,locateCard,captureLocations,removeLocated,placeByDescriptor,saveSnapshot,rewindOwnField,checkStalemate,summon,takeGrave,cloneCard,useTimeMagic,startTurn,endTurn,showRules,realRender,
  choices(...v){scriptedChoices=v},pick(v){fieldChoice=v},picks(...v){fieldChoices=v},setCpu(){GAME_MODE='CPU'},
  card(id,p){const c=cloneCard(BASE_CARDS.find(b=>b.id===id));c.originalDeck=p;return c}
  };

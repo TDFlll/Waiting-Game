@@ -18,7 +18,7 @@ test('updated definitions include renamed families and new monster stats without
  const revival=api.bases.find(c=>c.id===100),destruction=api.bases.find(c=>c.id===110),deadEyes=api.bases.find(c=>c.id===6);
  assert.equal(revival.name,'復活の書');assert.equal(revival.isBook,true);assert.equal(revival.magicFamily,undefined);
  assert.equal(destruction.name,'破壊の儀');assert.equal(destruction.magicFamily,'rite');
- assert.equal(deadEyes.debilitate,2);assert.equal(deadEyes.pierce,1);assert.equal(api.bases.find(c=>c.id===1).pierce,1);
+ assert.equal(deadEyes.debilitate,undefined);assert.equal(deadEyes.pierce,undefined);assert.equal(api.bases.find(c=>c.id===1).pierce,1);
 });
 
 test('dragon special summon consumes one AP and a field monster, then removes an enemy card',async()=>{
@@ -50,8 +50,9 @@ test('golem survives winning battles until its third completed battle',async()=>
  assert.ok(api.graveFor(0).includes(golem));
 });
 
-test('golem no longer has first-tie destruction immunity',async()=>{
+test('golems survive ties in their first two battles and both leave after the third',async()=>{
  const {api}=setup();const a=api.card(2,0),b=api.card(2,1);putOnField(api,a);putOnField(api,b,1);
+ for(let i=0;i<2;i++){await api.monsterBattle(0,0);assert.equal(api.state.players[0].monster[0],a);assert.equal(api.state.players[1].monster[0],b);}
  await api.monsterBattle(0,0);assert.ok(api.graveFor(0).includes(a));assert.ok(api.graveFor(1).includes(b));
 });
 
@@ -67,10 +68,10 @@ test('emblem affects only later summons, grants piercing or one attack point, an
  const p=api.card(4,0);await api.summon(p,0,1);assert.equal(api.pierceValue(p),1);assert.equal(api.cardAtk(p),8);
 });
 
-test('dead eyes uses new weakening and piercing without opening a trap-peek dialog',async()=>{
+test('dead eyes no longer weakens on battle or deals piercing damage and never peeks at traps',async()=>{
  const {api}=setup();const a=api.card(6,0),b=api.card(2,1);b.atkMod=-8;putOnField(api,b,1);
  await api.summon(a,0,0);assert.equal(api.choiceHistory.length,0);await api.monsterBattle(0,0);
- assert.equal(b.atkMod,-12);assert.equal(api.state.players[1].life,3);
+ assert.equal(b.atkMod,-8);assert.equal(api.state.players[1].life,4);
 });
 
 test('rider gets trap bonus and monster bonus independently, with AP capped at four',async()=>{
@@ -122,8 +123,9 @@ test('forgery swap remains a field selection and anti-undead rows remain immune'
 test('transform searches only the acting player deck for child dragon',async()=>{
  const {api}=setup();const before=api.deckFor(1).map(c=>c.uid).join(',');
  if(!api.deckFor(0).some(c=>c.id===3))api.deckFor(0).push(api.card(3,0));
- api.choices('search');assert.equal(await api.transformEffect(0),true);
- assert.equal(api.state.players[0].hand[0].id,3);assert.equal(api.state.players[0].hand[0].originalDeck,0);
+ api.choices('search');api.pick(fieldPick(0));assert.equal(await api.transformEffect(0),true);
+ assert.equal(api.state.players[0].monster[0].id,3);assert.equal(api.state.players[0].monster[0].originalDeck,0);
+ assert.equal(api.state.players[0].hand.length,0);assert.equal(api.canAttack(api.state.players[0].monster[0]),false);
  assert.equal(api.deckFor(1).map(c=>c.uid).join(','),before);
 });
 

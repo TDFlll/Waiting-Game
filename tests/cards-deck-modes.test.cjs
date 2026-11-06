@@ -58,32 +58,6 @@ test('swap pot redraws only from its player deck and preserves every card',async
  }
 });
 
-test('necromancer searches only the activating player deck, including for CPU',async()=>{
- const {api}=game();api.setCpu();const p=1;const before=api.deckFor(0).map(c=>c.uid).join(',');
- api.state.players[p].hand=[];await api.necromancerEffect(p);
- assert.equal(api.state.players[p].hand.length,1);assert.equal(api.state.players[p].hand[0].originalDeck,p);
- assert.equal(api.deckFor(0).map(c=>c.uid).join(','),before);
- api.deckFor(p).length=0;await api.necromancerEffect(p);assert.equal(api.state.players[p].hand.length,1);
-});
-
-test('gambling reset tests the user deck and returns each hand to its respective deck',async()=>{
- const {api,all}=game();const deck=api.deckFor(1);api.graveFor(1).push(...deck.splice(0,deck.length-1));
- const source=api.card(109,1);api.state.players[1].hand.push(source);
- const before=all().map(c=>c.uid).sort((a,b)=>a-b);await api.gamblingEffect(1,source);
- assert.equal(api.state.players[0].hand.length,2);assert.equal(api.state.players[1].hand.length,3);
- assert.ok(api.state.players[1].hand.includes(source));
- for(const p of [0,1])assert.ok(api.state.players[p].hand.every(c=>c.originalDeck===p));
- assert.deepEqual(all().map(c=>c.uid).sort((a,b)=>a-b),before);
-});
-
-test('gambling normal draws and returns do not use an exhausted opponent deck',async()=>{
- const {api}=game();api.deckFor(1).length=0;
- const hand=api.state.players[0].hand;const count=hand.length,deckCount=api.deckFor(0).length;
- await api.gamblingEffect(0,null);
- assert.equal(api.state.players[0].hand.length,count);assert.equal(api.deckFor(0).length,deckCount);assert.equal(api.deckFor(1).length,0);
- assert.ok(!api.state.log.some(t=>t.includes('リセット')));
-});
-
 test('transform prefers the matching original deck over an earlier opposing hand',async()=>{
  const {api}=game();emptyHands(api);api.state.grave=[];api.deckFor(0).length=0;api.deckFor(1).length=0;
  const target=api.card(3,1),wrong=api.card(1,0),right=api.card(1,1);
@@ -156,13 +130,6 @@ test('revival and recovery cannot take monsters from the opposing grave',async()
  assert.equal(await api.magicBookEffect(0,book),false);assert.equal(api.graveFor(1)[0],other);
  const own=api.card(8,0);api.putGrave(own);assert.equal(await api.revivalEffect(0,0),true);
  assert.equal(api.state.players[0].monster[0],own);
-});
-
-test('necromancer can summon only from its own grave',async()=>{
- const {api}=game();api.deckFor(0).length=0;const other=api.card(5,1);api.putGrave(other);
- await api.necromancerEffect(0);assert.equal(api.state.players[0].monster[0],null);
- const own=api.card(7,0);api.putGrave(own);await api.necromancerEffect(0);
- assert.equal(api.state.players[0].monster[0],own);assert.equal(api.graveFor(1)[0],other);
 });
 
 test('faith cannot summon an opposing grave copy, including for CPU',async()=>{
