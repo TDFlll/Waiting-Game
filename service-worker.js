@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.11.07-home-categories";
+const SW_VERSION = "2026.11.08-starting-player";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

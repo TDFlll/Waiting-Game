@@ -35,7 +35,7 @@ button{background:#16243a;border:1px solid #344760;color:#edf3fc;border-radius:1
 <div class="title-menu"><button id="startButton" class="primary">スタート</button><button id="optionsButton">オプション</button><button id="rulesButton">ルール</button></div>
 </section>
 <section id="optionsScreen" class="screen" hidden aria-label="オプション画面"><div class="panel-header"><h2 class="screen-heading" id="optionsHeading" tabindex="-1">オプション</h2><button id="optionsBack">タイトルへ戻る</button></div><p class="panel-copy">ゲームタイプを選んでください。次にスタートする対戦に適用されます。</p><div class="type-choices" role="group" aria-label="ゲームタイプ"><button id="wallType" class="type-choice" aria-pressed="true"><strong>wall type</strong><small>外周の無印・自分のコマを選ぶ</small></button><button id="freeType" class="type-choice" aria-pressed="false"><strong>free type</strong><small>盤面のどこでも無印を選ぶ</small></button></div><div class="option-description" id="typeDescription" role="status" aria-live="polite"></div><p class="rule-note">free typeでは、自分の色のコマも抜けません。無印のみを選びます。</p><div class="master-option"><div><strong><span class="master-symbol">★</span> マスターオブジェクト</strong><small>中央の★を、赤・青共通のコマにする</small></div><button id="masterToggle" class="master-toggle" aria-pressed="false" aria-label="マスターオブジェクト" aria-describedby="masterDescription">OFF</button></div><p id="masterDescription" class="master-note">OFF：通常の無印25個で始まります。</p></section>
-<section id="rulesScreen" class="screen" hidden aria-label="ルール画面"><div class="panel-header"><h2 class="screen-heading" id="rulesHeading" tabindex="-1">ルール</h2><button id="rulesBack">タイトルへ戻る</button></div><ol class="rule-list"><li>同じ端末で2人対戦。赤が先手、青が後手です。</li><li>ゲームタイプに応じて、抜き取るコマを1個選びます。</li><li>選んだ穴につながる行・列の端を、矢印で選びます。端から自分の色のコマを投入し、穴を埋めるように間のコマを1マスずつ動かします。</li><li>投入後は自動で手番が交代します。</li><li>縦・横・斜めのいずれかに同じ色が5個並んだら、その色のプレイヤーが勝利します。相手の色をそろえた場合は相手の勝利です。</li></ol><div class="rule-block"><h3>wall type</h3><p>外周の「無印」または「自分の色」のコマを抜けます。相手のコマ・内側のコマは抜けません。投入方向は角なら2方向、角以外なら3方向です。</p></div><div class="rule-block"><h3>free type</h3><p>盤面のどこにある無印でも抜けます。色の付いたコマは抜けません。内側の穴には、同じ行・列の上下左右4つの端から投入できます。</p></div><div class="rule-block"><h3><span class="master-symbol">★</span> マスターオブジェクト（ON時）</h3><p>開始時、中央のマスが黄色い★になります。★は赤・青どちらとしても数えます。同じ一直線に「自分の色4個＋★」をそろえると勝利です。★を含まない通常の5個並びも勝利です。★自体は選択・抜き取りできません。ほかのコマを抜き、空いた穴を埋めるスライドで★が押された場合は、ほかのコマと同じように1マス移動します。移動後も黄色い★のまま、赤・青共通のコマとして扱います。</p></div><p class="rule-note">どちらも、抜いた場所へそのまま戻すことはできません。赤青が同時に5個並んだ場合、または次のプレイヤーが選べるコマがなくなった場合は引き分けです。free typeでは盤面が埋まって勝者がいなければ引き分けとなります。</p></section>
+<section id="rulesScreen" class="screen" hidden aria-label="ルール画面"><div class="panel-header"><h2 class="screen-heading" id="rulesHeading" tabindex="-1">ルール</h2><button id="rulesBack">タイトルへ戻る</button></div><ol class="rule-list"><li>同じ端末で2人対戦。開始時に先手を選択、またはランダムで決めます。</li><li>ゲームタイプに応じて、抜き取るコマを1個選びます。</li><li>選んだ穴につながる行・列の端を、矢印で選びます。端から自分の色のコマを投入し、穴を埋めるように間のコマを1マスずつ動かします。</li><li>投入後は自動で手番が交代します。</li><li>縦・横・斜めのいずれかに同じ色が5個並んだら、その色のプレイヤーが勝利します。相手の色をそろえた場合は相手の勝利です。</li></ol><div class="rule-block"><h3>wall type</h3><p>外周の「無印」または「自分の色」のコマを抜けます。相手のコマ・内側のコマは抜けません。投入方向は角なら2方向、角以外なら3方向です。</p></div><div class="rule-block"><h3>free type</h3><p>盤面のどこにある無印でも抜けます。色の付いたコマは抜けません。内側の穴には、同じ行・列の上下左右4つの端から投入できます。</p></div><div class="rule-block"><h3><span class="master-symbol">★</span> マスターオブジェクト（ON時）</h3><p>開始時、中央のマスが黄色い★になります。★は赤・青どちらとしても数えます。同じ一直線に「自分の色4個＋★」をそろえると勝利です。★を含まない通常の5個並びも勝利です。★自体は選択・抜き取りできません。ほかのコマを抜き、空いた穴を埋めるスライドで★が押された場合は、ほかのコマと同じように1マス移動します。移動後も黄色い★のまま、赤・青共通のコマとして扱います。</p></div><p class="rule-note">どちらも、抜いた場所へそのまま戻すことはできません。赤青が同時に5個並んだ場合、または次のプレイヤーが選べるコマがなくなった場合は引き分けです。free typeでは盤面が埋まって勝者がいなければ引き分けとなります。</p></section>
 <section id="gameScreen" class="screen" hidden aria-label="対戦画面"><p id="gameMode" class="game-mode"></p>
 <div class="players"><div class="player" id="player1"><span class="symbol p1">●</span><div><strong>PLAYER 1 · 赤</strong><small>先手</small></div></div><div class="player" id="player2"><span class="symbol p2">◆</span><div><strong>PLAYER 2 · 青</strong><small>後手</small></div></div></div>
 <div class="status" role="status" aria-live="polite"><strong id="headline"></strong><small id="hint"></small></div>
@@ -45,8 +45,8 @@ button{background:#16243a;border:1px solid #344760;color:#edf3fc;border-radius:1
 <p class="notice" id="notice" aria-live="polite"></p>
 <details><summary>この対戦の遊び方</summary><p id="inGameRule"></p><p>矢印のある端をタップすると、自分の色を投入してコマをスライドします。縦・横・斜めに5個そろえば勝利です。</p></details>
 </section>
-<footer><span>WAITING SHIFT · v0.9.1 · 個人用</span><a id="gamesLink" class="wg-home" href="../index.html">← GAMES</a></footer>
-</main><div id="resetModal" class="modal" hidden><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle" aria-describedby="resetDescription"><h2 id="resetTitle">最初から始めますか？</h2><p id="resetDescription">現在の盤面をリセットして、赤の手番から始めます。</p><div class="modal-actions"><button id="resetCancel" type="button">続ける</button><button id="resetConfirm" type="button" class="primary">最初から始める</button></div></section></div><script>
+<footer><span>WAITING SHIFT · v0.9.2 · 個人用</span><a id="gamesLink" class="wg-home" href="../index.html">← GAMES</a></footer>
+</main><div id="resetModal" class="modal" hidden><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle" aria-describedby="resetDescription"><h2 id="resetTitle">最初から始めますか？</h2><p id="resetDescription">現在の盤面をリセットして、開始プレイヤーを選び直して始めます。</p><div class="modal-actions"><button id="resetCancel" type="button">続ける</button><button id="resetConfirm" type="button" class="primary">最初から始める</button></div></section></div><script>
 // Pure game rules. A move records the complete segment that will move.
 const edge=i=>Math.floor(i/5)===0||Math.floor(i/5)===4||i%5===0||i%5===4;
 function moves(b,p,type='wall'){const out=[];for(let i=0;i<25;i++){if(type==='free'?b[i]!==0:(!edge(i)||(b[i]!==0&&b[i]!==p)))continue;const r=Math.floor(i/5),c=i%5;for(const j of new Set([r*5,r*5+4,c,c+20])){if(j===i)continue;const step=Math.floor(j/5)===r?(j>i?1:-1):(j>i?5:-5);const path=[];for(let k=i;;k+=step){path.push(k);if(k===j)break}out.push({from:i,to:j,path})}}return out}
@@ -87,7 +87,8 @@ $('gamesLink').onclick=event=>{
 
   window.location.href='../index.html';
 };
-function start(){busy=false;$('resetModal').hidden=true;document.querySelector('main').inert=false;s={b:Array(25).fill(0),p:1,turn:1,result:null,type:selectedType,master:selectedMaster};if(s.master)s.b[12]=3;history=[];selected=null;showScreen('game')}
+async function requestStart(){const choice=await window.wgChooseStarter();if(choice)start(choice.index+1)}
+function start(starter=1){busy=false;$('resetModal').hidden=true;document.querySelector('main').inert=false;s={b:Array(25).fill(0),p:starter,first:starter,turn:1,result:null,type:selectedType,master:selectedMaster};if(s.master)s.b[12]=3;history=[];selected=null;for(let p=1;p<=2;p++)$('player'+p).querySelector('small').textContent=p===starter?'先手':'後手';showScreen('game')}
 function say(t){$('notice').textContent=t}
 async function animateSlide(b,p,m){
   const board=$('board'),cells=Array.from(board.children).slice(0,25),base=board.getBoundingClientRect();
@@ -154,8 +155,8 @@ function openReset(target='reset'){if(busy||screen!=='game')return;confirmTarget
 function closeReset(){$('resetModal').hidden=true;document.querySelector('main').inert=false;$(confirmTarget==='title'?'homeButton':'reset').focus()}
 function render(){if(!s||screen!=='game')return;say('');$('gameMode').textContent=s.type+' type · ★ '+(s.master?'ON':'OFF');$('legendText').textContent=(s.type==='free'?'どこでも無印を選択':'外周のコマを選択')+' → 矢印から押す';$('inGameRule').textContent=typeDescription(s.type)+(s.master?' '+masterRule:'');const over=!!s.result;for(let p=1;p<=2;p++)$('player'+p).classList.toggle('active',s.p===p&&!over);$('headline').textContent=busy?'スライド中…':over?(s.result.win===0?'引き分け':color(s.result.win)+' '+playerName(s.result.win)+' の勝利'):color(s.p)+' '+playerName(s.p)+' の手番';$('hint').textContent=busy?'コマを押し込んでいます。':over?s.result.reason:selected!==null?'矢印のある端をタップして、自分の色を投入します。':(s.type==='free'?'盤面のどこにある無印でも1個選べます。':'外周にある無印・自分の色のコマを1個選んでください。');$('turncount').textContent=s.turn+' 手目';const legal=moves(s.b,s.p,s.type),targets=selected===null?[]:legal.filter(m=>m.from===selected),wins=over?(s.result.win?lines(s.b,s.result.win):[...lines(s.b,1),...lines(s.b,2)]):[];$('board').setAttribute('aria-busy',String(busy));$('board').replaceChildren();for(let i=0;i<25;i++){const el=document.createElement('button'),t=targets.find(m=>m.to===i);el.className='cell '+(!s.b[i]?'blank ':'p'+s.b[i]+' ')+(legal.some(m=>m.from===i)&&!over?'available ':'')+(selected===i?'selected ':'')+(wins.includes(i)?'winning ':'');let symbol=s.b[i]?mark(s.b[i]):'';if(t){el.classList.add('destination');el.classList.remove('blank');symbol=t.to%5===t.from%5?(t.to<t.from?'↓':'↑'):(t.to<t.from?'→':'←')}el.textContent=symbol;el.setAttribute('aria-label',(Math.floor(i/5)+1)+'行'+(i%5+1)+'列 '+(s.b[i]?color(s.b[i]):'無印')+(t?' ここから投入':''));el.onclick=()=>click(i);el.disabled=over||busy;$('board').append(el)}$('cancel').disabled=busy||selected===null;$('undo').disabled=busy||!history.length;$('reset').disabled=busy;$('homeButton').disabled=busy;const winner=s.result&&s.result.win;document.querySelector('.status').classList.toggle('victory',!!winner);document.querySelector('.status').classList.toggle('draw',!!s.result&&s.result.win===0);document.querySelector('.status').style.setProperty('--winner-color',winner===1?'#ff6578':'#58b4ff');for(let p=1;p<=2;p++){$('player'+p).classList.toggle('winner',winner===p);$('player'+p).style.setProperty('--winner-color',p===1?'#ff6578':'#58b4ff')}drawVictoryLines()}
 $('cancel').onclick=()=>{if(busy)return;selected=null;render()};$('undo').onclick=()=>{if(busy)return;if(history.length){s=history.pop();selected=null;render()}};$('reset').onclick=()=>openReset('reset');$('homeButton').onclick=()=>openReset('title');$('resetCancel').onclick=closeReset;
-$('resetConfirm').onclick=()=>{if(confirmTarget==='title'){closeReset();s=null;history=[];selected=null;showScreen('title')}else{start();$('reset').focus()}};
-$('startButton').onclick=start;$('optionsButton').onclick=()=>showScreen('options');$('rulesButton').onclick=()=>showScreen('rules');
+$('resetConfirm').onclick=()=>{if(confirmTarget==='title'){closeReset();s=null;history=[];selected=null;showScreen('title')}else{closeReset();requestStart()}};
+$('startButton').onclick=requestStart;$('optionsButton').onclick=()=>showScreen('options');$('rulesButton').onclick=()=>showScreen('rules');
 $('optionsBack').onclick=()=>showScreen('title');$('rulesBack').onclick=()=>showScreen('title');
 $('masterToggle').onclick=toggleMaster;
 $('wallType').onclick=()=>setType('wall');$('freeType').onclick=()=>setType('free');
@@ -163,7 +164,34 @@ $('resetModal').onclick=e=>{if(e.target===$('resetModal'))closeReset()};
 document.addEventListener('keydown',e=>{if($('resetModal').hidden)return;if(e.key==='Escape'){e.preventDefault();closeReset()}else if(e.key==='Tab'){const first=$('resetCancel'),last=$('resetConfirm');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 if(window.ResizeObserver)new ResizeObserver(()=>drawVictoryLines(false)).observe($('board'));else window.addEventListener('resize',()=>drawVictoryLines(false));
 updateOptions();showScreen('title',false);
-</script><script data-wg-home-confirm>
+</script><script data-wg-starter>
+(function(){
+ let pending=null;
+ window.wgChooseStarter=function(count=2,options={}){
+  if(pending)return pending;
+  const previous=document.activeElement;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'[]')||[]}catch(e){}
+  const names=Array.from({length:count},(_,i)=>{const id='P'+(i+1),name=options.cpu&&i===1?'CPU':String(saved[i]||id).trim().slice(0,16);return name===id?id:id+'（'+name+'）'});
+  const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','開始プレイヤーを決める');
+  dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:20px;width:min(92vw,420px);max-height:88dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:15px/1.6 system-ui,sans-serif;text-align:left;';
+  function button(text){const b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='width:100%;min-height:44px;margin:5px 0;padding:10px;border:1px solid #958b76;border-radius:10px;background:#fffaf1;color:#202522;font:700 14px system-ui,sans-serif;cursor:pointer;';return b}
+  const title=document.createElement('h2');title.textContent='開始プレイヤー';title.style.cssText='margin:0 0 8px;font-size:20px;color:#202522;';
+  const note=document.createElement('p');note.textContent=options.note||'決め方を選び、開始するプレイヤーを確認してください。';note.style.cssText='font-size:12px;line-height:1.6;margin:0 0 12px;color:#59625c;';
+  const manual=button('ユーザーが選ぶ'),random=button('ランダムで決める'),select=document.createElement('select');select.setAttribute('aria-label','開始するプレイヤー');select.style.cssText='display:block;width:100%;min-height:44px;margin:10px 0;padding:8px;background:#fff;color:#202522;border:1px solid #958b76;border-radius:8px;font:15px system-ui,sans-serif;';
+  names.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;select.append(o)});
+  const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='margin:12px 0;color:#202522;font-weight:700;';
+  const start=button('このプレイヤーで開始'),cancel=button('キャンセル');start.style.background='#202522';start.style.color='#fffaf1';
+  let mode='manual',index=0;
+  function render(){manual.setAttribute('aria-pressed',String(mode==='manual'));random.setAttribute('aria-pressed',String(mode==='random'));manual.style.borderWidth=mode==='manual'?'3px':'1px';random.style.borderWidth=mode==='random'?'3px':'1px';select.hidden=mode==='random';select.style.display=mode==='random'?'none':'block';result.textContent=(mode==='random'?'抽選結果：':'開始：')+names[index];}
+  manual.onclick=()=>{mode='manual';index=Number(select.value);render()};random.onclick=()=>{mode='random';index=Math.floor(Math.random()*count);render()};select.onchange=()=>{index=Number(select.value);render()};
+  dialog.append(title,note,manual,random,select,result,start,cancel);document.body.append(dialog);
+  pending=new Promise(resolve=>{function finish(value){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(value)}start.onclick=()=>finish({index,mode});cancel.onclick=()=>finish(null);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)})});
+  render();dialog.showModal();manual.focus();return pending;
+ };
+})();
+</script>
+
+<script data-wg-home-confirm>
 (function(){
   let pending=null;
   window.wgConfirmHome=function(message){

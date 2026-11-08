@@ -132,12 +132,14 @@
   const names=loadPlayerNames();
   const pClass=p=>p===0?'p1':'p2'; const other=p=>1-p; const total=p=>state.dice[p].reduce((a,b)=>a+b,0); const dieGlyph=n=>['','⚀','⚁','⚂','⚃','⚄','⚅'][n]||n;
 
-  function resetMatch(){state.score=[0,0];state.round=1;state.starter=0;setupRound()}
+  function resetMatch(starter=0){state.score=[0,0];state.round=1;state.starter=starter;setupRound()}
+  async function requestMatchStart(){const choice=await window.wgChooseStarter();if(choice)resetMatch(choice.index)}
+  function showMatchSetup(){app.innerHTML=shell(`<div class="card center"><div class="title">WAITING DICE</div><p>開始プレイヤーを選んで対戦を始めます。</p><button class="btn p1" id="startMatch">ゲーム開始</button></div>`);bindBase();document.getElementById('startMatch').onclick=requestMatchStart}
   function setupRound(){state.current=state.starter;state.dice=[[],[]];state.declarations=[[],[]];state.phase='roundStart';state.handoffTo=null;state.afterHandoff=null;state.winner=null;state.resultType=null;state.resultData=null;state._rolledThisTurn=false;state.rolling=false;state.rollingFace=1;state.pendingResolution=null;state.countdownValue=3;render()}
   function scoreHtml(){return `<div class="scorebar"><div class="score p1"><strong>${names[0]}</strong><div class="pts">${'●'.repeat(state.score[0])}${'○'.repeat(3-state.score[0])} ${state.score[0]}</div></div><div class="score p2"><strong>${names[1]}</strong><div class="pts">${'●'.repeat(state.score[1])}${'○'.repeat(3-state.score[1])} ${state.score[1]}</div></div></div>`}
   function historyHtml(){const fmt=p=>state.declarations[p].length?state.declarations[p].map((v,i)=>`${i+1}投目：${v}`).join('<br>'):'まだ宣言なし';return `<div class="history"><div class="historyTitle">宣言履歴</div><div class="historyGrid"><div class="hbox p1"><strong>${names[0]}</strong><div class="hvals">${fmt(0)}</div></div><div class="hbox p2"><strong>${names[1]}</strong><div class="hvals">${fmt(1)}</div></div></div></div>`}
-  function shell(inner){return `<div class="shell"><div class="topbar"><div class="brand">WAITING DICE</div><div class="version">v0.3.2</div></div>${scoreHtml()}<div class="main">${inner}</div><div class="footer"><button id="rulesBtn">RULES</button><button id="resetBtn">RESET</button></div></div>`}
-  function bindBase(){document.getElementById('resetBtn')?.addEventListener('click',()=>{if(confirm('試合を最初からやり直しますか？'))resetMatch()});document.getElementById('rulesBtn')?.addEventListener('click',showRules)}
+  function shell(inner){return `<div class="shell"><div class="topbar"><div class="brand">WAITING DICE</div><div class="version">v0.3.3</div></div>${scoreHtml()}<div class="main">${inner}</div><div class="footer"><button id="rulesBtn">RULES</button><button id="resetBtn">RESET</button></div></div>`}
+  function bindBase(){document.getElementById('resetBtn')?.addEventListener('click',()=>{if(confirm('試合を最初からやり直しますか？'))requestMatchStart()});document.getElementById('rulesBtn')?.addEventListener('click',showRules)}
   function showRules(){alert(`WAITING DICE v0.1\n\n・3ポイント先取\n・各プレイヤーは最大3個までサイコロを振る\n・宣言値は実際の値と同じでも違ってもよい\n・過去の宣言との整合性も不要\n・先攻1投目 → 後攻1投目 → 先攻2投目までは強制進行\n・その後は CALL / DOUBT / CHALLENGE\n\nCALL：自分のサイコロを1個追加して続行\nDOUBT：相手の直前宣言と現在の実合計を比較\nCHALLENGE：双方の現在の実合計を比較\n同点はCHALLENGEした側の負け\n・DOUBT / CHALLENGEは3カウント後に結果公開\n\n3個目を振った相手に対してはCALL不可。`)}
   function render(){({roundStart:renderRoundStart,privateRoll:renderPrivateRoll,handoff:renderHandoff,decision:renderDecision,countdown:renderCountdown,result:renderResult,matchEnd:renderMatchEnd}[state.phase])()}
 
@@ -174,10 +176,37 @@
     }
     return `<div class="celebrationOverlay" aria-hidden="true"><div class="cannon left"><div class="tube"></div><div class="base"></div></div><div class="cannon right"><div class="tube"></div><div class="base"></div></div>${pieces.join('')}</div>`;
   }
-  function renderMatchEnd(){const w=state.winner;let reveal='';if(state.resultType==='DOUBT'){const d=state.resultData;reveal=`<div class="resultGrid"><div class="resultBox ${d.declared===d.actual?'neutral':'bad'}"><div class="who">相手が発言した数字</div><div class="sum">${d.declared}</div></div><div class="resultBox ${d.declared===d.actual?'neutral':'good'}"><div class="who">相手の実際の合計</div><div class="sum">${d.actual}</div></div></div><div class="resultOutcome ${d.declared===d.actual?'fail':'success'}">${d.declared===d.actual?'一致 → ダウト失敗':'不一致 → ダウト成功'}</div>`}else{reveal=`<div class="resultGrid"><div class="resultBox ${w===0?'good':'bad'}"><div class="who">${names[0]}</div><div class="sum">${total(0)}</div><div>${state.dice[0].map(dieGlyph).join(' ')}</div></div><div class="resultBox ${w===1?'good':'bad'}"><div class="who">${names[1]}</div><div class="sum">${total(1)}</div><div>${state.dice[1].map(dieGlyph).join(' ')}</div></div></div>`}app.innerHTML=shell(`${celebrationHtml()}<div class="card center"><div class="kicker">3ポイント先取</div><div class="winnerBurst">${names[w]} の勝利！</div>${reveal}<div style="height:12px"></div><button class="btn ${pClass(w)}" id="newMatch">NEW MATCH</button></div>`);bindBase();document.getElementById('newMatch').onclick=resetMatch}
-  setupRound();
+  function renderMatchEnd(){const w=state.winner;let reveal='';if(state.resultType==='DOUBT'){const d=state.resultData;reveal=`<div class="resultGrid"><div class="resultBox ${d.declared===d.actual?'neutral':'bad'}"><div class="who">相手が発言した数字</div><div class="sum">${d.declared}</div></div><div class="resultBox ${d.declared===d.actual?'neutral':'good'}"><div class="who">相手の実際の合計</div><div class="sum">${d.actual}</div></div></div><div class="resultOutcome ${d.declared===d.actual?'fail':'success'}">${d.declared===d.actual?'一致 → ダウト失敗':'不一致 → ダウト成功'}</div>`}else{reveal=`<div class="resultGrid"><div class="resultBox ${w===0?'good':'bad'}"><div class="who">${names[0]}</div><div class="sum">${total(0)}</div><div>${state.dice[0].map(dieGlyph).join(' ')}</div></div><div class="resultBox ${w===1?'good':'bad'}"><div class="who">${names[1]}</div><div class="sum">${total(1)}</div><div>${state.dice[1].map(dieGlyph).join(' ')}</div></div></div>`}app.innerHTML=shell(`${celebrationHtml()}<div class="card center"><div class="kicker">3ポイント先取</div><div class="winnerBurst">${names[w]} の勝利！</div>${reveal}<div style="height:12px"></div><button class="btn ${pClass(w)}" id="newMatch">NEW MATCH</button></div>`);bindBase();document.getElementById('newMatch').onclick=requestMatchStart}
+  showMatchSetup();
 })();
 </script>
+<script data-wg-starter>
+(function(){
+ let pending=null;
+ window.wgChooseStarter=function(count=2,options={}){
+  if(pending)return pending;
+  const previous=document.activeElement;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'[]')||[]}catch(e){}
+  const names=Array.from({length:count},(_,i)=>{const id='P'+(i+1),name=options.cpu&&i===1?'CPU':String(saved[i]||id).trim().slice(0,16);return name===id?id:id+'（'+name+'）'});
+  const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','開始プレイヤーを決める');
+  dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:20px;width:min(92vw,420px);max-height:88dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:15px/1.6 system-ui,sans-serif;text-align:left;';
+  function button(text){const b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='width:100%;min-height:44px;margin:5px 0;padding:10px;border:1px solid #958b76;border-radius:10px;background:#fffaf1;color:#202522;font:700 14px system-ui,sans-serif;cursor:pointer;';return b}
+  const title=document.createElement('h2');title.textContent='開始プレイヤー';title.style.cssText='margin:0 0 8px;font-size:20px;color:#202522;';
+  const note=document.createElement('p');note.textContent=options.note||'決め方を選び、開始するプレイヤーを確認してください。';note.style.cssText='font-size:12px;line-height:1.6;margin:0 0 12px;color:#59625c;';
+  const manual=button('ユーザーが選ぶ'),random=button('ランダムで決める'),select=document.createElement('select');select.setAttribute('aria-label','開始するプレイヤー');select.style.cssText='display:block;width:100%;min-height:44px;margin:10px 0;padding:8px;background:#fff;color:#202522;border:1px solid #958b76;border-radius:8px;font:15px system-ui,sans-serif;';
+  names.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;select.append(o)});
+  const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='margin:12px 0;color:#202522;font-weight:700;';
+  const start=button('このプレイヤーで開始'),cancel=button('キャンセル');start.style.background='#202522';start.style.color='#fffaf1';
+  let mode='manual',index=0;
+  function render(){manual.setAttribute('aria-pressed',String(mode==='manual'));random.setAttribute('aria-pressed',String(mode==='random'));manual.style.borderWidth=mode==='manual'?'3px':'1px';random.style.borderWidth=mode==='random'?'3px':'1px';select.hidden=mode==='random';select.style.display=mode==='random'?'none':'block';result.textContent=(mode==='random'?'抽選結果：':'開始：')+names[index];}
+  manual.onclick=()=>{mode='manual';index=Number(select.value);render()};random.onclick=()=>{mode='random';index=Math.floor(Math.random()*count);render()};select.onchange=()=>{index=Number(select.value);render()};
+  dialog.append(title,note,manual,random,select,result,start,cancel);document.body.append(dialog);
+  pending=new Promise(resolve=>{function finish(value){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(value)}start.onclick=()=>finish({index,mode});cancel.onclick=()=>finish(null);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)})});
+  render();dialog.showModal();manual.focus();return pending;
+ };
+})();
+</script>
+
 <script data-wg-home-confirm>
 (function(){
   let pending=null;

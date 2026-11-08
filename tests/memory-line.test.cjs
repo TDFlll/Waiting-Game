@@ -20,6 +20,9 @@ function memory(){
 }
 const piece=(owner=1,color=0,shape=0)=>({owner,color,shape});
 const blank=()=>Array(81).fill(null);
+test('selected P2 opening owns the first placed piece and undo retains that opening player',()=>{
+ const {api}=memory();api.start(2);assert.equal(api.state().first,2);assert.equal(api.state().turn,2);api.place(40);assert.equal(api.state().board[40].owner,2);api.undo();assert.equal(api.state().first,2);assert.equal(api.state().turn,2);assert.equal(api.state().moves,0);
+});
 
 test('first move is unrestricted, normal adjacency and undo preserve pieces and turn',()=>{
   const m=memory();m.begin();const {api}=m;

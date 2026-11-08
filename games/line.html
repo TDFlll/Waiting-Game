@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Waiting Line DEMO v2.3.1</title>
+<title>Waiting Line DEMO v2.3.2</title>
 <style>
 :root{
   --bg:#101318;--panel:#191e26;--panel2:#222936;--text:#f5f7fa;--muted:#9da7b5;
@@ -192,7 +192,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
   <button id="openOptions">オプション</button>
   <button id="openRules">ルール</button>
  </div>
- <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3.1</div>
+ <div class="menuHint">2人対戦 / 1人でCPU対戦・全3ラウンド / DEMO v2.3.2</div>
 </div>
 <div id="optionsScreen" class="menuScreen screenHidden">
  <h1 class="menuTitle" style="font-size:32px">オプション</h1>
@@ -234,7 +234,7 @@ h1{font-size:20px;margin:0}.badge{padding:7px 10px;border-radius:999px;backgroun
 </div>
 <div class="app screenHidden" id="gameScreen">
   <div class="top">
-    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3.1</span></h1>
+    <h1>Waiting Line <span style="color:var(--muted);font-size:12px">DEMO v2.3.2</span></h1>
     <div class="badge" id="phaseBadge">ROUND 1 / 3</div>
   </div>
 
@@ -405,14 +405,15 @@ function reachedWallColors(){
  }
  return colors;
 }
-function initGame(mode=state?.mode||"vs"){
+async function requestRestart(){const choice=await window.wgChooseStarter(2,{cpu:state?.mode==='cpu'});if(choice)initGame(state?.mode||'vs',choice.index)}
+function initGame(mode=state?.mode||"vs",starter=0){
  stopCpu();humanSnapshots=[];humanCheckpointPending=true;
  $("#overlay").classList.remove("show");
  state={
    mode,roundOver:false,humanStarted:false,lastCpuCell:null,
    publicRates:document.querySelector("#optionPublicRates").checked,goalMode:document.querySelector("#optionGoalMode").value,round:1,totalRounds:3,players:[{rot:3,total:0},{rot:3,total:0}],
    secrets:assignSecrets(),board:blankBoard(),draft:[newTile(),newTile(),newTile(),newTile(),newTile()],
-   turnNo:1,pickIndex:0,first:0,reverseNext:false,selected:null,swapMode:false,reached:[],roundScore:[0,0],goalRecords:[],roundHistory:[],history:[],gameOver:false
+   turnNo:1,pickIndex:0,first:starter,initialFirst:starter,reverseNext:false,selected:null,swapMode:false,reached:[],roundScore:[0,0],goalRecords:[],roundHistory:[],history:[],gameOver:false
  };
  turnSnapshots=[];snapshotTurn();render(); addLog("ゲーム開始。ROUND 1");beginTurn();
 }
@@ -876,7 +877,7 @@ function nextRound(){
  stopCpu();humanSnapshots=[];humanCheckpointPending=true;state.roundOver=false;state.lastCpuCell=null;
  $("#overlay").classList.remove("show");
  state.round++;state.players.forEach(p=>p.rot=3);state.board=blankBoard();state.draft=[newTile(),newTile(),newTile(),newTile(),newTile()];
- state.turnNo=1;state.pickIndex=0;state.first=0;state.reverseNext=false;state.selected=null;state.swapMode=false;state.reached=[];state.roundScore=[0,0];state.goalRecords=[];
+ state.turnNo=1;state.pickIndex=0;state.first=state.initialFirst;state.reverseNext=false;state.selected=null;state.swapMode=false;state.reached=[];state.roundScore=[0,0];state.goalRecords=[];
  state.secrets=assignSecrets();turnSnapshots=[];snapshotTurn();render();addLog(`ROUND ${state.round} 開始`);beginTurn();
 }
 function allRoundsHTML(){
@@ -891,7 +892,7 @@ function finishGame(){
  const winner=a===b?"DRAW":a>b?playerName(0)+" WIN":playerName(1)+" WIN";
  const ov=$("#overlay"),m=$("#modal");ov.classList.add("show");
  m.innerHTML=`<h2>${winner}</h2><p>ROUND ${state.round} の得点・順位</p>${resultScoresHTML()}${allRoundsHTML()}<p>最終累計</p><div class="multipliers"><div class="multi">${playerName(0)}<br><span style="font-size:28px">${fmt(a)}</span> pt</div><div class="multi">${playerName(1)}<br><span style="font-size:28px">${fmt(b)}</span> pt</div></div><button id="again">もう一度</button>`;
- m.querySelector("#again").addEventListener("click",()=>{ov.classList.remove("show");initGame()});
+ m.querySelector("#again").addEventListener("click",requestRestart);
  if(state.mode==="cpu"&&humanSnapshots.length){
   const undo=document.createElement("button");undo.textContent="↶ 自分の操作前に戻す";undo.style.marginTop="8px";undo.addEventListener("click",undoTurn);m.appendChild(undo);
  }
@@ -961,7 +962,7 @@ $("#swapBtn").addEventListener("click",()=>{
  msg.textContent=state.swapMode?"入れ替える共有タイルを選んでください（確認後に2P消費）。":"入れ替えモードを解除しました。";
  render();
 });
-$("#resetBtn").addEventListener("click",()=>{if(confirm("ゲームを最初からやり直しますか？"))initGame()});
+$("#resetBtn").addEventListener("click",()=>{if(confirm("ゲームを最初からやり直しますか？"))requestRestart()});
 document.querySelectorAll(".secretBtn").forEach(b=>b.addEventListener("click",()=>showSecret(+b.dataset.p)));
 
 
@@ -984,8 +985,8 @@ function saveOdds(){const v=readOdds();if(!v)return false;for(const k of Object.
  document.querySelector('#oddsReset').addEventListener('click',()=>{setOdds(DEFAULT_ODDS);saveOdds()});
 })();
 const showScreen=id=>{if(id!=="gameScreen")stopCpu();for(const name of ["titleScreen","optionsScreen","rulesScreen","gameScreen"])document.getElementById(name).classList.toggle("screenHidden",name!==id);window.scrollTo(0,0)};
-document.querySelector("#startVs").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("vs")});
-document.querySelector("#startCpu").addEventListener("click",()=>{saveOdds();showScreen("gameScreen");initGame("cpu")});
+document.querySelector("#startVs").addEventListener("click",async()=>{const choice=await window.wgChooseStarter(2,{cpu:false});if(!choice)return;saveOdds();showScreen("gameScreen");initGame("vs",choice.index)});
+document.querySelector("#startCpu").addEventListener("click",async()=>{const choice=await window.wgChooseStarter(2,{cpu:true});if(!choice)return;saveOdds();showScreen("gameScreen");initGame("cpu",choice.index)});
 document.querySelector("#openOptions").addEventListener("click",()=>showScreen("optionsScreen"));
 document.querySelector("#openRules").addEventListener("click",()=>showScreen("rulesScreen"));
 document.querySelector("#rulesBack").addEventListener("click",()=>showScreen("titleScreen"));
@@ -1000,6 +1001,33 @@ document.querySelector(".wg-home").addEventListener("click",e=>{
 showScreen("titleScreen");
 })();
 </script>
+<script data-wg-starter>
+(function(){
+ let pending=null;
+ window.wgChooseStarter=function(count=2,options={}){
+  if(pending)return pending;
+  const previous=document.activeElement;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'[]')||[]}catch(e){}
+  const names=Array.from({length:count},(_,i)=>{const id='P'+(i+1),name=options.cpu&&i===1?'CPU':String(saved[i]||id).trim().slice(0,16);return name===id?id:id+'（'+name+'）'});
+  const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','開始プレイヤーを決める');
+  dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:20px;width:min(92vw,420px);max-height:88dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:15px/1.6 system-ui,sans-serif;text-align:left;';
+  function button(text){const b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='width:100%;min-height:44px;margin:5px 0;padding:10px;border:1px solid #958b76;border-radius:10px;background:#fffaf1;color:#202522;font:700 14px system-ui,sans-serif;cursor:pointer;';return b}
+  const title=document.createElement('h2');title.textContent='開始プレイヤー';title.style.cssText='margin:0 0 8px;font-size:20px;color:#202522;';
+  const note=document.createElement('p');note.textContent=options.note||'決め方を選び、開始するプレイヤーを確認してください。';note.style.cssText='font-size:12px;line-height:1.6;margin:0 0 12px;color:#59625c;';
+  const manual=button('ユーザーが選ぶ'),random=button('ランダムで決める'),select=document.createElement('select');select.setAttribute('aria-label','開始するプレイヤー');select.style.cssText='display:block;width:100%;min-height:44px;margin:10px 0;padding:8px;background:#fff;color:#202522;border:1px solid #958b76;border-radius:8px;font:15px system-ui,sans-serif;';
+  names.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;select.append(o)});
+  const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='margin:12px 0;color:#202522;font-weight:700;';
+  const start=button('このプレイヤーで開始'),cancel=button('キャンセル');start.style.background='#202522';start.style.color='#fffaf1';
+  let mode='manual',index=0;
+  function render(){manual.setAttribute('aria-pressed',String(mode==='manual'));random.setAttribute('aria-pressed',String(mode==='random'));manual.style.borderWidth=mode==='manual'?'3px':'1px';random.style.borderWidth=mode==='random'?'3px':'1px';select.hidden=mode==='random';select.style.display=mode==='random'?'none':'block';result.textContent=(mode==='random'?'抽選結果：':'開始：')+names[index];}
+  manual.onclick=()=>{mode='manual';index=Number(select.value);render()};random.onclick=()=>{mode='random';index=Math.floor(Math.random()*count);render()};select.onchange=()=>{index=Number(select.value);render()};
+  dialog.append(title,note,manual,random,select,result,start,cancel);document.body.append(dialog);
+  pending=new Promise(resolve=>{function finish(value){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(value)}start.onclick=()=>finish({index,mode});cancel.onclick=()=>finish(null);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)})});
+  render();dialog.showModal();manual.focus();return pending;
+ };
+})();
+</script>
+
 <script data-wg-home-confirm>
 (function(){
   let pending=null;
