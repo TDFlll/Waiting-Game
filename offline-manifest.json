@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.08-starting-player",
-  "generatedAt": "2026-11-08",
+  "version": "2026.11.12-display-scale",
+  "generatedAt": "2026-11-12",
   "core": [
     "./",
     "index.html",

@@ -94,12 +94,13 @@ async function animateSlide(b,p,m){
   const board=$('board'),cells=Array.from(board.children).slice(0,25),base=board.getBoundingClientRect();
   const rects=cells.map(el=>el.getBoundingClientRect()),layer=document.createElement('div');
   layer.className='motion-layer';layer.setAttribute('aria-hidden','true');
+  const displayScale=base.width/board.offsetWidth||1;
   const duration=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches?1:380;
   function tile(value,at,dx,dy){
     const el=document.createElement('div'),r=rects[at];
     el.className='cell motion-tile '+(value?'p'+value:'blank');el.textContent=value?mark(value):'';
-    Object.assign(el.style,{left:(r.left-base.left-(board.clientLeft||0))+'px',top:(r.top-base.top-(board.clientTop||0))+'px',width:r.width+'px',height:r.height+'px'});
-    el.style.setProperty('--slide-x',dx+'px');el.style.setProperty('--slide-y',dy+'px');
+    Object.assign(el.style,{left:((r.left-base.left)/displayScale-(board.clientLeft||0))+'px',top:((r.top-base.top)/displayScale-(board.clientTop||0))+'px',width:(r.width/displayScale)+'px',height:(r.height/displayScale)+'px'});
+    el.style.setProperty('--slide-x',(dx/displayScale)+'px');el.style.setProperty('--slide-y',(dy/displayScale)+'px');
     el.style.setProperty('--slide-duration',duration+'ms');layer.append(el);
   }
   try{
@@ -222,6 +223,53 @@ updateOptions();showScreen('title',false);
     if(pending)return;
     window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
   },true);
+})();
+</script>
+
+<script data-wg-display>
+(function(){
+ 'use strict';
+ const KEY='waitingGamesDisplayV1';
+ function normalize(value){const v=value&&typeof value==='object'?value:{};const n=Number(v.percent);return{mode:v.mode==='manual'?'manual':'auto',percent:Number.isFinite(n)?Math.min(175,Math.max(75,Math.round(n/5)*5)):100};}
+ function autoFactor(width,shortSide){const edge=Math.min(width,shortSide>0?shortSide:width);return edge<600?1:edge<900?1.25:1.5;}
+ function scaleCSS(css,factor){
+  return css.replace(/@media[^{}]+\{/g,query=>query.replace(/((?:min-|max-)?(?:width|height)\s*:\s*)([\d.]+)px/g,(_,prefix,n)=>prefix+(Number(n)*factor)+'px'))
+   .replace(/(-?\d*\.?\d+)(dvh|svh|lvh|vmin|vmax|vh|vw)\b/g,(_,n,unit)=>'calc('+n+' * var(--wg-'+unit+'))');
+ }
+ // Browser integration
+ function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return normalize(null)}}
+ let setting=load(),factor=1,saved=true;
+ const root=document.documentElement,draw=location.pathname.endsWith('/draw.html');
+ const originals=new Map([...document.querySelectorAll('style')].map(style=>[style,style.textContent]));
+ const extra=document.createElement('style');extra.id='wg-display-layout';document.head.append(extra);
+ function apply(){
+  factor=setting.mode==='manual'?setting.percent/100:autoFactor(window.innerWidth,Math.min(window.screen.width,window.screen.height));
+  const layout=draw?1:factor;
+  root.style.zoom=String(layout);root.dataset.wgDisplay=setting.mode;root.dataset.wgDisplayScale=String(factor);
+  for(const unit of ['vh','dvh','svh','lvh','vw','vmin','vmax'])root.style.setProperty('--wg-'+unit,'calc(1'+unit+' / '+layout+')');
+  for(const [style,css]of originals)style.textContent=scaleCSS(css,layout);
+  extra.textContent='html{height:calc(100 * var(--wg-dvh));overflow:auto}body{min-height:calc(100 * var(--wg-dvh))}dialog{max-width:calc(100% - 24px)!important;max-height:calc(88 * var(--wg-dvh))!important}'+
+   (draw?'header,#toolRow,#footer,.drawer,dialog{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
+   '@media(max-width:'+(360*layout)+'px){.brand{flex-wrap:wrap}.quick,.player-inputs{grid-template-columns:1fr}.controlDeck{grid-template-columns:1fr}.pad{grid-template-columns:repeat(3,minmax(0,1fr))}}');
+  sync();window.dispatchEvent(new CustomEvent('wgdisplaychange',{detail:{factor}}));
+ }
+ function sync(){
+  const mode=document.getElementById('displayMode'),range=document.getElementById('displayScale'),value=document.getElementById('displayScaleValue'),status=document.getElementById('displayStatus');if(!mode)return;
+  mode.value=setting.mode;range.value=String(setting.mode==='manual'?setting.percent:Math.round(factor*100));range.disabled=setting.mode!=='manual';value.textContent=Math.round(factor*100)+'%';
+  for(const id of ['displaySmaller','displayLarger'])document.getElementById(id).disabled=setting.mode!=='manual'||(id==='displaySmaller'?setting.percent<=75:setting.percent>=175);
+  status.textContent=(setting.mode==='auto'?'画面に合わせて自動調整':'手動でサイズを指定')+'。TOPと全ゲームに反映します。'+(saved?'':'このブラウザでは保存できないため、現在の画面だけに反映します。');
+ }
+ function set(value){setting=normalize(value);try{localStorage.setItem(KEY,JSON.stringify(setting));saved=true}catch(e){saved=false}apply();}
+ window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},set};
+ const mode=document.getElementById('displayMode');if(mode){
+  mode.addEventListener('change',()=>set({mode:mode.value,percent:Math.round(factor*100)}));
+  document.getElementById('displayScale').addEventListener('input',e=>set({mode:'manual',percent:e.target.value}));
+  document.getElementById('displaySmaller').onclick=()=>set({mode:'manual',percent:setting.percent-5});document.getElementById('displayLarger').onclick=()=>set({mode:'manual',percent:setting.percent+5});
+  document.getElementById('displayReset').onclick=()=>set({mode:'manual',percent:100});
+ }
+ let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(apply)});
+ window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){setting=load();apply()}});
+ apply();
 })();
 </script>
 
