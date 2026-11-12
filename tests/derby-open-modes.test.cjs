@@ -20,7 +20,7 @@ function derby(){
  const html=fs.readFileSync(path.join(__dirname,'../games/derby.html'),'utf8');
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  vm.runInContext(script+`
- window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render};
+ window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render,effects,finalRaceReview};
  `,context);
  return {api:window.api,node,document,window,timers,
   advance(ms){const until=now+ms;let guard=0;while(true){const due=[...timers].filter(([,t])=>t.at<=until).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;if(++guard>1000)throw Error('Timer loop');const [id,t]=due;now=t.at;timers.delete(id);if(t.repeat)timers.set(id,{...t,at:now+t.ms});t.fn()}now=until},
@@ -125,4 +125,14 @@ test('second round retains Randm Open and starts with fresh hands and a stopped 
  assert.equal(api.state.screen,'pass');assert.equal(api.timer,null);assert.equal(api.publicCount(),0);
  api.state.players.forEach(p=>{assert.equal(p.cash,10000);assert.equal(p.tickets.length,0)});
  api.passEnter();d.advance(5000);assert.equal(api.publicCount(),1);
+});
+test('manually selected P2 starts round one and P1 starts the second round',()=>{
+ const {api}=derby();api.startGame(1);assert.equal(api.state.current,1);api.enterResult();api.calculateResult();api.finishRound();assert.equal(api.state.current,0);
+});
+test('final review displays the final board and all six horses with scores, tie priority and disqualifications',()=>{
+ const {api,node}=derby();api.startGame();const horses=api.state.board.filter(c=>c.kind==='horse').sort((a,b)=>a.id-b.id);
+ api.state.board=horses.concat([{kind:'carrot'},{kind:'carrot'},{kind:'carrot'},{kind:'gold'},{kind:'good'},{kind:'good'},{kind:'good'},{kind:'bad'},{kind:'weight'},{kind:'omen',color:'栗毛'}]).map((c,pos)=>({...c,pos,revealed:true}));
+ api.calculateResult();const scores=Object.fromEntries(api.effects(true).horses.map(h=>[h.id,h.score]));assert.deepEqual(scores,{1:1,2:2,3:1,4:1,5:3,6:4});
+ const review=api.finalRaceReview();assert.equal((review.match(/data-result-horse=/g)||[]).length,6);assert.ok(review.indexOf('data-result-horse="6"')<review.indexOf('data-result-horse="5"'));assert.ok(review.indexOf('data-result-horse="3"')<review.indexOf('data-result-horse="4"'));assert.equal((review.match(/scope="row">失格/g)||[]).length,2);assert.match(review,/最終盤面/);assert.ok(!review.includes('tile back'));
+ api.state.screen='result';for(const stage of [3,5]){api.state.stage=stage;api.render();assert.match(node('app').innerHTML,/全6頭の最終得点・順位/);assert.match(node('app').innerHTML,/最終盤面/);}
 });

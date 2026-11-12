@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Waiting Memory Line v0.5</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Waiting Memory Line v0.5.1</title>
 <style>
 :root{color-scheme:dark;--bg:#101521;--panel:#1b2435;--cell:#293449;--edge:#41506a;--accent:#65d6b0;--txt:#f0f4fa}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#25324a,var(--bg) 70%);font-family:system-ui,-apple-system,'Noto Sans JP',sans-serif;color:var(--txt);min-height:100dvh}main{max-width:650px;margin:auto;padding:16px 12px 35px}h1{font-size:clamp(24px,6vw,34px);letter-spacing:.025em;margin:8px 0 3px;text-align:center}header p{text-align:center;color:#9bacc3;margin:0 0 18px;font-size:12px}.panel{background:var(--panel);border:1px solid #35445c;border-radius:16px;padding:13px;margin:12px 0;box-shadow:0 10px 30px #0002}.status{display:flex;align-items:center;justify-content:space-between;gap:10px}.status strong{font-size:19px}.muted{color:#a8b7cc;font-size:12px}.piece{width:52px;height:52px;display:grid;place-items:center;flex-shrink:0}.piece svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px #0006)}.next{display:flex;align-items:center;gap:13px}.next .piece{width:65px;height:65px;background:#111b2b;border:1px solid #53627c;border-radius:13px;padding:8px}.next .small{font-size:12px;color:#a8b7cc}.board{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;max-width:600px;margin:auto}.cell{appearance:none;border:1px solid var(--edge);border-radius:5px;aspect-ratio:1;background:var(--cell);padding:2px;display:grid;place-items:center;min-width:0;touch-action:manipulation;position:relative}.cell:focus-visible{outline:2px solid #fff;outline-offset:1px}.cell.legal{background:#235345;border-color:#5ab997;cursor:pointer}.cell.legal:before{content:'+';color:#87e2c0;font-size:clamp(12px,3.5vw,21px);font-weight:400;opacity:.8}.cell.occupied{background:#283346}.cell svg{width:100%;height:100%;max-width:44px}.cell.winline{background:#725a20;box-shadow:inset 0 0 0 3px #ffd76a}.owner{position:absolute;bottom:0;right:1px;background:#0c1420e6;border:1px solid #eee8;border-radius:3px;font-weight:900;font-size:clamp(8px,2.1vw,12px);line-height:1.15;padding:1px 2px}.owner.p1{color:#83b9ff}.owner.p2{color:#ffab9e}.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}button.action{background:#34445e;border:1px solid #5b6e8d;border-radius:10px;padding:11px 14px;color:white;font-size:14px;font-weight:700;cursor:pointer}button.action.primary{background:#197a61;border-color:#49c6a1}button.action:disabled{opacity:.45;cursor:not-allowed}.note{color:#b1c0d4;font-size:12px;line-height:1.7}.stats{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#b1c0d4}.result{font-size:18px;font-weight:800;color:#ffe28b}.hidden{display:none!important}dialog{border:1px solid #526582;background:#1b2639;color:#f3f5fa;border-radius:18px;max-width:min(94vw,420px);padding:23px;box-shadow:0 20px 80px #0009}dialog::backdrop{background:#050911ba}dialog h2{margin:0 0 10px}dialog p{line-height:1.7}.legend{display:flex;gap:12px;justify-content:center;font-size:12px;color:#afbdd1}.legend b{color:#6cddbb}#message{min-height:19px;text-align:center;font-size:13px;color:#ffdd8b;margin:8px 0}#announce{font-size:12px;color:#a8b7cc}.instructions{line-height:1.8;font-size:13px;color:#c3cee0}footer{text-align:center;font-size:11px;color:#8c9cb1;margin-top:16px}@media(max-width:400px){main{padding:12px 8px 24px}.panel{padding:10px}.board{gap:2px}.cell{border-radius:3px;padding:1px}.status strong{font-size:16px}}
 
@@ -7,8 +7,8 @@
 
 .start-screen{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at top,#2b405d,#101521 75%);display:flex;align-items:center;justify-content:center;padding:20px}.start-card{width:min(100%,440px);text-align:center;background:#1b2435;border:1px solid #51617a;border-radius:24px;padding:32px 22px;box-shadow:0 24px 80px #0008}.start-card h1{font-size:clamp(29px,8vw,42px)}.start-card p{color:#bac8dc;line-height:1.8}.menu-buttons{display:grid;gap:12px;margin-top:25px}.menu-buttons button{font-size:19px;padding:16px}.option-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-top:1px solid #43516a}.option-row input{width:24px;height:24px;accent-color:#65d6b0}.call{background:#9a6420!important;border-color:#e7b15b!important}.mode-label{font-size:12px;color:#f2d493;text-align:center;margin-top:8px}.hand-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.hand-slot{background:#26354b;border:2px solid #52647f;border-radius:12px;min-height:86px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}.hand-slot.selected{border-color:#6be6b7;background:#234e48;box-shadow:0 0 0 2px #64d9ac55}.hand-slot .piece{width:49px;height:49px}.hand-slot:disabled{opacity:.45;cursor:default}.hand-slot small{font-size:11px}.mode-label{line-height:1.7}.hand-group{margin-top:12px}.hand-group.compact{opacity:.83}.hand-group .hand-heading{font-size:13px;font-weight:800;margin:0 0 7px}.hand-group.compact .hand-row{gap:7px}.hand-group.compact .hand-slot{min-height:54px;padding:4px;cursor:default;background:#202c3d}.hand-group.compact .hand-slot .piece{width:29px;height:29px}.hand-group.compact .hand-slot small{font-size:10px}.hand-group.compact .hand-slot:disabled{opacity:1}.hand-group.active .hand-heading{color:#8ce6c7}.hand-group.compact .hand-heading{color:#b6c4d8}.hand-slot.empty{opacity:.45}.call-overlay{position:fixed;inset:0;z-index:60;background:#060a15eb;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}.call-overlay.hidden{display:none!important}.call-card{position:relative;padding:25px;width:min(92vw,500px)}.call-kicker{font-weight:900;letter-spacing:.25em;color:#f6ce7b;font-size:clamp(17px,5vw,25px)}.call-number{font-size:clamp(125px,35vw,230px);font-weight:1000;line-height:1.15;color:#fff;text-shadow:0 0 20px #8dbdff,0 0 65px #4a6fff;animation:countPop .8s both}.call-result{font-size:clamp(52px,13vw,90px);font-weight:1000;line-height:1.25;animation:resultPop .65s both}.call-result.success{color:#ffe187;text-shadow:0 0 22px #e8a922,0 0 85px #e8a922}.call-result.failure{color:#ff8e9b;text-shadow:0 0 22px #e34c64,0 0 85px #e34c64}.call-detail{font-size:clamp(16px,4vw,23px);font-weight:800;margin-top:14px}.call-overlay.success{background:radial-gradient(circle,#76531d 0%,#14101a 65%,#060a15 100%)}.call-overlay.failure{background:radial-gradient(circle,#602131 0%,#14101a 65%,#060a15 100%)}.call-overlay.success:before{content:'✦  ✨  ✦  ★  ✨  ✦  ★  ✨  ✦';position:absolute;inset:10% -20%;font-size:clamp(22px,7vw,54px);letter-spacing:24px;color:#ffe187;animation:shimmer 1.4s ease-in-out infinite alternate;pointer-events:none}@keyframes countPop{0%{transform:scale(2);opacity:0}25%{transform:scale(.95);opacity:1}70%{transform:scale(1)}100%{opacity:1}}@keyframes resultPop{0%{transform:scale(.2) rotate(-9deg);opacity:0}70%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}@keyframes shimmer{from{opacity:.2;transform:rotate(-7deg) scale(.85)}to{opacity:1;transform:rotate(7deg) scale(1.15)}}
 .turn-main,.turn-sub,.hand-heading,#counts,#turnLabel,#announce,.call-detail{overflow-wrap:anywhere;min-width:0}.status>div:first-child{min-width:0}#moveCount{flex-shrink:0}.start-screen{overflow:auto}.wg-home{display:inline-block;color:#b1c0d4;font-size:12px;margin-top:12px;padding:8px;text-decoration:none}
-</style></head><body><section id="startScreen" class="start-screen"><div class="start-card"><h1>MEMORY LINE</h1><p>Waiting Game<br>記憶力 × 五目並べ</p><div class="menu-buttons"><button class="action primary" id="menuStart">スタート</button><button class="action" id="menuRules">ルール</button><button class="action" id="menuOptions">オプション</button></div><a class="wg-home" id="menuGames" href="../index.html">← GAMES</a><p class="muted">v0.5 · 2人用</p></div></section><main><header><h1>MEMORY LINE</h1><p>Waiting Game · 記憶力 × 五目並べ · v0.5</p></header>
-<section class="panel"><div id="turnBanner" class="turn-banner idle" aria-live="polite"><div class="turn-main" id="turnMain">ゲーム準備中</div><div class="turn-sub" id="turnSub">開始すると先手をランダムで決定します</div></div><div class="status"><div><strong id="turnLabel">ゲーム準備中</strong><div id="announce">先手はランダムで決定します</div></div><div id="moveCount" class="muted">0 / 81 手</div></div><div class="next" id="normalHand" style="margin-top:12px"><div class="piece" id="nextPiece"></div><div><div class="small">次に置く駒</div><strong id="nextText">ゲーム開始を押してください</strong></div></div>
+</style></head><body><section id="startScreen" class="start-screen"><div class="start-card"><h1>MEMORY LINE</h1><p>Waiting Game<br>記憶力 × 五目並べ</p><div class="menu-buttons"><button class="action primary" id="menuStart">スタート</button><button class="action" id="menuRules">ルール</button><button class="action" id="menuOptions">オプション</button></div><a class="wg-home" id="menuGames" href="../index.html">← GAMES</a><p class="muted">v0.5.1 · 2人用</p></div></section><main><header><h1>MEMORY LINE</h1><p>Waiting Game · 記憶力 × 五目並べ · v0.5.1</p></header>
+<section class="panel"><div id="turnBanner" class="turn-banner idle" aria-live="polite"><div class="turn-main" id="turnMain">ゲーム準備中</div><div class="turn-sub" id="turnSub">開始時に先手を選択またはランダムで決定します</div></div><div class="status"><div><strong id="turnLabel">ゲーム準備中</strong><div id="announce">先手は開始時に選択またはランダムで決定します</div></div><div id="moveCount" class="muted">0 / 81 手</div></div><div class="next" id="normalHand" style="margin-top:12px"><div class="piece" id="nextPiece"></div><div><div class="small">次に置く駒</div><strong id="nextText">ゲーム開始を押してください</strong></div></div>
 <div id="advancedHand" class="hidden"><div class="muted" style="margin:12px 0 8px">自分の駒を選択してください。相手の駒も確認できます。</div><div id="bothHands"></div></div></section>
 <section class="panel"><div class="stats"><span>9 × 9 BOARD</span><span id="counts">P1: 0個　P2: 0個</span></div><div id="board" class="board" role="grid" aria-label="9×9ゲーム盤" style="margin-top:12px"></div><div id="message" aria-live="polite"></div><div class="legend"><span><b>＋</b> 配置可能</span><span>駒の所有者は終了まで非公開</span></div></section>
 <section class="panel"><div class="mode-label" id="modeLabel">勝利判定：AUTO</div><div class="controls"><button class="action call hidden" id="callBtn">🏆 CALL！ 完成を宣言</button><button class="action primary" id="startBtn">ゲーム開始</button><button class="action undo" id="undoBtn" disabled>↶ 1手戻る</button><button class="action" id="restartBtn" disabled>最初から</button><button class="action" id="rulesBtn">ルール</button><button class="action" id="titleBtn">タイトルへ</button></div><p class="note" style="margin-bottom:0;text-align:center">所有者は確認できません。「1手戻る」で直前の配置のみ取り消せます。</p></section><div class="controls"><a class="wg-home" id="gamesLink" href="../index.html">← GAMES</a></div><footer>Waiting Memory Line · Offline single-file game</footer></main>
@@ -16,7 +16,7 @@
 <label class="option-row"><span><strong>CALL失敗時のペナルティ</strong><br><small>有り：失敗すると自分の手番を飛ばす</small></span><input type="checkbox" id="penaltyOption"></label>
 <label class="option-row"><span><strong>先手三三禁止</strong><br><small>先手が所有する駒で活三を2方向同時に作る手を禁止（両モード共通）</small></span><input type="checkbox" id="doubleThreeOption"></label>
 <label class="option-row"><span><strong>上級モード</strong><br><small>5色×5形状・各プレイヤー3個の手持ち<br>自分の駒5連続／異なる5色／異なる5形状で勝利</small></span><input type="checkbox" id="advancedOption"></label>
-<p class="note">設定は次に開始するゲームから適用されます。ペナルティはCALL制度がONのときのみ有効です。</p><div class="controls"><button class="action primary" id="closeOptions">閉じる</button></div></dialog><dialog id="titleDialog"><h2>タイトルに戻りますか？</h2><p>現在の対局は終了します。</p><div class="controls"><button class="action" id="cancelTitle">キャンセル</button><button class="action primary" id="confirmTitle">タイトルへ</button></div></dialog><dialog id="rulesDialog"><h2>遊び方</h2><div class="instructions" id="rulesContent">2人で1台の画面を共有して遊びます。<br>① 先手はP1・P2からランダムに決まります。<br>② 毎手、4色×4形状からランダムに1個の駒が配られます。<br>③ 最初の1手はどこでも配置できます。以降は、既存の駒の縦・横・斜め1マス以内にある緑色の空きマスに置きます。<br>④ 自分が置いた駒を、縦・横・斜めに5個連続させると勝利です。色と形は問いません。<br>⑤ 対戦中、駒の所有者は表示されません。配置場所を覚えてください。<br>⑥ 終了時に全駒の所有者を公開し、勝利ラインを金色で強調します。81マスが埋まって勝者がいなければ引き分けです。<br>⑦ 「1手戻る」で直前の配置を取り消せます。<br>⑧ オプションのCALL制度をONにすると、5個並んでも自動勝利せず、自分の手番で「CALL！」を押して宣言します。成功なら勝利、失敗ならそのまま手番を続けます。戻した駒と手番は元に戻ります。</div><div class="controls" style="margin-top:16px"><button class="action primary" id="closeRules">閉じる</button></div></dialog>
+<p class="note">設定は次に開始するゲームから適用されます。ペナルティはCALL制度がONのときのみ有効です。</p><div class="controls"><button class="action primary" id="closeOptions">閉じる</button></div></dialog><dialog id="titleDialog"><h2>タイトルに戻りますか？</h2><p>現在の対局は終了します。</p><div class="controls"><button class="action" id="cancelTitle">キャンセル</button><button class="action primary" id="confirmTitle">タイトルへ</button></div></dialog><dialog id="rulesDialog"><h2>遊び方</h2><div class="instructions" id="rulesContent">2人で1台の画面を共有して遊びます。<br>① 先手はP1・P2から選択、またはランダムで決めます。<br>② 毎手、4色×4形状からランダムに1個の駒が配られます。<br>③ 最初の1手はどこでも配置できます。以降は、既存の駒の縦・横・斜め1マス以内にある緑色の空きマスに置きます。<br>④ 自分が置いた駒を、縦・横・斜めに5個連続させると勝利です。色と形は問いません。<br>⑤ 対戦中、駒の所有者は表示されません。配置場所を覚えてください。<br>⑥ 終了時に全駒の所有者を公開し、勝利ラインを金色で強調します。81マスが埋まって勝者がいなければ引き分けです。<br>⑦ 「1手戻る」で直前の配置を取り消せます。<br>⑧ オプションのCALL制度をONにすると、5個並んでも自動勝利せず、自分の手番で「CALL！」を押して宣言します。成功なら勝利、失敗ならそのまま手番を続けます。戻した駒と手番は元に戻ります。</div><div class="controls" style="margin-top:16px"><button class="action primary" id="closeRules">閉じる</button></div></dialog>
 <dialog id="confirmDialog"><h2>最初からやり直しますか？</h2><p>現在の盤面は消去され、新しいゲームが始まります。</p><div class="controls"><button class="action" id="cancelRestart">キャンセル</button><button class="action primary" id="confirmRestart">やり直す</button></div></dialog>
 <div id="callOverlay" class="call-overlay hidden" role="status" aria-live="assertive" aria-atomic="true"><div class="call-card"><div class="call-kicker" id="callKicker">CALL!</div><div id="callStage" class="call-number">3</div><div id="callDetail" class="call-detail"></div></div></div>
 <script>
@@ -174,14 +174,14 @@ function render(){
  const banner=$('turnBanner');
  banner.className='turn-banner '+(active&&!ended?'p'+turn:'idle');
  $('turnMain').textContent=ended?(result?playerName(Number(result))+' 勝利！':'引き分け'):active?playerName(turn)+' の番！':'ゲーム準備中';
- $('turnSub').textContent=ended?'対戦終了・所有者公開中':active?playerName(turn)+' が緑色のマスに駒を置いてください':'開始すると先手をランダムで決定します';
+ $('turnSub').textContent=ended?'対戦終了・所有者公開中':active?playerName(turn)+' が緑色のマスに駒を置いてください':'開始時に先手を選択またはランダムで決定します';
  $('undoBtn').disabled=!history.length||locked;
  $('callBtn').classList.toggle('hidden',!active||ended||!game.call);$('callBtn').disabled=locked;
  $('modeLabel').textContent=`${game.advanced?'上級モード':'通常モード'} ｜ ${game.call?'CALL（自己宣言）':'AUTO（自動判定）'}${game.call&&game.penalty?' ｜ CALL失敗で手番スキップ':''}${game.doubleThree?' ｜ 先手三三禁止':''}`;
  $('moveCount').textContent=`${moves} / 81 手`;
  $('counts').textContent=`${playerName(1)}: ${board.filter(p=>p?.owner===1).length}個　${playerName(2)}: ${board.filter(p=>p?.owner===2).length}個`;
  $('turnLabel').textContent=ended?(result?`${playerName(Number(result))} の勝利！`:'引き分け'):active?`${playerName(turn)} の手番`:'ゲーム準備中';
- $('announce').textContent=ended?'全駒の所有者を公開しました':active?`先手：${playerName(first)}　｜　現在：${playerName(turn)}`:'先手はランダムで決定します';
+ $('announce').textContent=ended?'全駒の所有者を公開しました':active?`先手：${playerName(first)}　｜　現在：${playerName(turn)}`:'先手は開始時に選択またはランダムで決定します';
  $('startBtn').disabled=active||ended;$('startBtn').classList.toggle('hidden',active||ended);
  $('restartBtn').disabled=!active&&!ended;
  $('message').textContent=message;
@@ -221,10 +221,11 @@ function undo(){
  message='直前の操作を取り消しました';
  render();
 }
-function start(){
+async function requestStart(){const choice=await window.wgChooseStarter();if(choice)start(choice.index+1)}
+function start(starter){
  cancelCallAnimation();game={...settings};board=Array(S).fill(null);hands={1:[],2:[]};
  if(game.advanced){hands[1]=Array.from({length:3},makePiece);hands[2]=Array.from({length:3},makePiece)}
- history=[];first=rand(2)+1;turn=first;selected=0;
+ history=[];first=starter===1||starter===2?starter:rand(2)+1;turn=first;selected=0;
  next=game.advanced?null:makePiece();
  active=true;ended=false;winlines=[];moves=0;result='';message='';
  $('startScreen').classList.add('hidden');render();
@@ -260,7 +261,7 @@ async function call(){
 }
 function openRules(){
  $('rulesContent').innerHTML=`2人で1台の画面を共有して遊びます。<br>
-① 先手はP1・P2からランダムに決まります。<br>
+① 先手はP1・P2から選択、またはランダムで決めます。<br>
 ② 最初の1手は自由配置。以降は既存の駒から通常モードは周囲1マス、上級モードは周囲2マス以内に配置します。<br>
 ③ 所有者は対戦中は非表示です。終了時に公開されます。<br>
 ④ 通常モード：4色×4形状から毎手ランダム配布。自分の駒5連続で勝利。<br>
@@ -270,8 +271,8 @@ function openRules(){
 ⑧ 先手三三禁止ONでは、先手が自分の所有する駒で2方向以上に活三を同時に作る配置は禁止です。色・形状は判定対象外です。<br>⑨ CALLは3→2→1の後に成功・失敗を発表します。<br>⑩ 1手戻るで直前の配置や手番スキップを取り消せます。`;
  $('rulesDialog').showModal();
 }
-$('startBtn').addEventListener('click',start);
-$('menuStart').addEventListener('click',start);
+$('startBtn').addEventListener('click',requestStart);
+$('menuStart').addEventListener('click',requestStart);
 $('menuRules').addEventListener('click',openRules);
 $('rulesBtn').addEventListener('click',openRules);
 $('menuOptions').addEventListener('click',()=>$('optionsDialog').showModal());
@@ -291,11 +292,38 @@ $('confirmTitle').addEventListener('click',()=>{
 $('undoBtn').addEventListener('click',undo);
 $('restartBtn').addEventListener('click',()=>$('confirmDialog').showModal());
 $('cancelRestart').addEventListener('click',()=>$('confirmDialog').close());
-$('confirmRestart').addEventListener('click',()=>{$('confirmDialog').close();start()});
+$('confirmRestart').addEventListener('click',()=>{$('confirmDialog').close();requestStart()});
 $('closeRules').addEventListener('click',()=>$('rulesDialog').close());
 board=Array(S).fill(null);hands={1:[],2:[]};next=null;render();
 })();
-</script><script data-wg-home-confirm>
+</script><script data-wg-starter>
+(function(){
+ let pending=null;
+ window.wgChooseStarter=function(count=2,options={}){
+  if(pending)return pending;
+  const previous=document.activeElement;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'[]')||[]}catch(e){}
+  const names=Array.from({length:count},(_,i)=>{const id='P'+(i+1),name=options.cpu&&i===1?'CPU':String(saved[i]||id).trim().slice(0,16);return name===id?id:id+'（'+name+'）'});
+  const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','開始プレイヤーを決める');
+  dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:20px;width:min(92vw,420px);max-height:88dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:15px/1.6 system-ui,sans-serif;text-align:left;';
+  function button(text){const b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='width:100%;min-height:44px;margin:5px 0;padding:10px;border:1px solid #958b76;border-radius:10px;background:#fffaf1;color:#202522;font:700 14px system-ui,sans-serif;cursor:pointer;';return b}
+  const title=document.createElement('h2');title.textContent='開始プレイヤー';title.style.cssText='margin:0 0 8px;font-size:20px;color:#202522;';
+  const note=document.createElement('p');note.textContent=options.note||'決め方を選び、開始するプレイヤーを確認してください。';note.style.cssText='font-size:12px;line-height:1.6;margin:0 0 12px;color:#59625c;';
+  const manual=button('ユーザーが選ぶ'),random=button('ランダムで決める'),select=document.createElement('select');select.setAttribute('aria-label','開始するプレイヤー');select.style.cssText='display:block;width:100%;min-height:44px;margin:10px 0;padding:8px;background:#fff;color:#202522;border:1px solid #958b76;border-radius:8px;font:15px system-ui,sans-serif;';
+  names.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;select.append(o)});
+  const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='margin:12px 0;color:#202522;font-weight:700;';
+  const start=button('このプレイヤーで開始'),cancel=button('キャンセル');start.style.background='#202522';start.style.color='#fffaf1';
+  let mode='manual',index=0;
+  function render(){manual.setAttribute('aria-pressed',String(mode==='manual'));random.setAttribute('aria-pressed',String(mode==='random'));manual.style.borderWidth=mode==='manual'?'3px':'1px';random.style.borderWidth=mode==='random'?'3px':'1px';select.hidden=mode==='random';select.style.display=mode==='random'?'none':'block';result.textContent=(mode==='random'?'抽選結果：':'開始：')+names[index];}
+  manual.onclick=()=>{mode='manual';index=Number(select.value);render()};random.onclick=()=>{mode='random';index=Math.floor(Math.random()*count);render()};select.onchange=()=>{index=Number(select.value);render()};
+  dialog.append(title,note,manual,random,select,result,start,cancel);document.body.append(dialog);
+  pending=new Promise(resolve=>{function finish(value){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(value)}start.onclick=()=>finish({index,mode});cancel.onclick=()=>finish(null);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)})});
+  render();dialog.showModal();manual.focus();return pending;
+ };
+})();
+</script>
+
+<script data-wg-home-confirm>
 (function(){
   let pending=null;
   window.wgConfirmHome=function(message){
@@ -326,6 +354,53 @@ board=Array(S).fill(null);hands={1:[],2:[]};next=null;render();
     if(pending)return;
     window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
   },true);
+})();
+</script>
+
+<script data-wg-display>
+(function(){
+ 'use strict';
+ const KEY='waitingGamesDisplayV1';
+ function normalize(value){const v=value&&typeof value==='object'?value:{};const n=Number(v.percent);return{mode:v.mode==='manual'?'manual':'auto',percent:Number.isFinite(n)?Math.min(175,Math.max(75,Math.round(n/5)*5)):100};}
+ function autoFactor(width,shortSide){const edge=Math.min(width,shortSide>0?shortSide:width);return edge<600?1:edge<900?1.25:1.5;}
+ function scaleCSS(css,factor){
+  return css.replace(/@media[^{}]+\{/g,query=>query.replace(/((?:min-|max-)?(?:width|height)\s*:\s*)([\d.]+)px/g,(_,prefix,n)=>prefix+(Number(n)*factor)+'px'))
+   .replace(/(-?\d*\.?\d+)(dvh|svh|lvh|vmin|vmax|vh|vw)\b/g,(_,n,unit)=>'calc('+n+' * var(--wg-'+unit+'))');
+ }
+ // Browser integration
+ function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return normalize(null)}}
+ let setting=load(),factor=1,saved=true;
+ const root=document.documentElement,draw=location.pathname.endsWith('/draw.html');
+ const originals=new Map([...document.querySelectorAll('style')].map(style=>[style,style.textContent]));
+ const extra=document.createElement('style');extra.id='wg-display-layout';document.head.append(extra);
+ function apply(){
+  factor=setting.mode==='manual'?setting.percent/100:autoFactor(window.innerWidth,Math.min(window.screen.width,window.screen.height));
+  const layout=draw?1:factor;
+  root.style.zoom=String(layout);root.dataset.wgDisplay=setting.mode;root.dataset.wgDisplayScale=String(factor);
+  for(const unit of ['vh','dvh','svh','lvh','vw','vmin','vmax'])root.style.setProperty('--wg-'+unit,'calc(1'+unit+' / '+layout+')');
+  for(const [style,css]of originals)style.textContent=scaleCSS(css,layout);
+  extra.textContent='html{height:calc(100 * var(--wg-dvh));overflow:auto}body{min-height:calc(100 * var(--wg-dvh))}dialog{max-width:calc(100% - 24px)!important;max-height:calc(88 * var(--wg-dvh))!important}'+
+   (draw?'header,#toolRow,#footer,.drawer,dialog{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
+   '@media(max-width:'+(360*layout)+'px){.brand{flex-wrap:wrap}.quick,.player-inputs{grid-template-columns:1fr}.controlDeck{grid-template-columns:1fr}.pad{grid-template-columns:repeat(3,minmax(0,1fr))}}');
+  sync();window.dispatchEvent(new CustomEvent('wgdisplaychange',{detail:{factor}}));
+ }
+ function sync(){
+  const mode=document.getElementById('displayMode'),range=document.getElementById('displayScale'),value=document.getElementById('displayScaleValue'),status=document.getElementById('displayStatus');if(!mode)return;
+  mode.value=setting.mode;range.value=String(setting.mode==='manual'?setting.percent:Math.round(factor*100));range.disabled=setting.mode!=='manual';value.textContent=Math.round(factor*100)+'%';
+  for(const id of ['displaySmaller','displayLarger'])document.getElementById(id).disabled=setting.mode!=='manual'||(id==='displaySmaller'?setting.percent<=75:setting.percent>=175);
+  status.textContent=(setting.mode==='auto'?'画面に合わせて自動調整':'手動でサイズを指定')+'。TOPと全ゲームに反映します。'+(saved?'':'このブラウザでは保存できないため、現在の画面だけに反映します。');
+ }
+ function set(value){setting=normalize(value);try{localStorage.setItem(KEY,JSON.stringify(setting));saved=true}catch(e){saved=false}apply();}
+ window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},set};
+ const mode=document.getElementById('displayMode');if(mode){
+  mode.addEventListener('change',()=>set({mode:mode.value,percent:Math.round(factor*100)}));
+  document.getElementById('displayScale').addEventListener('input',e=>set({mode:'manual',percent:e.target.value}));
+  document.getElementById('displaySmaller').onclick=()=>set({mode:'manual',percent:setting.percent-5});document.getElementById('displayLarger').onclick=()=>set({mode:'manual',percent:setting.percent+5});
+  document.getElementById('displayReset').onclick=()=>set({mode:'manual',percent:100});
+ }
+ let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(apply)});
+ window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){setting=load();apply()}});
+ apply();
 })();
 </script>
 

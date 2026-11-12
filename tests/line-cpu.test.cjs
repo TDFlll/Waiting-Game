@@ -40,6 +40,11 @@ test('hidden multipliers are never read by CPU planning',()=>{
  assert.equal(view.opponent.red,1.125);
  assert.ok(api.cpuPlan(view));
 });
+test('P2 can start, CPU scheduling still hands control to P1, and new rounds retain the chosen opening player',()=>{
+ const {api,tick,timers}=game();api.initGame('cpu',1);assert.equal(api.currentPlayer(),1);assert.equal(api.state.initialFirst,1);assert.ok(timers.size>0);
+ for(let i=0;i<8&&api.currentPlayer()===1;i++)tick();assert.equal(api.currentPlayer(),0);assert.equal(api.busy,false);
+ api.initGame('vs',1);api.state.first=0;api.nextRound();assert.equal(api.state.round,2);assert.equal(api.currentPlayer(),1);assert.equal(api.state.initialFirst,1);
+});
 
 test('actual corner and wall placements award both players their own multipliers, whoever connects',()=>{
  for(const mode of ['corners','walls'])for(const mover of [0,1])for(const visible of [true,false]){

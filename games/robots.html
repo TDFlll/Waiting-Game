@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Waiting Robots v4.7</title>
+<title>Waiting Robots v4.8</title>
 <style>
 :root{--bg:#10151d;--panel:#19212d;--line:#39475a;--text:#f4f7fb;--muted:#9cabbc;--accent:#64d8cb;--gold:#ffd45b;--danger:#ff6f6f;--blue:#43a5ff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button{font:inherit;color:inherit}.app{max-width:560px;margin:auto;padding:12px 12px 22px}.top{display:flex;align-items:end;justify-content:space-between;margin-bottom:8px}.title{font-size:23px;font-weight:950;letter-spacing:.03em}.ver{font-size:11px;color:var(--muted)}
@@ -49,7 +49,7 @@
 .wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:120;border:1px solid rgba(100,216,203,.65);border-radius:999px;background:rgba(16,21,29,.82);color:#f4f7fb;text-decoration:none;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;padding:8px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 </style></head>
 <body><a class="wg-home" href="../index.html" aria-label="WAITING GAMESへ戻る">← GAMES</a><div class="app">
-<div class="top"><div class="title">WAITING ROBOTS</div><div class="ver">prototype v4.7</div></div>
+<div class="top"><div class="title">WAITING ROBOTS</div><div class="ver">prototype v4.8</div></div>
 <div class="panel setupPanelMobile" id="setupPanel">
   <div class="status">プレイヤー人数</div><div class="sub">2〜4人 / 全3ラウンド</div>
   <div class="setup" style="margin-top:9px"><button data-n="2" class="active">2人</button><button data-n="3">3人</button><button data-n="4">4人</button></div>
@@ -73,7 +73,7 @@
 <div class="overlay" id="draftOverlay"><div class="overlayBox"><h2>ABILITY SELECT</h2><p id="draftText"></p><div class="draftGrid" id="draftGrid"></div></div></div>
 <script>
 (function(){
-var N=2,players=[],treasures=[],roadOwners=[],current=0,phase='setup',step=0,round=1,maxRounds=3,gridSize=4,custom=true,colorRoad=true,initialMode='random',selectedInitial=[],inputOrder=[],inputPos=0,draftOptions=[],draftOrder=[],draftPos=0,pendingAction=null,currentMap=null,startOffset=0;
+var N=2,players=[],treasures=[],roadOwners=[],current=0,phase='setup',step=0,round=1,maxRounds=3,gridSize=4,custom=true,colorRoad=true,initialMode='random',selectedInitial=[],inputOrder=[],inputPos=0,draftOptions=[],draftOrder=[],draftPos=0,pendingAction=null,currentMap=null,startOffset=0,startingInput=null;
 var dirs={U:{dr:-1,dc:0,a:'▲'},D:{dr:1,dc:0,a:'▼'},L:{dr:0,dc:-1,a:'◀'},R:{dr:0,dc:1,a:'▶'}};
 var AB=[
 {id:1,n:'ダッシュ',rule:'1ラウンド＋1回',desc:'2マス前進。接触時は相手をノックバック1。通過した宝も取得。',action:1,dir:1,uses:1},
@@ -151,7 +151,7 @@ function cancelPendingAction(){pendingAction=null;renderProgram()}
 function startActionInput(a){if(phase!=='input')return;var p=players[current];if(commandCount(p)>=commandLimit(p)){promptInputComplete();return}if(a.uses&&programmedUses(p,a.id)>=a.uses)return;if(pendingAction){if(pendingAction.a.id===a.id){cancelPendingAction();return}else{pendingAction=null}}if(!a.dir){p.cmds.push({type:'action',id:a.id,dirs:[]});previewReset();renderProgram();return}pendingAction={a:a,dirs:[]};$('done').disabled=true;updateActionHint()}
 function chooseActionDir(d){if(!pendingAction)return;pendingAction.dirs.push(d);if(pendingAction.a.dir===2&&pendingAction.dirs.length<2){updateActionHint();return}players[current].cmds.push({type:'action',id:pendingAction.a.id,dirs:pendingAction.dirs.slice()});pendingAction=null;previewReset();renderProgram();updateActionHint()}
 function roundLabel(){return 'ROUND '+round+' / '+maxRounds+' ・ '+currentMap.name}
-function buildInputOrder(){var normal=[],last=[];for(var i=0;i<N;i++)(custom&&has(players[i],6)?last:normal).push(i);inputOrder=shuffle(normal).concat(shuffle(last));inputPos=0;current=inputOrder[0]}
+function buildInputOrder(){var normal=[],last=[];for(var i=0;i<N;i++)(custom&&has(players[i],6)?last:normal).push(i);inputOrder=(round===1&&normal.indexOf(startingInput)>=0?[startingInput].concat(shuffle(normal.filter(function(i){return i!==startingInput}))):shuffle(normal)).concat(shuffle(last));inputPos=0;current=inputOrder[0]}
 function privacyForPlayer(){phase='input';pendingAction=null;current=inputOrder[inputPos];for(var i=0;i<players.length;i++){players[i].r=players[i].startR;players[i].c=players[i].startC}renderBoard();renderScores();$('status').textContent=roundLabel()+'　'+playerName(current);$('sub').textContent=commandLimit(players[current])+'コマンドを記憶'+(colorRoad?' ・ 移動成功マスは自分色に上書き':'');renderProgram();$('privacyTitle').textContent=playerName(current);$('privacyText').textContent='端末を'+playerName(current)+'へ渡してください。ほかのプレイヤーのコマンドは非公開です。';$('privacy').className='privacy show'}
 function finishInput(){if(!inputComplete(players[current]))return;inputPos++;if(inputPos<N){privacyForPlayer()}else{phase='ready';for(var i=0;i<N;i++){players[i].r=players[i].startR;players[i].c=players[i].startC}renderBoard();$('inputPanel').classList.add('hidden');$('runPanel').classList.remove('hidden');$('status').textContent=roundLabel()+'　ALL PROGRAMS READY';$('sub').textContent='全ロボットを初期位置へ戻しました';$('runPrograms').innerHTML='<div style="width:100%;text-align:center;color:var(--muted)">全員の命令は実行開始まで非公開</div>';renderScores()}}
 function maxSteps(){var m=0;for(var i=0;i<N;i++)m=Math.max(m,programSteps(players[i]).length);return m}function startRun(){phase='run';step=0;$('runBtn').disabled=true;$('status').textContent=roundLabel()+'　PROGRAM RUNNING';runStep()}
@@ -320,11 +320,38 @@ function endGame(){
  $('result').innerHTML=html;$('result').classList.remove('hidden');renderScores();$('restartBtn').onclick=function(){location.reload()}
 }
 function chooseInitialAbilities(){if(!custom)return[];if(initialMode==='choose')return selectedInitial.slice();var pool=AB.filter(function(a){return a.initial!==false});return[pool[Math.floor(Math.random()*pool.length)].id]}
-function newGame(){var init=chooseInitialAbilities();players=[];for(var i=0;i<N;i++)players.push({startR:0,startC:0,r:0,c:0,cmds:[],score:0,roundScore:0,roadCount:0,roadBonus:0,contacts:0,roundContacts:0,abilityHits:0,treasurePoints:0,colorRoadPoints:0,roundHistory:[0,0,0],roadHistory:[0,0,0],contactHistory:[0,0,0],abilities:init.slice(),used:{},reverse:false,droneDue:null});round=1;maxRounds=3;startOffset=Math.floor(Math.random()*N);$('setupPanel').classList.add('hidden');$('game').classList.remove('hidden');setupRound()}
+function newGame(starter){startingInput=Number.isInteger(starter)?starter:null;var init=chooseInitialAbilities();players=[];for(var i=0;i<N;i++)players.push({startR:0,startC:0,r:0,c:0,cmds:[],score:0,roundScore:0,roadCount:0,roadBonus:0,contacts:0,roundContacts:0,abilityHits:0,treasurePoints:0,colorRoadPoints:0,roundHistory:[0,0,0],roadHistory:[0,0,0],contactHistory:[0,0,0],abilities:init.slice(),used:{},reverse:false,droneDue:null});round=1;maxRounds=3;startOffset=Math.floor(Math.random()*N);$('setupPanel').classList.add('hidden');$('game').classList.remove('hidden');setupRound()}
 var nbtn=document.querySelectorAll('[data-n]');for(var i=0;i<nbtn.length;i++)nbtn[i].onclick=function(){N=parseInt(this.getAttribute('data-n'),10);nbtn.forEach(function(x){x.classList.remove('active')});this.classList.add('active')};document.querySelectorAll('[data-d]').forEach(function(b){b.onclick=function(){addCmd(this.getAttribute('data-d'))}});
-$('customOn').onclick=function(){custom=true;this.classList.add('active');$('customOff').classList.remove('active');$('customSetup').classList.remove('hidden')};$('roadOn').onclick=function(){colorRoad=true;this.classList.add('active');$('roadOff').classList.remove('active')};$('roadOff').onclick=function(){colorRoad=false;this.classList.add('active');$('roadOn').classList.remove('active')};$('customOff').onclick=function(){custom=false;this.classList.add('active');$('customOn').classList.remove('active');$('customSetup').classList.add('hidden')};$('modeRandom').onclick=function(){initialMode='random';this.classList.add('active');$('modeChoose').classList.remove('active');$('abilitySelect').classList.add('hidden')};$('modeChoose').onclick=function(){initialMode='choose';this.classList.add('active');$('modeRandom').classList.remove('active');$('abilitySelect').classList.remove('hidden')};$('startBtn').onclick=newGame;$('privacyBtn').onclick=function(){$('privacy').className='privacy'};$('done').onclick=finishInput;$('undo').onclick=function(){$('done').classList.remove('donePrompt');if(pendingAction){cancelPendingAction();return}var p=players[current];if(p.cmds.length){p.cmds.pop();previewReset();renderProgram()}};$('runBtn').onclick=startRun;buildAbilityChecks();
+$('customOn').onclick=function(){custom=true;this.classList.add('active');$('customOff').classList.remove('active');$('customSetup').classList.remove('hidden')};$('roadOn').onclick=function(){colorRoad=true;this.classList.add('active');$('roadOff').classList.remove('active')};$('roadOff').onclick=function(){colorRoad=false;this.classList.add('active');$('roadOn').classList.remove('active')};$('customOff').onclick=function(){custom=false;this.classList.add('active');$('customOn').classList.remove('active');$('customSetup').classList.add('hidden')};$('modeRandom').onclick=function(){initialMode='random';this.classList.add('active');$('modeChoose').classList.remove('active');$('abilitySelect').classList.add('hidden')};$('modeChoose').onclick=function(){initialMode='choose';this.classList.add('active');$('modeRandom').classList.remove('active');$('abilitySelect').classList.remove('hidden')};$('startBtn').onclick=async function(){var choice=await window.wgChooseStarter(N,{note:'最初にコマンドを入力するプレイヤーを決めます。移動・アクションは同時に再生します。'});if(choice)newGame(choice.index)};$('privacyBtn').onclick=function(){$('privacy').className='privacy'};$('done').onclick=finishInput;$('undo').onclick=function(){$('done').classList.remove('donePrompt');if(pendingAction){cancelPendingAction();return}var p=players[current];if(p.cmds.length){p.cmds.pop();previewReset();renderProgram()}};$('runBtn').onclick=startRun;buildAbilityChecks();
 })();
-</script><script data-wg-home-confirm>
+</script><script data-wg-starter>
+(function(){
+ let pending=null;
+ window.wgChooseStarter=function(count=2,options={}){
+  if(pending)return pending;
+  const previous=document.activeElement;
+  let saved=[];try{saved=JSON.parse(localStorage.getItem('waitingGamesPlayerNamesV1')||'[]')||[]}catch(e){}
+  const names=Array.from({length:count},(_,i)=>{const id='P'+(i+1),name=options.cpu&&i===1?'CPU':String(saved[i]||id).trim().slice(0,16);return name===id?id:id+'（'+name+'）'});
+  const dialog=document.createElement('dialog');dialog.setAttribute('aria-label','開始プレイヤーを決める');
+  dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:20px;width:min(92vw,420px);max-height:88dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:15px/1.6 system-ui,sans-serif;text-align:left;';
+  function button(text){const b=document.createElement('button');b.type='button';b.textContent=text;b.style.cssText='width:100%;min-height:44px;margin:5px 0;padding:10px;border:1px solid #958b76;border-radius:10px;background:#fffaf1;color:#202522;font:700 14px system-ui,sans-serif;cursor:pointer;';return b}
+  const title=document.createElement('h2');title.textContent='開始プレイヤー';title.style.cssText='margin:0 0 8px;font-size:20px;color:#202522;';
+  const note=document.createElement('p');note.textContent=options.note||'決め方を選び、開始するプレイヤーを確認してください。';note.style.cssText='font-size:12px;line-height:1.6;margin:0 0 12px;color:#59625c;';
+  const manual=button('ユーザーが選ぶ'),random=button('ランダムで決める'),select=document.createElement('select');select.setAttribute('aria-label','開始するプレイヤー');select.style.cssText='display:block;width:100%;min-height:44px;margin:10px 0;padding:8px;background:#fff;color:#202522;border:1px solid #958b76;border-radius:8px;font:15px system-ui,sans-serif;';
+  names.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=name;select.append(o)});
+  const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='margin:12px 0;color:#202522;font-weight:700;';
+  const start=button('このプレイヤーで開始'),cancel=button('キャンセル');start.style.background='#202522';start.style.color='#fffaf1';
+  let mode='manual',index=0;
+  function render(){manual.setAttribute('aria-pressed',String(mode==='manual'));random.setAttribute('aria-pressed',String(mode==='random'));manual.style.borderWidth=mode==='manual'?'3px':'1px';random.style.borderWidth=mode==='random'?'3px':'1px';select.hidden=mode==='random';select.style.display=mode==='random'?'none':'block';result.textContent=(mode==='random'?'抽選結果：':'開始：')+names[index];}
+  manual.onclick=()=>{mode='manual';index=Number(select.value);render()};random.onclick=()=>{mode='random';index=Math.floor(Math.random()*count);render()};select.onchange=()=>{index=Number(select.value);render()};
+  dialog.append(title,note,manual,random,select,result,start,cancel);document.body.append(dialog);
+  pending=new Promise(resolve=>{function finish(value){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(value)}start.onclick=()=>finish({index,mode});cancel.onclick=()=>finish(null);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)})});
+  render();dialog.showModal();manual.focus();return pending;
+ };
+})();
+</script>
+
+<script data-wg-home-confirm>
 (function(){
   let pending=null;
   window.wgConfirmHome=function(message){
@@ -355,6 +382,53 @@ $('customOn').onclick=function(){custom=true;this.classList.add('active');$('cus
     if(pending)return;
     window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
   },true);
+})();
+</script>
+
+<script data-wg-display>
+(function(){
+ 'use strict';
+ const KEY='waitingGamesDisplayV1';
+ function normalize(value){const v=value&&typeof value==='object'?value:{};const n=Number(v.percent);return{mode:v.mode==='manual'?'manual':'auto',percent:Number.isFinite(n)?Math.min(175,Math.max(75,Math.round(n/5)*5)):100};}
+ function autoFactor(width,shortSide){const edge=Math.min(width,shortSide>0?shortSide:width);return edge<600?1:edge<900?1.25:1.5;}
+ function scaleCSS(css,factor){
+  return css.replace(/@media[^{}]+\{/g,query=>query.replace(/((?:min-|max-)?(?:width|height)\s*:\s*)([\d.]+)px/g,(_,prefix,n)=>prefix+(Number(n)*factor)+'px'))
+   .replace(/(-?\d*\.?\d+)(dvh|svh|lvh|vmin|vmax|vh|vw)\b/g,(_,n,unit)=>'calc('+n+' * var(--wg-'+unit+'))');
+ }
+ // Browser integration
+ function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return normalize(null)}}
+ let setting=load(),factor=1,saved=true;
+ const root=document.documentElement,draw=location.pathname.endsWith('/draw.html');
+ const originals=new Map([...document.querySelectorAll('style')].map(style=>[style,style.textContent]));
+ const extra=document.createElement('style');extra.id='wg-display-layout';document.head.append(extra);
+ function apply(){
+  factor=setting.mode==='manual'?setting.percent/100:autoFactor(window.innerWidth,Math.min(window.screen.width,window.screen.height));
+  const layout=draw?1:factor;
+  root.style.zoom=String(layout);root.dataset.wgDisplay=setting.mode;root.dataset.wgDisplayScale=String(factor);
+  for(const unit of ['vh','dvh','svh','lvh','vw','vmin','vmax'])root.style.setProperty('--wg-'+unit,'calc(1'+unit+' / '+layout+')');
+  for(const [style,css]of originals)style.textContent=scaleCSS(css,layout);
+  extra.textContent='html{height:calc(100 * var(--wg-dvh));overflow:auto}body{min-height:calc(100 * var(--wg-dvh))}dialog{max-width:calc(100% - 24px)!important;max-height:calc(88 * var(--wg-dvh))!important}'+
+   (draw?'header,#toolRow,#footer,.drawer,dialog{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
+   '@media(max-width:'+(360*layout)+'px){.brand{flex-wrap:wrap}.quick,.player-inputs{grid-template-columns:1fr}.controlDeck{grid-template-columns:1fr}.pad{grid-template-columns:repeat(3,minmax(0,1fr))}}');
+  sync();window.dispatchEvent(new CustomEvent('wgdisplaychange',{detail:{factor}}));
+ }
+ function sync(){
+  const mode=document.getElementById('displayMode'),range=document.getElementById('displayScale'),value=document.getElementById('displayScaleValue'),status=document.getElementById('displayStatus');if(!mode)return;
+  mode.value=setting.mode;range.value=String(setting.mode==='manual'?setting.percent:Math.round(factor*100));range.disabled=setting.mode!=='manual';value.textContent=Math.round(factor*100)+'%';
+  for(const id of ['displaySmaller','displayLarger'])document.getElementById(id).disabled=setting.mode!=='manual'||(id==='displaySmaller'?setting.percent<=75:setting.percent>=175);
+  status.textContent=(setting.mode==='auto'?'画面に合わせて自動調整':'手動でサイズを指定')+'。TOPと全ゲームに反映します。'+(saved?'':'このブラウザでは保存できないため、現在の画面だけに反映します。');
+ }
+ function set(value){setting=normalize(value);try{localStorage.setItem(KEY,JSON.stringify(setting));saved=true}catch(e){saved=false}apply();}
+ window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},set};
+ const mode=document.getElementById('displayMode');if(mode){
+  mode.addEventListener('change',()=>set({mode:mode.value,percent:Math.round(factor*100)}));
+  document.getElementById('displayScale').addEventListener('input',e=>set({mode:'manual',percent:e.target.value}));
+  document.getElementById('displaySmaller').onclick=()=>set({mode:'manual',percent:setting.percent-5});document.getElementById('displayLarger').onclick=()=>set({mode:'manual',percent:setting.percent+5});
+  document.getElementById('displayReset').onclick=()=>set({mode:'manual',percent:100});
+ }
+ let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(apply)});
+ window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){setting=load();apply()}});
+ apply();
 })();
 </script>
 
