@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.12-display-scale",
-  "generatedAt": "2026-11-12",
+  "version": "2026.11.17-derby-handoff",
+  "generatedAt": "2026-11-17",
   "core": [
     "./",
     "index.html",
@@ -105,7 +105,7 @@
       "id": "derby",
       "title": "WAITING DERBY",
       "type": "game",
-      "version": "v0.11",
+      "version": "v0.12",
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
