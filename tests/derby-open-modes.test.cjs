@@ -20,7 +20,7 @@ function derby(){
  const html=fs.readFileSync(path.join(__dirname,'../games/derby.html'),'utf8');
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  vm.runInContext(script+`
- window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render,effects,finalRaceReview,handoffRevealHtml};
+ window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render,effects,finalRaceReview,handoffRevealHtml,syncRandomOpen};
  `,context);
  return {api:window.api,node,document,window,timers,
   advance(ms){const until=now+ms;let guard=0;while(true){const due=[...timers].filter(([,t])=>t.at<=until).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;if(++guard>1000)throw Error('Timer loop');const [id,t]=due;now=t.at;timers.delete(id);if(t.repeat)timers.set(id,{...t,at:now+t.ms});t.fn()}now=until},
@@ -153,4 +153,8 @@ test('handoff reveals an omen color only when opened, and a new round clears old
 test('handoff identifies a revealed card whose effect is disabled by an already revealed weight card',()=>{
  const {api}=derby();api.startGame();const weight=api.state.board.find(c=>c.kind==='weight'),carrot=api.state.board.find(c=>c.kind==='carrot');const adjacent=weight.pos%4<3?weight.pos+1:weight.pos-1;
  const other=api.state.board[adjacent],oldPos=carrot.pos;api.state.board[oldPos]=other;other.pos=oldPos;api.state.board[adjacent]=carrot;carrot.pos=adjacent;weight.revealed=true;carrot.revealed=true;api.state.turnReveals=[carrot.pos];assert.match(api.handoffRevealHtml(),/体重カードにより現在は無効/);
+});
+test('Randm Open pauses while game display options are open and restarts with a fresh interval',()=>{
+ const d=derby(),{api,window}=d;d.randomStart();d.advance(4000);window.WGDisplay={optionsOpen:true};api.syncRandomOpen();assert.equal(api.timer,null);d.advance(20000);assert.equal(api.publicCount(),0);
+ window.WGDisplay.optionsOpen=false;api.syncRandomOpen();d.advance(4999);assert.equal(api.publicCount(),0);d.advance(1);assert.equal(api.publicCount(),1);
 });
