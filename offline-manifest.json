@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.17-game-options",
+  "version": "2026.11.17-words",
   "generatedAt": "2026-11-17",
   "core": [
     "./",
@@ -129,6 +129,16 @@
       "url": "games/shift.html",
       "files": [
         "games/shift.html"
+      ]
+    },
+    {
+      "id": "words",
+      "title": "WAITING WORDS",
+      "type": "tool",
+      "version": "v1.1",
+      "url": "games/words.html",
+      "files": [
+        "games/words.html"
       ]
     }
   ]

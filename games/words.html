@@ -1,0 +1,154 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Waiting Words | お題抽選</title><style>
+:root{font-family:system-ui,-apple-system,'Noto Sans JP',sans-serif;color-scheme:dark;background:#101722;color:#f3f5fa}*{box-sizing:border-box}body{margin:0;padding:18px}main{max-width:650px;margin:auto}header{display:flex;justify-content:space-between;align-items:center}h1{font-size:20px;margin:10px 0}.muted{color:#9daabd;font-size:13px}.panel{background:#1b2534;border:1px solid #344255;border-radius:18px;padding:20px;margin-top:16px}.stage{text-align:center;padding:28px 12px}.word-list{display:grid;gap:10px;margin:15px 0}.word-item{background:#243246;border:1px solid #40516a;border-radius:12px;padding:14px 10px}.word-item .category{font-size:12px}.word-item .word{font-size:clamp(26px,7vw,44px);min-height:48px}.count-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.count-row select{font-size:17px;background:#28384d;color:white;border:1px solid #58667a;border-radius:10px;padding:9px 16px}.stage .placeholder{font-size:48px;font-weight:800;padding:20px}.category{font-size:15px;color:#a5b7d5}.word{font-size:clamp(36px,10vw,66px);font-weight:800;overflow-wrap:anywhere;min-height:100px;display:grid;place-items:center}.primary{width:100%;font-size:20px;font-weight:750;background:#7eacff;color:#101722;padding:18px;border:0;border-radius:13px;cursor:pointer}button{cursor:pointer;border-radius:10px;border:1px solid #58667a;background:#28384d;color:#f4f6fb;padding:10px 13px}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #f5ce6c;outline-offset:3px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.status{display:flex;justify-content:space-between;gap:8px;margin-top:13px}details{margin-top:20px}summary{cursor:pointer;font-weight:700;padding:8px 0}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.checks label{background:#243246;padding:11px;border-radius:9px;display:flex;align-items:center;gap:8px;font-size:14px}.checks input{width:18px;height:18px;accent-color:#83afff}.small{font-size:12px;color:#a8b6c8;line-height:1.7}.notice{color:#ffd18b;font-size:13px;min-height:20px} @media(min-width:520px){.checks{grid-template-columns:repeat(3,minmax(0,1fr))}}
+body{padding-top:46px}.wg-home{position:fixed;left:10px;top:max(10px,env(safe-area-inset-top));z-index:120;border:1px solid #58667a;border-radius:999px;background:#1b2534;color:#f3f5fa;text-decoration:none;font:800 11px/1 system-ui,sans-serif;padding:9px 11px}
+</style></head><body><a class="wg-home" href="../index.html" aria-label="WAITING GAMESへ戻る">← GAMES</a><main><header><h1>🎲 Waiting Words</h1><span class="muted">お題ジェネレーター</span></header><section class="panel stage" aria-live="polite"><div class="category">今回のお題</div><div class="word-list" id="word-list"><div class="placeholder">？</div></div><div class="notice" id="notice"></div></section><section class="panel"><div class="count-row"><label for="count">一度に出すお題の数</label><select id="count"><option value="1">1ワード</option><option value="2">2ワード</option><option value="3">3ワード</option><option value="4">4ワード</option><option value="5">5ワード</option></select></div><button class="primary" id="draw">次のお題を出す</button><div class="status muted"><span id="remaining"></span><span id="selected"></span></div><div class="actions"><button id="reset">抽選履歴をリセット</button></div><details><summary>カテゴリ設定（チェックで切り替え）</summary><div class="actions"><button id="all">すべて選択</button><button id="none">すべて解除</button></div><div class="checks" id="checks"></div></details><p class="small">選択カテゴリの未出題単語から指定数を一度に抽選します。1回の抽選内でも同じ単語は出ません。出題済みの単語は、カテゴリを切り替えても再出題しません。履歴とカテゴリ設定はこの端末のブラウザに保存されます。ブラウザの保存データを削除すると履歴も消えます。</p></section></main><script id="word-data" type="application/json">{"国": ["日本", "中国", "韓国", "台湾", "タイ", "ベトナム", "インド", "ネパール", "インドネシア", "フィリピン", "シンガポール", "マレーシア", "モンゴル", "トルコ", "イギリス", "フランス", "ドイツ", "イタリア", "スペイン", "ポルトガル", "オランダ", "スイス", "スウェーデン", "ノルウェー", "フィンランド", "ロシア", "アメリカ", "カナダ", "ブラジル", "アルゼンチン", "エジプト", "オーストラリア"], "職業": ["医師", "看護師", "教師", "保育士", "消防士", "警察官", "料理人", "美容師", "理容師", "大工", "建築士", "弁護士", "裁判官", "検察官", "税理士", "会計士", "運転手", "パイロット", "客室乗務員", "船長", "漁師", "農家", "花屋", "作家", "漫画家", "俳優", "声優", "歌手", "写真家", "研究者", "プログラマー", "宇宙飛行士"], "食べ物": ["寿司", "カレー", "ラーメン", "うどん", "そば", "おにぎり", "餃子", "唐揚げ", "天ぷら", "焼きそば", "お好み焼き", "たこ焼き", "ハンバーグ", "ステーキ", "オムライス", "ピザ", "パスタ", "サンドイッチ", "ハンバーガー", "グラタン", "シチュー", "チャーハン", "麻婆豆腐", "焼き鳥", "とんかつ", "刺身", "納豆", "豆腐", "味噌汁", "茶碗蒸し", "コロッケ", "肉じゃが"], "飲み物": ["水", "炭酸水", "麦茶", "緑茶", "ほうじ茶", "玄米茶", "紅茶", "ウーロン茶", "ジャスミン茶", "コーヒー", "カフェラテ", "カプチーノ", "エスプレッソ", "ココア", "牛乳", "豆乳", "飲むヨーグルト", "オレンジジュース", "りんごジュース", "ぶどうジュース", "トマトジュース", "野菜ジュース", "レモネード", "コーラ", "ジンジャーエール", "メロンソーダ", "ラムネ", "スポーツドリンク", "甘酒", "抹茶ラテ", "ミルクティー", "バナナジュース"], "遊び": ["鬼ごっこ", "かくれんぼ", "缶蹴り", "だるまさんがころんだ", "縄跳び", "けん玉", "お手玉", "あやとり", "折り紙", "シャボン玉", "水鉄砲", "雪合戦", "砂遊び", "泥団子", "宝探し", "迷路", "パズル", "トランプ", "将棋", "囲碁", "オセロ", "ボードゲーム", "人狼ゲーム", "クイズ", "しりとり", "なぞなぞ", "じゃんけん", "椅子取りゲーム", "フルーツバスケット", "ドッジボール", "ボウリング", "ビリヤード"], "趣味": ["読書", "映画鑑賞", "音楽鑑賞", "カラオケ", "釣り", "キャンプ", "登山", "ハイキング", "サイクリング", "ジョギング", "散歩", "写真撮影", "絵画", "書道", "陶芸", "編み物", "裁縫", "料理", "お菓子作り", "家庭菜園", "園芸", "盆栽", "模型製作", "プラモデル", "鉄道模型", "天体観測", "旅行", "温泉巡り", "美術館巡り", "コレクション", "日記", "楽器演奏"], "動物": ["犬", "猫", "うさぎ", "ハムスター", "モルモット", "馬", "牛", "豚", "羊", "ヤギ", "ライオン", "トラ", "ヒョウ", "ゾウ", "キリン", "シマウマ", "カバ", "サイ", "パンダ", "コアラ", "カンガルー", "ゴリラ", "チンパンジー", "サル", "クマ", "キツネ", "タヌキ", "オオカミ", "シカ", "リス", "イルカ", "クジラ"], "鳥": ["スズメ", "カラス", "ハト", "ツバメ", "ワシ", "タカ", "フクロウ", "ミミズク", "ペンギン", "ダチョウ", "フラミンゴ", "クジャク", "ニワトリ", "アヒル", "ガチョウ", "ハクチョウ", "カモ", "カモメ", "ウミネコ", "ツル", "コウノトリ", "サギ", "キツツキ", "カワセミ", "インコ", "オウム", "文鳥", "カナリア", "ウグイス", "ホトトギス", "ヒバリ", "メジロ"], "海の生き物": ["サメ", "エイ", "マグロ", "カツオ", "サバ", "イワシ", "アジ", "サンマ", "タイ", "ヒラメ", "カレイ", "フグ", "ウナギ", "タツノオトシゴ", "チンアナゴ", "クラゲ", "タコ", "イカ", "エビ", "カニ", "ヤドカリ", "ウニ", "ヒトデ", "ナマコ", "アワビ", "ホタテ", "アサリ", "シジミ", "カキ", "サンゴ", "シャチ", "アザラシ"], "昆虫": ["カブトムシ", "クワガタ", "チョウ", "ガ", "トンボ", "セミ", "バッタ", "コオロギ", "キリギリス", "カマキリ", "アリ", "ハチ", "ハエ", "蚊", "ホタル", "テントウムシ", "カナブン", "コガネムシ", "カミキリムシ", "タマムシ", "ゲンゴロウ", "タガメ", "アメンボ", "ミズスマシ", "ナナフシ", "オケラ", "シロアリ", "アブ", "ハナムグリ", "ゾウムシ", "ハサミムシ", "シミ"], "果物": ["りんご", "みかん", "オレンジ", "レモン", "ライム", "グレープフルーツ", "いちご", "ぶどう", "マスカット", "もも", "すもも", "さくらんぼ", "梨", "洋梨", "柿", "いちじく", "バナナ", "パイナップル", "マンゴー", "パパイヤ", "キウイ", "スイカ", "メロン", "アボカド", "ブルーベリー", "ラズベリー", "ブラックベリー", "ザクロ", "ライチ", "ドラゴンフルーツ", "ココナッツ", "びわ"], "野菜": ["にんじん", "玉ねぎ", "じゃがいも", "さつまいも", "大根", "かぶ", "ごぼう", "れんこん", "キャベツ", "白菜", "レタス", "ほうれん草", "小松菜", "水菜", "春菊", "ブロッコリー", "カリフラワー", "トマト", "きゅうり", "なす", "ピーマン", "パプリカ", "かぼちゃ", "ズッキーニ", "オクラ", "枝豆", "そら豆", "とうもろこし", "アスパラガス", "セロリ", "ねぎ", "にんにく"], "花": ["桜", "梅", "桃の花", "チューリップ", "バラ", "ひまわり", "アジサイ", "コスモス", "タンポポ", "スミレ", "パンジー", "ビオラ", "カーネーション", "ユリ", "菊", "ダリア", "ガーベラ", "ラベンダー", "スイセン", "ヒヤシンス", "アサガオ", "ヒガンバナ", "ツバキ", "サザンカ", "ハイビスカス", "スズラン", "カスミソウ", "ポピー", "ネモフィラ", "マーガレット", "シクラメン", "フリージア"], "乗り物": ["自転車", "三輪車", "バイク", "スクーター", "自動車", "タクシー", "バス", "トラック", "救急車", "消防車", "パトカー", "キャンピングカー", "電車", "新幹線", "路面電車", "地下鉄", "モノレール", "ケーブルカー", "ロープウェイ", "飛行機", "ヘリコプター", "気球", "グライダー", "船", "フェリー", "ヨット", "カヌー", "潜水艦", "ロケット", "人力車", "トラクター", "フォークリフト"], "スポーツ": ["野球", "サッカー", "バスケットボール", "バレーボール", "テニス", "卓球", "バドミントン", "ゴルフ", "ラグビー", "アメリカンフットボール", "ハンドボール", "ドッジボール競技", "陸上競技", "水泳", "体操", "柔道", "剣道", "空手", "相撲", "ボクシング", "レスリング", "フェンシング", "アーチェリー", "射撃", "スキー", "スノーボード", "スケート", "カーリング", "サーフィン", "スケートボード", "クライミング", "トライアスロン"], "楽器": ["ピアノ", "電子ピアノ", "オルガン", "アコーディオン", "ギター", "エレキギター", "ベース", "ウクレレ", "バイオリン", "ビオラ", "チェロ", "コントラバス", "ハープ", "トランペット", "トロンボーン", "ホルン", "チューバ", "サックス", "クラリネット", "フルート", "オーボエ", "ファゴット", "リコーダー", "ハーモニカ", "ドラム", "タンバリン", "カスタネット", "トライアングル", "シンバル", "木琴", "鉄琴", "尺八"], "家電": ["冷蔵庫", "洗濯機", "乾燥機", "掃除機", "エアコン", "扇風機", "加湿器", "除湿機", "空気清浄機", "電子レンジ", "オーブン", "炊飯器", "電気ポット", "電気ケトル", "トースター", "ホットプレート", "ミキサー", "コーヒーメーカー", "食器洗い機", "ドライヤー", "ヘアアイロン", "電気シェーバー", "電動歯ブラシ", "テレビ", "プロジェクター", "スピーカー", "ラジオ", "ゲーム機", "プリンター", "アイロン", "電気毛布", "ロボット掃除機"], "文房具": ["鉛筆", "シャープペンシル", "ボールペン", "万年筆", "蛍光ペン", "色鉛筆", "クレヨン", "消しゴム", "定規", "三角定規", "分度器", "コンパス", "はさみ", "カッター", "のり", "接着テープ", "両面テープ", "ホッチキス", "クリップ", "付箋", "ノート", "メモ帳", "手帳", "封筒", "便箋", "ファイル", "バインダー", "下敷き", "筆箱", "スタンプ", "朱肉", "修正テープ"], "家具": ["机", "椅子", "ソファ", "ベッド", "本棚", "食器棚", "タンス", "クローゼット", "テレビ台", "ローテーブル", "ダイニングテーブル", "スツール", "ベンチ", "ロッキングチェア", "座椅子", "こたつ", "鏡台", "靴箱", "ハンガーラック", "パーテーション", "サイドボード", "キャビネット", "チェスト", "カウンター", "デスクワゴン", "折りたたみ椅子", "二段ベッド", "ハンモック", "ちゃぶ台", "神棚", "傘立て", "衣装ケース"], "建物": ["学校", "病院", "図書館", "美術館", "博物館", "映画館", "劇場", "体育館", "競技場", "駅", "空港", "港", "市役所", "警察署", "消防署", "郵便局", "銀行", "神社", "寺", "教会", "城", "灯台", "工場", "倉庫", "市場", "百貨店", "スーパー", "コンビニ", "ホテル", "旅館", "温泉施設", "水族館"], "自然": ["山", "川", "海", "湖", "池", "滝", "森", "林", "草原", "砂漠", "湿原", "洞窟", "渓谷", "崖", "谷", "島", "半島", "岬", "海岸", "砂浜", "珊瑚礁", "火山", "氷河", "氷山", "温泉", "湧き水", "泉", "沼", "高原", "丘", "平野", "大地"], "天気": ["晴れ", "曇り", "雨", "雪", "みぞれ", "あられ", "ひょう", "雷", "台風", "竜巻", "霧", "もや", "霜", "露", "虹", "夕立", "にわか雨", "豪雨", "小雨", "吹雪", "粉雪", "初雪", "春一番", "木枯らし", "熱波", "寒波", "強風", "そよ風", "突風", "黄砂", "積乱雲", "入道雲"], "色": ["赤", "青", "黄色", "緑", "紫", "橙色", "桃色", "水色", "紺色", "茶色", "黒", "白", "灰色", "金色", "銀色", "黄緑", "深緑", "薄紫", "えんじ色", "ベージュ", "クリーム色", "アイボリー", "ターコイズ", "コバルトブルー", "群青色", "朱色", "藍色", "若草色", "桜色", "藤色", "琥珀色", "銅色"], "服装": ["Tシャツ", "ポロシャツ", "ワイシャツ", "ブラウス", "セーター", "カーディガン", "パーカー", "トレーナー", "ジャケット", "コート", "ダウンジャケット", "ベスト", "スーツ", "制服", "着物", "浴衣", "ドレス", "ワンピース", "スカート", "ジーンズ", "チノパン", "ショートパンツ", "靴下", "手袋", "マフラー", "ネクタイ", "帽子", "ベルト", "スニーカー", "革靴", "サンダル", "長靴"], "道具": ["ハンマー", "ドライバー", "ペンチ", "ニッパー", "レンチ", "スパナ", "のこぎり", "やすり", "のみ", "かんな", "ドリル", "電動ドライバー", "メジャー", "水平器", "万力", "クランプ", "脚立", "はしご", "シャベル", "スコップ", "ほうき", "ちりとり", "バケツ", "じょうろ", "ロープ", "懐中電灯", "虫眼鏡", "双眼鏡", "方位磁針", "体温計", "はかり", "ストップウォッチ"], "学校": ["黒板", "チョーク", "教科書", "ランドセル", "給食", "校庭", "教室", "廊下", "体育館", "音楽室", "理科室", "図工室", "家庭科室", "保健室", "職員室", "校長室", "図書室", "プール", "朝礼", "掃除当番", "日直", "学級委員", "文化祭", "体育祭", "遠足", "修学旅行", "卒業式", "入学式", "通知表", "時間割", "宿題", "テスト"], "行事": ["正月", "初詣", "節分", "ひな祭り", "卒業式", "入学式", "花見", "こどもの日", "母の日", "父の日", "七夕", "夏祭り", "盆踊り", "お盆", "花火大会", "敬老の日", "運動会", "文化祭", "ハロウィン", "七五三", "クリスマス", "大晦日", "誕生日", "結婚式", "成人式", "バレンタインデー", "ホワイトデー", "エイプリルフール", "勤労感謝の日", "紅葉狩り", "餅つき", "忘年会"], "お菓子": ["チョコレート", "クッキー", "ビスケット", "キャンディー", "グミ", "キャラメル", "マシュマロ", "ポテトチップス", "せんべい", "あられ菓子", "かりんとう", "ようかん", "大福", "どら焼き", "たい焼き", "まんじゅう", "団子", "カステラ", "バウムクーヘン", "ドーナツ", "シュークリーム", "エクレア", "ショートケーキ", "チーズケーキ", "モンブラン", "アップルパイ", "プリン", "ゼリー", "アイスクリーム", "ソフトクリーム", "かき氷", "マカロン"], "体の部位": ["頭", "髪", "額", "眉毛", "目", "まぶた", "耳", "鼻", "頬", "口", "唇", "舌", "歯", "顎", "首", "肩", "胸", "背中", "腰", "お腹", "腕", "肘", "手首", "手のひら", "指", "爪", "太もも", "膝", "ふくらはぎ", "足首", "かかと", "足の裏"], "物語・空想": ["魔法", "魔女", "魔法使い", "勇者", "魔王", "ドラゴン", "妖精", "人魚", "巨人", "小人", "幽霊", "吸血鬼", "狼男", "ゾンビ", "ロボット", "宇宙人", "タイムマシン", "透明人間", "空飛ぶ絨毯", "宝箱", "秘密基地", "迷宮", "古代遺跡", "伝説の剣", "魔法の杖", "不老不死", "予言", "呪い", "変身", "異世界", "冒険", "王国"]}</script><script>
+'use strict';
+const dictionary=JSON.parse(document.getElementById('word-data').textContent);
+const keys=Object.keys(dictionary),storageKey='waiting-words-v1';
+const $=id=>document.getElementById(id);
+const allWords=new Set(Object.values(dictionary).flat());
+let selected=new Set(keys),used=new Set(),count=1;
+try{
+ const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
+ if(saved&&Array.isArray(saved.selected)&&Array.isArray(saved.used)){
+  selected=new Set(saved.selected.filter(x=>keys.includes(x)));
+  used=new Set(saved.used.filter(x=>allWords.has(x)));
+  if(Number.isInteger(saved.count)&&saved.count>=1&&saved.count<=5)count=saved.count;
+ }
+}catch(e){}
+$('count').value=String(count);
+function save(){try{localStorage.setItem(storageKey,JSON.stringify({selected:[...selected],used:[...used],count}));}catch(e){}}
+function pool(){const seen=new Set();return keys.filter(k=>selected.has(k)).flatMap(k=>dictionary[k].map(word=>({cat:k,word}))).filter(x=>{if(seen.has(x.word))return false;seen.add(x.word);return true;});}
+function remainingPool(){return pool().filter(x=>!used.has(x.word));}
+function refresh(){
+ const p=pool(),remaining=remainingPool();
+ $('remaining').textContent=`未出題 ${remaining.length} / ${p.length} 語`;
+ $('selected').textContent=`${selected.size} / ${keys.length} カテゴリ`;
+ $('draw').disabled=remaining.length<count;
+ $('notice').textContent=!selected.size?'カテゴリを1つ以上選んでください':remaining.length<count?`未出題が${count}語未満です。出題数を減らすか、カテゴリ・履歴を変更してください。`:'';
+}
+function showWords(items){
+ const list=$('word-list');list.replaceChildren();
+ for(const x of items){
+  const card=document.createElement('div'),cat=document.createElement('div'),word=document.createElement('div');
+  card.className='word-item';cat.className='category';word.className='word';
+  cat.textContent=x.cat;word.textContent=x.word;card.append(cat,word);list.append(card);
+ }
+}
+function draw(){
+ const options=remainingPool();if(options.length<count)return;
+ // Partial Fisher-Yates shuffle: sample without replacement.
+ for(let i=0;i<count;i++){const j=i+Math.floor(Math.random()*(options.length-i));[options[i],options[j]]=[options[j],options[i]];}
+ const items=options.slice(0,count);for(const x of items)used.add(x.word);
+ showWords(items);save();refresh();
+}
+for(const k of keys){
+ const label=document.createElement('label'),input=document.createElement('input'),span=document.createElement('span');
+ input.type='checkbox';input.checked=selected.has(k);
+ input.addEventListener('change',()=>{if(input.checked)selected.add(k);else selected.delete(k);save();refresh();});
+ span.textContent=k;label.append(input,span);$('checks').append(label);
+}
+function sync(){document.querySelectorAll('#checks input').forEach((el,i)=>el.checked=selected.has(keys[i]));save();refresh();}
+$('count').addEventListener('change',()=>{count=Number($('count').value);save();refresh();});
+$('draw').onclick=draw;
+$('all').onclick=()=>{selected=new Set(keys);sync();};
+$('none').onclick=()=>{selected.clear();sync();};
+$('reset').onclick=()=>{if(confirm('出題履歴をリセットしますか？')){used.clear();$('word-list').innerHTML='<div class="placeholder">？</div>';save();refresh();}};
+refresh();
+</script><script data-wg-home-confirm>
+(function(){
+  let pending=null;
+  window.wgConfirmHome=function(message){
+    if(pending)return pending;
+    const previous=document.activeElement;
+    const dialog=document.createElement('dialog');
+    dialog.setAttribute('aria-label','サイトTOPへ戻る確認');
+    dialog.style.cssText='border:1px solid #cfc8ba;border-radius:18px;padding:22px;width:min(90vw,380px);max-height:85dvh;overflow:auto;background:#fffaf1;color:#202522;box-shadow:0 16px 60px #0005;font:16px/1.6 system-ui,sans-serif;text-align:center;';
+    const text=document.createElement('p');text.textContent=message||'サイトTOPへ戻りますか？';text.style.cssText='margin:0 0 18px;font-weight:700;white-space:pre-wrap;';
+    const actions=document.createElement('div');actions.style.cssText='display:flex;gap:12px;';
+    const no=document.createElement('button'),yes=document.createElement('button');
+    for(const button of [no,yes]){button.type='button';button.style.cssText='flex:1;min-height:48px;border:1px solid #958b76;border-radius:12px;padding:10px;background:#fffaf1;color:#202522;font:700 16px system-ui,sans-serif;cursor:pointer;';}
+    no.textContent='NO';yes.textContent='YES';yes.style.background='#202522';yes.style.color='#fffaf1';
+    actions.append(no,yes);dialog.append(text,actions);document.body.append(dialog);
+    pending=new Promise(resolve=>{
+      function finish(result){dialog.close();dialog.remove();pending=null;previous?.focus?.();resolve(result);}
+      no.onclick=()=>finish(false);yes.onclick=()=>finish(true);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false)});
+      dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)finish(false)}});
+    });
+    dialog.showModal();no.focus();return pending;
+  };
+  const approved=new WeakSet();
+  document.addEventListener('click',event=>{
+    const link=event.target.closest?.('a.wg-home');if(!link)return;
+    if(approved.has(link))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(pending)return;
+    window.wgConfirmHome().then(yes=>{if(!yes)return;approved.add(link);try{link.click()}finally{approved.delete(link)}});
+  },true);
+})();
+</script>
+<script data-wg-display>
+(function(){
+ 'use strict';
+ const KEY='waitingGamesDisplayV1';
+ function normalize(value){const v=value&&typeof value==='object'?value:{};const n=Number(v.percent);return{mode:v.mode==='manual'?'manual':'auto',percent:Number.isFinite(n)?Math.min(175,Math.max(75,Math.round(n/5)*5)):100};}
+ function autoFactor(width,shortSide){const edge=Math.min(width,shortSide>0?shortSide:width);return edge<600?1:edge<900?1.25:1.5;}
+ function scaleCSS(css,factor){
+  return css.replace(/@media[^{}]+\{/g,query=>query.replace(/((?:min-|max-)?(?:width|height)\s*:\s*)([\d.]+)px/g,(_,prefix,n)=>prefix+(Number(n)*factor)+'px'))
+   .replace(/(-?\d*\.?\d+)(dvh|svh|lvh|vmin|vmax|vh|vw)\b/g,(_,n,unit)=>'calc('+n+' * var(--wg-'+unit+'))');
+ }
+ // Browser integration
+ function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return normalize(null)}}
+ let setting=load(),factor=1,saved=true;
+ const root=document.documentElement,draw=location.pathname.endsWith('/draw.html');
+
+ let optionButton=null,optionsDialog=null;
+ if(location.pathname.includes('/games/')){
+  const uiStyle=document.createElement('style');uiStyle.textContent=`
+  #wgGameOptionsButton{position:fixed;right:10px;top:max(10px,env(safe-area-inset-top));z-index:140;width:auto;min-height:30px;margin:0;border:1px solid #958b76;border-radius:999px;padding:8px 10px;background:#fffaf1;color:#202522;font:800 11px/1 system-ui,sans-serif;cursor:pointer}
+  #wgGameOptions{width:min(94%,420px);box-sizing:border-box;border:1px solid #958b76;border-radius:18px;padding:18px;background:#fffaf1;color:#202522;font:14px/1.6 system-ui,sans-serif;max-height:88dvh;overflow:auto;text-align:left}
+  #wgGameOptions::backdrop{background:#0008}#wgGameOptions h2{margin:0 0 14px;font:800 20px system-ui,sans-serif;color:#202522}#wgGameOptions h3{margin:0;font:800 15px system-ui,sans-serif;color:#202522}
+  #wgGameOptions .display-head{display:flex;justify-content:space-between;align-items:center;gap:10px}#wgGameOptions select,#wgGameOptions button{box-sizing:border-box;border:1px solid #cfc8ba;border-radius:10px;padding:10px;background:#fff;color:#202522;font:700 13px system-ui,sans-serif;min-height:42px;margin:0;width:auto}
+  #wgGameOptions .display-range{display:flex;align-items:center;gap:8px;margin:14px 0}#wgGameOptions .display-range input{min-width:0;flex:1;width:100%;height:auto;padding:0}#wgGameOptions output{min-width:42px;font-size:13px;font-weight:800;text-align:right}#wgGameOptions .display-range button{min-width:36px;padding:8px}#wgGameOptions button:disabled{opacity:.4}#wgGameOptions p{font-size:12px;color:#59625c;line-height:1.6;margin:12px 0}#wgGameOptions #wgGameOptionsClose{width:100%;margin-top:8px;background:#202522;color:#fffaf1}
+  `;document.head.append(uiStyle);
+  optionButton=document.createElement('button');optionButton.id='wgGameOptionsButton';optionButton.type='button';optionButton.textContent='オプション';optionButton.setAttribute('aria-controls','wgGameOptions');optionButton.setAttribute('aria-expanded','false');optionButton.setAttribute('aria-haspopup','dialog');
+  optionsDialog=document.createElement('dialog');optionsDialog.id='wgGameOptions';optionsDialog.setAttribute('aria-label','ゲーム内オプション');optionsDialog.innerHTML=`<h2>オプション</h2><div class="display-head"><h3>表示サイズ</h3><select id="displayMode" aria-label="表示サイズの決め方"><option value="auto">自動</option><option value="manual">手動</option></select></div><div class="display-range"><button id="displaySmaller" type="button" aria-label="表示を小さくする">−</button><input id="displayScale" type="range" min="75" max="175" step="5" value="100" aria-label="表示倍率"><button id="displayLarger" type="button" aria-label="表示を大きくする">＋</button><output id="displayScaleValue" for="displayScale">100%</output></div><button id="displayReset" type="button">標準（100%）に戻す</button><p id="displayStatus" role="status"></p><button id="wgGameOptionsClose" type="button">閉じる</button>`;
+  document.body.append(optionButton,optionsDialog);
+  optionButton.onclick=()=>{sync();optionsDialog.showModal();optionButton.setAttribute('aria-expanded','true');window.dispatchEvent(new CustomEvent('wgoptionschange',{detail:{open:true}}));};
+  optionsDialog.querySelector('#wgGameOptionsClose').onclick=()=>optionsDialog.close();optionsDialog.addEventListener('close',()=>{optionButton.setAttribute('aria-expanded','false');optionButton.focus();window.dispatchEvent(new CustomEvent('wgoptionschange',{detail:{open:false}}));});optionsDialog.addEventListener('keydown',e=>e.stopPropagation());
+  optionsDialog.addEventListener('click',e=>{if(e.target===optionsDialog){const r=optionsDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)optionsDialog.close()}});
+ }
+ const originals=new Map([...document.querySelectorAll('style')].map(style=>[style,style.textContent]));
+ const extra=document.createElement('style');extra.id='wg-display-layout';document.head.append(extra);
+ function apply(){
+  factor=setting.mode==='manual'?setting.percent/100:autoFactor(window.innerWidth,Math.min(window.screen.width,window.screen.height));
+  const layout=draw?1:factor;
+  root.style.zoom=String(layout);root.dataset.wgDisplay=setting.mode;root.dataset.wgDisplayScale=String(factor);
+  for(const unit of ['vh','dvh','svh','lvh','vw','vmin','vmax'])root.style.setProperty('--wg-'+unit,'calc(1'+unit+' / '+layout+')');
+  for(const [style,css]of originals)style.textContent=scaleCSS(css,layout);
+  extra.textContent='html{height:calc(100 * var(--wg-dvh));overflow:auto}body{min-height:calc(100 * var(--wg-dvh))}dialog{max-width:calc(100% - 24px)!important;max-height:calc(88 * var(--wg-dvh))!important}'+
+   (draw?'header,#toolRow,#footer,.drawer,dialog,#wgGameOptionsButton{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
+   '@media(max-width:'+(360*layout)+'px){.brand{flex-wrap:wrap}.quick,.player-inputs{grid-template-columns:1fr}.controlDeck{grid-template-columns:1fr}.pad{grid-template-columns:repeat(3,minmax(0,1fr))}}');
+  sync();window.dispatchEvent(new CustomEvent('wgdisplaychange',{detail:{factor}}));
+ }
+ function sync(){
+  const mode=document.getElementById('displayMode'),range=document.getElementById('displayScale'),value=document.getElementById('displayScaleValue'),status=document.getElementById('displayStatus');if(!mode)return;
+  mode.value=setting.mode;range.value=String(setting.mode==='manual'?setting.percent:Math.round(factor*100));range.disabled=setting.mode!=='manual';value.textContent=Math.round(factor*100)+'%';
+  for(const id of ['displaySmaller','displayLarger'])document.getElementById(id).disabled=setting.mode!=='manual'||(id==='displaySmaller'?setting.percent<=75:setting.percent>=175);
+  status.textContent=(setting.mode==='auto'?'画面に合わせて自動調整':'手動でサイズを指定')+'。TOPと全ゲームに反映します。'+(saved?'':'このブラウザでは保存できないため、現在の画面だけに反映します。');
+ }
+ function set(value){setting=normalize(value);try{localStorage.setItem(KEY,JSON.stringify(setting));saved=true}catch(e){saved=false}apply();}
+ window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},get optionsOpen(){return !!optionsDialog?.open},set};
+ const mode=document.getElementById('displayMode');if(mode){
+  mode.addEventListener('change',()=>set({mode:mode.value,percent:Math.round(factor*100)}));
+  document.getElementById('displayScale').addEventListener('input',e=>set({mode:'manual',percent:e.target.value}));
+  document.getElementById('displaySmaller').onclick=()=>set({mode:'manual',percent:setting.percent-5});document.getElementById('displayLarger').onclick=()=>set({mode:'manual',percent:setting.percent+5});
+  document.getElementById('displayReset').onclick=()=>set({mode:'manual',percent:100});
+ }
+ let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(apply)});
+ window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){setting=load();apply()}});
+ apply();
+})();
+</script>
+</body></html>
