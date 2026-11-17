@@ -1,4 +1,4 @@
-const SW_VERSION = "2026.11.12-display-scale";
+const SW_VERSION = "2026.11.17-text-review";
 const ACTIVE_CACHE = `waiting-game-assets-${SW_VERSION}`;
 const TEMP_CACHE = `waiting-game-temp-${SW_VERSION}`;
 const CORE_URLS = [

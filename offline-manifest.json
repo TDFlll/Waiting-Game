@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.12-display-scale",
-  "generatedAt": "2026-11-12",
+  "version": "2026.11.17-text-review",
+  "generatedAt": "2026-11-17",
   "core": [
     "./",
     "index.html",
@@ -25,7 +25,7 @@
       "id": "dice",
       "title": "WAITING DICE",
       "type": "game",
-      "version": "v0.3.3",
+      "version": "v0.3.4",
       "url": "games/dice.html",
       "files": [
         "games/dice.html"
@@ -105,7 +105,7 @@
       "id": "derby",
       "title": "WAITING DERBY",
       "type": "game",
-      "version": "v0.11",
+      "version": "v0.13",
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
@@ -129,6 +129,16 @@
       "url": "games/shift.html",
       "files": [
         "games/shift.html"
+      ]
+    },
+    {
+      "id": "words",
+      "title": "WAITING WORDS",
+      "type": "tool",
+      "version": "v1.1",
+      "url": "games/words.html",
+      "files": [
+        "games/words.html"
       ]
     }
   ]

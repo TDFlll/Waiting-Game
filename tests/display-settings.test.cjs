@@ -17,7 +17,7 @@ test('resolution, orientation, fixed pixels and animation percentages are not re
  const css='@media(orientation:landscape) and (min-resolution:2dppx){.x{padding:12px;width:50%;transform:translateY(-105vh)}}';const actual=scaleCSS(css,1.25);assert.match(actual,/min-resolution:2dppx/);assert.match(actual,/padding:12px;width:50%/);assert.match(actual,/translateY\(calc\(-105 \* var\(--wg-vh\)\)\)/);
 });
 test('TOP and every standalone game embed the same display preference behavior without new external assets',()=>{
- const games=fs.readdirSync(path.join(root,'games')).filter(n=>n.endsWith('.html'));assert.equal(games.length,12);
+ const games=fs.readdirSync(path.join(root,'games')).filter(n=>n.endsWith('.html'));assert.equal(games.length,13);
  for(const file of games){const h=fs.readFileSync(path.join(root,'games',file),'utf8');assert.equal(h.match(/<script data-wg-display>([\s\S]*?)<\/script>/)[1],script,file);}
- assert.match(html,/id="displayScale"[^>]*min="75" max="175" step="5"/);assert.match(script,/waitingGamesDisplayV1/);
+ assert.doesNotMatch(html,/<section class="display-settings"/);assert.match(script,/if\(location.pathname.includes\('\/games\/'\)\)/);assert.match(script,/id="displayScale"[^>]*min="75" max="175" step="5"/);assert.match(script,/waitingGamesDisplayV1/);assert.match(script,/wgGameOptionsButton/);
 });

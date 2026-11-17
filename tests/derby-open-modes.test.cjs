@@ -20,7 +20,7 @@ function derby(){
  const html=fs.readFileSync(path.join(__dirname,'../games/derby.html'),'utf8');
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  vm.runInContext(script+`
- window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render,effects,finalRaceReview};
+ window.api={get state(){return game},get timer(){return randomOpenTimer},startGame,openOptions,setOpenMode,returnHome,quitGame,passEnter,chooseFlip,flip,publicCount,odds,stopOpen,beginPrivate,showPrivate,confirmBuy,closeModal,openRules,randomOpenTick,enterResult,calculateResult,finishRound,render,effects,finalRaceReview,handoffRevealHtml,syncRandomOpen};
  `,context);
  return {api:window.api,node,document,window,timers,
   advance(ms){const until=now+ms;let guard=0;while(true){const due=[...timers].filter(([,t])=>t.at<=until).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;if(++guard>1000)throw Error('Timer loop');const [id,t]=due;now=t.at;timers.delete(id);if(t.repeat)timers.set(id,{...t,at:now+t.ms});t.fn()}now=until},
@@ -135,4 +135,26 @@ test('final review displays the final board and all six horses with scores, tie 
  api.calculateResult();const scores=Object.fromEntries(api.effects(true).horses.map(h=>[h.id,h.score]));assert.deepEqual(scores,{1:1,2:2,3:1,4:1,5:3,6:4});
  const review=api.finalRaceReview();assert.equal((review.match(/data-result-horse=/g)||[]).length,6);assert.ok(review.indexOf('data-result-horse="6"')<review.indexOf('data-result-horse="5"'));assert.ok(review.indexOf('data-result-horse="3"')<review.indexOf('data-result-horse="4"'));assert.equal((review.match(/scope="row">失格/g)||[]).length,2);assert.match(review,/最終盤面/);assert.ok(!review.includes('tile back'));
  api.state.screen='result';for(const stage of [3,5]){api.state.stage=stage;api.render();assert.match(node('app').innerHTML,/全6頭の最終得点・順位/);assert.match(node('app').innerHTML,/最終盤面/);}
+});
+test('Free Open handoff shows the revealed card with its position, artwork and effect, then clears it for the next turn',()=>{
+ const {api,node}=derby();api.startGame();assert.equal(api.handoffRevealHtml(),'');api.passEnter();const c=api.state.board.find(c=>c.kind==='carrot');api.chooseFlip();api.flip(c.pos);
+ const html=node('app').innerHTML;assert.equal(api.state.screen,'pass');assert.match(html,/直前の手番で公開されたカード/);assert.ok(html.includes(`data-reveal-pos="${c.pos}"`));assert.ok(html.includes(`${'ABCD'[c.pos%4]}${Math.floor(c.pos/4)+1}`));assert.match(html,/通常人参/);assert.match(html,/すべての馬へ \+1点/);assert.match(api.handoffRevealHtml(),/<img src="data:image/);
+ api.passEnter();assert.equal(api.handoffRevealHtml(),'');const second=api.state.board.find(c=>!c.revealed&&c.kind==='bad');api.chooseFlip();api.flip(second.pos);assert.ok(!api.handoffRevealHtml().includes(`data-reveal-pos="${c.pos}"`));assert.match(api.handoffRevealHtml(),/−1点/);
+});
+test('Randm Open handoff retains every card opened in the preceding turn in reveal order, without private betting information',()=>{
+ const d=derby(),{api,node}=d;d.randomStart();d.advance(15000);const opened=[...api.state.turnReveals];assert.equal(opened.length,3);api.stopOpen();d.buy();assert.equal(api.state.screen,'pass');
+ const html=api.handoffRevealHtml();assert.equal((html.match(/data-reveal-pos=/g)||[]).length,3);assert.deepEqual([...html.matchAll(/data-reveal-pos="(\d+)"/g)].map(m=>Number(m[1])),opened);
+ assert.ok(!node('app').innerHTML.includes('9,000'));assert.ok(!html.includes('払戻'));d.advance(10000);assert.equal(api.publicCount(),3);api.passEnter();assert.equal(api.state.turnReveals.length,0);
+});
+test('handoff reveals an omen color only when opened, and a new round clears old reveal history',()=>{
+ const {api}=derby();api.startGame();api.passEnter();const omen=api.state.board.find(c=>c.kind==='omen');api.state.turnReveals=[omen.pos];assert.equal(api.handoffRevealHtml(),'');api.state.turnReveals=[];api.chooseFlip();api.flip(omen.pos);assert.match(api.handoffRevealHtml(),new RegExp(omen.color+'の馬2頭が失格'));
+ api.enterResult();api.calculateResult();api.finishRound();assert.equal(api.state.turnReveals.length,0);assert.equal(api.handoffRevealHtml(),'');
+});
+test('handoff identifies a revealed card whose effect is disabled by an already revealed weight card',()=>{
+ const {api}=derby();api.startGame();const weight=api.state.board.find(c=>c.kind==='weight'),carrot=api.state.board.find(c=>c.kind==='carrot');const adjacent=weight.pos%4<3?weight.pos+1:weight.pos-1;
+ const other=api.state.board[adjacent],oldPos=carrot.pos;api.state.board[oldPos]=other;other.pos=oldPos;api.state.board[adjacent]=carrot;carrot.pos=adjacent;weight.revealed=true;carrot.revealed=true;api.state.turnReveals=[carrot.pos];assert.match(api.handoffRevealHtml(),/体重カードにより現在は無効/);
+});
+test('Randm Open pauses while game display options are open and restarts with a fresh interval',()=>{
+ const d=derby(),{api,window}=d;d.randomStart();d.advance(4000);window.WGDisplay={optionsOpen:true};api.syncRandomOpen();assert.equal(api.timer,null);d.advance(20000);assert.equal(api.publicCount(),0);
+ window.WGDisplay.optionsOpen=false;api.syncRandomOpen();d.advance(4999);assert.equal(api.publicCount(),0);d.advance(1);assert.equal(api.publicCount(),1);
 });

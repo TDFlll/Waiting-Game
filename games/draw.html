@@ -19,6 +19,7 @@ header{flex:0 0 auto;flex-wrap:nowrap;padding:5px 8px;min-height:43px}header str
 .edit-color-palette{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;padding:8px 0}.color-swatch{height:44px;min-width:0;border:2px solid #8393ad;border-radius:10px}.color-swatch:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .backup-json-text{width:100%;min-height:130px;max-height:34vh;resize:vertical;user-select:text;-webkit-user-select:text;font:12px/1.45 ui-monospace,monospace;background:#0b1525;color:#e7f0ff;border:1px solid #657c99;border-radius:8px;padding:9px}.backup-json-text::placeholder{color:#aebcd0}
 .wg-home{display:block;background:#26354b;color:#eef4ff;border:1px solid #40516b;border-radius:9px;padding:11px;text-decoration:none;min-height:42px}
+header{padding-top:46px}
 </style></head><body><header><button id="mainMenuBtn" title="メインメニュー（左端からスワイプ）">☰</button><strong>🎨 Waiting Draw　<span id="notebookTitle"></span></strong><button id="undoBtn" title="戻る">↶</button><button id="redoBtn" title="進む">↷</button><button id="subMenuBtn" title="ツール（右端からスワイプ）">☷</button></header>
 <div id="toolRow"><div id="fixedSelect"><button data-tool="select">選択</button></div><div id="toolbar"><button data-tool="pen" class="active">✏️ ペン</button><button data-tool="eraser">消しゴム</button><select id="shapeTool" title="図形"><option value="">▱ 図形</option><option value="line">直線</option><option value="rect">四角</option><option value="roundrect">角丸</option><option value="ellipse">円・楕円</option><option value="triangle">三角</option><option value="arrow">矢印</option></select><button data-tool="text">文字</button><label>色 <input id="color" type="color" value="#2563eb"></label><label>太さ <input id="width" type="range" min="1" max="30" value="4"><span id="widthLabel">4</span></label><span id="brushPreview" title="ペン・消しゴムのサイズプレビュー"><svg viewBox="0 0 34 34"><circle id="brushPreviewCircle" cx="17" cy="17" r="4" fill="#2563eb" fill-opacity=".35" stroke="#2563eb" stroke-width="1.4"/></svg></span><button id="copyBtn">コピー</button><button id="cutBtn">切取</button><button id="pasteBtn">貼付</button><button id="deleteBtn">削除</button><button id="groupBtn">グループ</button><button id="ungroupBtn">グループ解除</button><button id="editBtn">編集</button><button id="imageBtn">🖼️ 画像</button><label>透明度 <input id="opacity" type="range" min="0" max="100" value="100"><span id="opacityLabel">100%</span></label></div></div>
 <div id="drawerShade"></div>
@@ -379,6 +380,23 @@ try{const d=window.WaitingDrawDiagnostics();if(d.tests.some(x=>x.startsWith('FAI
  function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return normalize(null)}}
  let setting=load(),factor=1,saved=true;
  const root=document.documentElement,draw=location.pathname.endsWith('/draw.html');
+
+ let optionButton=null,optionsDialog=null;
+ if(location.pathname.includes('/games/')){
+  const uiStyle=document.createElement('style');uiStyle.textContent=`
+  #wgGameOptionsButton{position:fixed;right:10px;top:max(10px,env(safe-area-inset-top));z-index:140;width:auto;min-height:30px;margin:0;border:1px solid #958b76;border-radius:999px;padding:8px 10px;background:#fffaf1;color:#202522;font:800 11px/1 system-ui,sans-serif;cursor:pointer}
+  #wgGameOptions{width:min(94%,420px);box-sizing:border-box;border:1px solid #958b76;border-radius:18px;padding:18px;background:#fffaf1;color:#202522;font:14px/1.6 system-ui,sans-serif;max-height:88dvh;overflow:auto;text-align:left}
+  #wgGameOptions::backdrop{background:#0008}#wgGameOptions h2{margin:0 0 14px;font:800 20px system-ui,sans-serif;color:#202522}#wgGameOptions h3{margin:0;font:800 15px system-ui,sans-serif;color:#202522}
+  #wgGameOptions .display-head{display:flex;justify-content:space-between;align-items:center;gap:10px}#wgGameOptions select,#wgGameOptions button{box-sizing:border-box;border:1px solid #cfc8ba;border-radius:10px;padding:10px;background:#fff;color:#202522;font:700 13px system-ui,sans-serif;min-height:42px;margin:0;width:auto}
+  #wgGameOptions .display-range{display:flex;align-items:center;gap:8px;margin:14px 0}#wgGameOptions .display-range input{min-width:0;flex:1;width:100%;height:auto;padding:0}#wgGameOptions output{min-width:42px;font-size:13px;font-weight:800;text-align:right}#wgGameOptions .display-range button{min-width:36px;padding:8px}#wgGameOptions button:disabled{opacity:.4}#wgGameOptions p{font-size:12px;color:#59625c;line-height:1.6;margin:12px 0}#wgGameOptions #wgGameOptionsClose{width:100%;margin-top:8px;background:#202522;color:#fffaf1}
+  `;document.head.append(uiStyle);
+  optionButton=document.createElement('button');optionButton.id='wgGameOptionsButton';optionButton.type='button';optionButton.textContent='オプション';optionButton.setAttribute('aria-controls','wgGameOptions');optionButton.setAttribute('aria-expanded','false');optionButton.setAttribute('aria-haspopup','dialog');
+  optionsDialog=document.createElement('dialog');optionsDialog.id='wgGameOptions';optionsDialog.setAttribute('aria-label','ゲーム内オプション');optionsDialog.innerHTML=`<h2>オプション</h2><div class="display-head"><h3>表示サイズ</h3><select id="displayMode" aria-label="表示サイズの決め方"><option value="auto">自動</option><option value="manual">手動</option></select></div><div class="display-range"><button id="displaySmaller" type="button" aria-label="表示を小さくする">−</button><input id="displayScale" type="range" min="75" max="175" step="5" value="100" aria-label="表示倍率"><button id="displayLarger" type="button" aria-label="表示を大きくする">＋</button><output id="displayScaleValue" for="displayScale">100%</output></div><button id="displayReset" type="button">標準（100%）に戻す</button><p id="displayStatus" role="status"></p><button id="wgGameOptionsClose" type="button">閉じる</button>`;
+  document.body.append(optionButton,optionsDialog);
+  optionButton.onclick=()=>{sync();optionsDialog.showModal();optionButton.setAttribute('aria-expanded','true');window.dispatchEvent(new CustomEvent('wgoptionschange',{detail:{open:true}}));};
+  optionsDialog.querySelector('#wgGameOptionsClose').onclick=()=>optionsDialog.close();optionsDialog.addEventListener('close',()=>{optionButton.setAttribute('aria-expanded','false');optionButton.focus();window.dispatchEvent(new CustomEvent('wgoptionschange',{detail:{open:false}}));});optionsDialog.addEventListener('keydown',e=>e.stopPropagation());
+  optionsDialog.addEventListener('click',e=>{if(e.target===optionsDialog){const r=optionsDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)optionsDialog.close()}});
+ }
  const originals=new Map([...document.querySelectorAll('style')].map(style=>[style,style.textContent]));
  const extra=document.createElement('style');extra.id='wg-display-layout';document.head.append(extra);
  function apply(){
@@ -388,7 +406,7 @@ try{const d=window.WaitingDrawDiagnostics();if(d.tests.some(x=>x.startsWith('FAI
   for(const unit of ['vh','dvh','svh','lvh','vw','vmin','vmax'])root.style.setProperty('--wg-'+unit,'calc(1'+unit+' / '+layout+')');
   for(const [style,css]of originals)style.textContent=scaleCSS(css,layout);
   extra.textContent='html{height:calc(100 * var(--wg-dvh));overflow:auto}body{min-height:calc(100 * var(--wg-dvh))}dialog{max-width:calc(100% - 24px)!important;max-height:calc(88 * var(--wg-dvh))!important}'+
-   (draw?'header,#toolRow,#footer,.drawer,dialog{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
+   (draw?'header,#toolRow,#footer,.drawer,dialog,#wgGameOptionsButton{zoom:'+factor+'}.drawer{height:calc(100dvh / '+factor+');bottom:auto}dialog{max-width:calc((100vw - 24px) / '+factor+')!important;max-height:calc(85dvh / '+factor+')!important}':
    '@media(max-width:'+(360*layout)+'px){.brand{flex-wrap:wrap}.quick,.player-inputs{grid-template-columns:1fr}.controlDeck{grid-template-columns:1fr}.pad{grid-template-columns:repeat(3,minmax(0,1fr))}}');
   sync();window.dispatchEvent(new CustomEvent('wgdisplaychange',{detail:{factor}}));
  }
@@ -399,7 +417,7 @@ try{const d=window.WaitingDrawDiagnostics();if(d.tests.some(x=>x.startsWith('FAI
   status.textContent=(setting.mode==='auto'?'画面に合わせて自動調整':'手動でサイズを指定')+'。TOPと全ゲームに反映します。'+(saved?'':'このブラウザでは保存できないため、現在の画面だけに反映します。');
  }
  function set(value){setting=normalize(value);try{localStorage.setItem(KEY,JSON.stringify(setting));saved=true}catch(e){saved=false}apply();}
- window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},set};
+ window.WGDisplay={get setting(){return{...setting}},get factor(){return factor},get optionsOpen(){return !!optionsDialog?.open},set};
  const mode=document.getElementById('displayMode');if(mode){
   mode.addEventListener('change',()=>set({mode:mode.value,percent:Math.round(factor*100)}));
   document.getElementById('displayScale').addEventListener('input',e=>set({mode:'manual',percent:e.target.value}));
