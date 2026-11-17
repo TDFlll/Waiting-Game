@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.17-words",
+  "version": "2026.11.17-text-review",
   "generatedAt": "2026-11-17",
   "core": [
     "./",
@@ -25,7 +25,7 @@
       "id": "dice",
       "title": "WAITING DICE",
       "type": "game",
-      "version": "v0.3.3",
+      "version": "v0.3.4",
       "url": "games/dice.html",
       "files": [
         "games/dice.html"
@@ -105,7 +105,7 @@
       "id": "derby",
       "title": "WAITING DERBY",
       "type": "game",
-      "version": "v0.12",
+      "version": "v0.13",
       "url": "games/derby.html",
       "files": [
         "games/derby.html"
