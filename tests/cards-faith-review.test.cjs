@@ -8,7 +8,7 @@ test('Dead Eyes grants a faith emblem on its first summon and retains its grave 
 test('faith returns the chosen monster to hand with a full field, no AP or summon effects, once per turn',async()=>{
  for(const mode of ['single','double'])for(const id of [6,12]){
   const {api:a}=setup(mode);a.state.players[0].faithEmblem=true;
-  const c=a.card(id,0);c.originalSummoner=0;c.handSummonCount=1;c.atkMod=2;a.putGrave(c);
+  const c=a.card(id,0);c.originalSummoner=0;c.handSummonCount=1;c.summonCount=1;c.atkMod=2;a.putGrave(c);
   const costs=[a.card(100,0),a.card(103,0)];a.state.players[0].hand=costs.slice();
   const field=[a.card(8,0),a.card(2,0)];field.forEach((c,i)=>putOnField(a,c,0,i));
   a.choices(c.uid,...costs.map(c=>c.uid));await a.faithStartOption(0);
@@ -28,7 +28,7 @@ test('faith requires an emblem and enough hand cards; cancellations do not pay o
  }
 });
 test('faith costs trigger grave abilities and normal summoning of the recovered card still costs AP',async()=>{
- const {api:a}=setup();a.state.players[0].faithEmblem=true;const c=a.card(12,0);c.originalSummoner=0;c.handSummonCount=1;a.putGrave(c);
+ const {api:a}=setup();a.state.players[0].faithEmblem=true;const c=a.card(12,0);c.originalSummoner=0;c.handSummonCount=1;c.summonCount=1;a.putGrave(c);
  const dead=a.card(6,0),cost=a.card(103,0);a.state.players[0].hand=[dead,cost];const enemy=a.card(8,1);putOnField(a,enemy,1);
  a.choices(c.uid,dead.uid,cost.uid);await a.faithStartOption(0);assert.equal(a.cardAtk(enemy),3);assert.equal(a.state.actions,2);
  a.pick({p:0,l:0,zone:'monster'});await a.playFromHand(c.uid);assert.equal(a.state.actions,1);assert.equal(a.state.players[0].monster[0],c);assert.equal(c.handSummonCount,2);assert.equal(c.atkMod,2);
