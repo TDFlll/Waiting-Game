@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
 <meta name="theme-color" content="#f4eedf" />
-<title>WAITING CARDS v0.6.7 / V1.3</title>
+<title>WAITING CARDS v0.6.9 / V1.3</title>
 <style>
 :root{--bg:#f4eedf;--ink:#292823;--muted:#726e63;--line:#b8ae98;--p1:#235f59;--p2:#9b4f45;--paper:#fffaf0;--gold:#aa7e2c;--danger:#a23b31;--shadow:0 5px 18px #2a241a18}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;min-height:100%;overscroll-behavior:none}button{font:inherit;color:inherit}.app{min-height:100dvh;display:flex;flex-direction:column;padding:max(8px,env(safe-area-inset-top)) 8px max(10px,env(safe-area-inset-bottom));gap:7px;max-width:620px;margin:auto}.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}.brand{text-align:center;font-weight:900;letter-spacing:.08em;font-size:clamp(12px,3.3vw,15px)}.brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:.15em}.score{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:6px 8px;box-shadow:var(--shadow);font-size:11px;line-height:1.25}.score.p2{text-align:right}.score b{font-size:18px}.p1c{color:var(--p1)}.p2c{color:var(--p2)}.status{background:#272720;color:#f6f0e3;border-radius:11px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;font-size:11px;gap:6px}.status strong{font-size:13px}.board{display:grid;grid-template-rows:auto auto auto;gap:5px}.sideLabel{text-align:center;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--muted)}.field{display:grid;grid-template-columns:1fr 1fr;gap:6px}.lane{display:grid;grid-template-rows:auto auto;gap:4px;background:#e8dfcd;border:1px solid var(--line);border-radius:12px;padding:5px}.slot{position:relative;min-height:clamp(70px,18vw,98px);border:1.5px dashed #a69a83;border-radius:9px;background:#f9f3e6;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;overflow:hidden}.slot.magic{min-height:clamp(45px,11vw,60px)}.slot.empty::after{content:attr(data-empty);color:#aaa18f;font-size:9px}.card{width:100%;height:100%;min-height:inherit;border:1px solid #8e856f;border-radius:8px;background:#fffdf7;padding:5px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 6px #2a241a14;text-align:left}.card.monster{border-top:4px solid var(--gold)}.card.magiccard{border-top:4px solid #586b87}.card.trap{background:repeating-linear-gradient(135deg,#363630 0 8px,#44443c 8px 16px);color:#fff;border-color:#23231f;justify-content:center;align-items:center;text-align:center}.card .name{font-weight:900;font-size:clamp(9px,2.8vw,12px);line-height:1.1}.card .meta{font-size:9px;color:var(--muted)}.card.trap .meta{color:#ddd}.atk{position:absolute;right:5px;bottom:4px;background:#292823;color:#fff;padding:2px 5px;border-radius:99px;font-size:10px;font-weight:900}.sick{position:absolute;left:4px;bottom:4px;background:#d7c8a7;color:#55482f;padding:2px 4px;border-radius:99px;font-size:8px;font-weight:800}.activeOutline{outline:3px solid #d59b32;outline-offset:1px}.midline{height:1px;background:var(--line);position:relative;margin:1px 14px}.midline::after{content:"BATTLE LINE";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);padding:0 7px;font-size:8px;color:var(--muted);letter-spacing:.12em}.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.btn{border:1px solid #958b76;background:var(--paper);border-radius:10px;padding:9px 6px;font-weight:800;font-size:11px;box-shadow:0 2px 5px #2a241a0d}.btn.primary{background:#282821;color:white;border-color:#282821}.btn.time{background:#5b5476;color:#fff;border-color:#4a4462}.btn:disabled{opacity:.35}.handWrap{background:#e9e0cf;border-radius:13px;padding:6px;border:1px solid var(--line)}.handHead{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;margin:0 2px 5px}.hand{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:2px}.handCard{flex:0 0 min(42vw,180px);min-height:104px;background:#fffaf0;border:1px solid #948a74;border-radius:10px;padding:7px;scroll-snap-align:start;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:3px}.handCard.monster{border-top:5px solid var(--gold)}.handCard.magiccard{border-top:5px solid #586b87}.handCard .name{font-weight:900;font-size:12px}.handCard .type{font-size:9px;color:var(--muted)}.handCard .effect{font-size:9px;line-height:1.3;flex:1}.handCard .play{border:0;border-radius:8px;background:#292823;color:#fff;padding:6px;font-size:10px;font-weight:900}.foot{display:flex;gap:6px}.foot .btn{flex:1;padding:7px}.log{background:#fff8eb;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:9px;color:#5d594f;max-height:54px;overflow:auto}.overlay{position:fixed;inset:0;background:#1e1e1bdc;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}.overlay.hidden{display:none}.handoff{background:var(--paper);border-radius:18px;padding:24px 18px;width:min(92vw,420px);text-align:center;box-shadow:0 20px 50px #0006}.handoff h2{margin:0 0 8px;font-size:26px}.handoff p{font-size:12px;color:var(--muted);line-height:1.6}.bigReady{width:100%;border:0;background:#292823;color:#fff;border-radius:12px;padding:14px;font-weight:900;margin-top:10px}.modal{background:var(--paper);border-radius:17px;padding:16px;width:min(94vw,460px);max-height:82dvh;overflow:auto}.modal h3{margin:0 0 10px}.options{display:grid;gap:7px}.opt{border:1px solid var(--line);background:#fffdf7;border-radius:10px;padding:10px;text-align:left;font-size:12px}.opt small{display:block;color:var(--muted);margin-top:3px}.cancel{margin-top:10px;width:100%;border:0;background:#ddd4c4;border-radius:9px;padding:9px}.gameover h2{font-size:28px}.tag{display:inline-block;padding:2px 5px;border-radius:5px;background:#e2d8c5;font-size:8px;font-weight:800;margin-right:3px}.tiny{font-size:8px;color:var(--muted)}
@@ -38,6 +38,9 @@
 
 .handoff{max-height:86dvh;overflow:auto}#handoffMsg{white-space:pre-wrap;text-align:left;overflow-wrap:anywhere}.turnDigestList{display:block;white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:190px;font-size:11px;line-height:1.6}.eventToast,.effectFlash{display:none!important}
 .app{padding-top:46px}
+.decisionReviewTools{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}.decisionReviewTools button,.reviewTabs button{flex:1;border:1px solid var(--line);border-radius:9px;background:var(--paper);padding:9px 8px;font-size:11px;font-weight:800}.decisionReviewTools.hidden{display:none}
+#fieldReviewTools{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(12px,env(safe-area-inset-bottom)) + 62px);z-index:71;width:min(90vw,480px);background:var(--bg);padding:6px;border:1px solid var(--line);border-radius:12px;box-shadow:0 5px 20px #0003}
+#decisionReview{z-index:220}#decisionReview .modal{display:flex;flex-direction:column;width:min(94vw,560px);max-height:88dvh;overflow:hidden}#decisionReviewTitle{margin:0 0 8px}.reviewTabs{display:flex;gap:6px;flex-shrink:0}.reviewTabs button[aria-pressed="true"]{background:#292823;color:white}#decisionReviewBody{overflow:auto;min-height:0;padding:8px 0;overscroll-behavior:contain}#decisionReviewBody h4{font-size:12px;margin:12px 0 6px}.reviewCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.reviewCard{padding:10px;border:1px solid var(--line);border-radius:10px;background:#fffdf7;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.reviewCard b,.reviewCard small{display:block}.reviewCard small{color:var(--muted);font-size:10px}.reviewNote{font-size:11px;color:var(--muted);margin:8px 0}.reviewBack{flex-shrink:0;width:100%;padding:12px;border:0;border-radius:10px;background:#292823;color:white;font-weight:900}
 </style>
 </head>
 <body>
@@ -45,7 +48,7 @@
 <div class="app">
   <div class="topbar">
     <div class="score p1score" id="score1"></div>
-    <div class="brand">WAITING CARDS<small>PROTOTYPE v0.6.7 / V1.3</small></div>
+    <div class="brand">WAITING CARDS<small>PROTOTYPE v0.6.9 / V1.3</small></div>
     <div class="score p2 p2score" id="score2"></div>
   </div>
   <div class="status"><span id="turnText"></span><strong id="actionText"></strong><span id="deckText"></span></div>
@@ -68,7 +71,7 @@
   <div class="foot"><button class="btn" id="rulesBtn">RULES</button><button class="btn" id="graveBtn">GRAVE</button><button class="btn" id="resetBtn">RESET</button></div>
 </div>
 <div class="overlay" id="titleScreen"><div class="titlePanel">
-  <div class="titleLogo">WAITING CARDS</div><div class="titleVer">PROTOTYPE v0.6.7 / V1.3</div>
+  <div class="titleLogo">WAITING CARDS</div><div class="titleVer">PROTOTYPE v0.6.9 / V1.3</div>
   <button class="ghostBtn" id="cardListBtn">カードリスト</button>
   <div class="titleSection"><h3>GAME MODE</h3><div class="seg"><button id="mode2p">2 PLAYER</button><button id="modeCpu">VS CPU</button></div></div>
   <div class="titleSection"><h3>デッキ方式</h3><div class="seg"><button id="singleDeckBtn">シングル戦</button><button id="doubleDeckBtn">ダブル戦</button></div><p class="tiny" id="deckModeHelp"></p></div>
@@ -78,7 +81,9 @@
   <button class="startBtn" id="startGameBtn">START GAME</button>
 </div></div>
 <div class="overlay hidden" id="handoff"><div class="handoff"><div class="tiny">PASS THE PHONE</div><h2 id="handoffTitle"></h2><p id="handoffMsg"></p><button class="bigReady" id="readyBtn">READY</button></div></div>
-<div class="overlay hidden" id="modal"><div class="modal"><h3 id="modalTitle"></h3><div class="options" id="modalOptions"></div><button class="cancel" id="modalCancel">キャンセル</button></div></div>
+<div class="overlay hidden" id="modal"><div class="modal"><h3 id="modalTitle"></h3><div class="decisionReviewTools hidden" id="modalReviewTools"><button type="button" data-review="hand">手札を確認</button><button type="button" data-review="field">場を確認</button><button type="button" data-review="grave">墓地を確認</button></div><div class="options" id="modalOptions"></div><button class="cancel" id="modalCancel">キャンセル</button></div></div>
+<div class="decisionReviewTools hidden" id="fieldReviewTools"><button type="button" data-review="hand">手札を確認</button><button type="button" data-review="field">場を確認</button><button type="button" data-review="grave">墓地を確認</button></div>
+<div class="overlay hidden" id="decisionReview" role="dialog" aria-modal="true" aria-labelledby="decisionReviewTitle"><div class="modal"><h3 id="decisionReviewTitle">選択中の確認</h3><div class="reviewTabs"><button type="button" data-review="hand">手札</button><button type="button" data-review="field">場</button><button type="button" data-review="grave">墓地</button></div><p class="reviewNote">確認しても選択やAPは消費しません。</p><div id="decisionReviewBody"></div><button type="button" class="reviewBack" id="decisionReviewBack">選択に戻る</button></div></div>
 <div class="overlay hidden" id="gameover"><div class="handoff gameover"><div class="tiny">GAME OVER</div><h2 id="gameoverTitle"></h2><p id="gameoverMsg"></p><button class="bigReady" id="againBtn">NEW GAME</button></div></div>
 
 <div class="pickHint hidden" id="pickHint"></div>
@@ -95,30 +100,30 @@
 'use strict';
 window.addEventListener('error',function(e){try{var d=document.getElementById('bootError');if(!d){d=document.createElement('div');d.id='bootError';d.style.cssText='position:fixed;inset:12px;z-index:99999;background:#fff5f2;color:#7d1d15;border:2px solid #b54b3f;border-radius:12px;padding:14px;font:14px -apple-system,sans-serif;white-space:pre-wrap;overflow:auto';document.body.appendChild(d);}d.textContent='起動エラー\n'+(e.message||'Unknown error')+'\n'+(e.filename||'')+':'+(e.lineno||'');}catch(_){}});
 const BASE_CARDS=[
-{"id":1,"name":"激おこドラゴン","kind":"monster","atk":12,"text":"通常召喚不可。AP1を消費し、自分の場のモンスター1体を墓地へ送って手札から特殊召喚。場に出た時、相手の場のカード1枚を墓地へ送る（対象なしなら不発）。貫通1。","pierce":1},
+{"id":1,"name":"激おこドラゴン","kind":"monster","atk":12,"text":"通常の方法では場に出せない。AP1を消費し、自分の場のモンスター1体を墓地へ送って手札から特別な方法で場に出す。場に出た時、相手の場のカード1枚を墓地へ送る（対象なしなら不発）。貫通1。","pierce":1},
 {"id":2,"name":"錆びたゴーレム","kind":"monster","atk":11,"text":"脱力の影響を2倍受ける。最初の2回の戦闘では破壊されず、成立した戦闘が3回になると墓地へ。"},
 {"id":3,"name":"こどもドラゴン","kind":"monster","atk":1,"text":"正面にモンスターがいてもプレイヤーへ直接攻撃可能。ATK8以上の相手との戦闘では、戦闘は成立するが戦闘では破壊されない。"},
-{"id":4,"name":"ドリルドリ","kind":"monster","atk":7,"pierce":1,"text":"貫通1。踏破：貫通エンブレムを得る（重複なし）。以後、自分が召喚するモンスターに貫通1を付与。既に貫通があれば代わりにATK+1。"},
-{"id":5,"name":"ごごご幽霊","kind":"monster","atk":3,"debilitate":3,"possession":true,"text":"憑依。脱力3。最初に召喚したプレイヤーは憑依エンブレムを得る。そのプレイヤーの罠発動成功時、墓地から任意で召喚できる。"},
-{"id":6,"name":"デッドアイズ","kind":"monster","atk":4,"text":"墓地へ送られた時、相手のATK7以上モンスターすべてに脱力5を与える"},
+{"id":4,"name":"ドリルドリ","kind":"monster","atk":7,"pierce":1,"text":"貫通1。踏破：このカードのATK+1。踏破するたびに重複する。"},
+{"id":5,"name":"ごごご幽霊","kind":"monster","atk":3,"debilitate":3,"possession":true,"text":"憑依。脱力3。最初に場に出したプレイヤーは憑依エンブレムを得る。そのプレイヤーの罠発動成功時、墓地から任意で場に出せる。"},
+{"id":6,"name":"デッドアイズ","kind":"monster","atk":4,"faith":2,"text":"信仰2。墓地へ送られた時、相手のATK7以上モンスターすべてに脱力5を与える"},
 {"id":7,"name":"反魔の死人","kind":"monster","atk":6,"text":"場にいる間、罠・「書」の効果を受けず、すべての墓地発動効果を無効化。踏破：1ドロー。"},
-{"id":8,"name":"失笑ライダー","kind":"monster","atk":8,"text":"相手の伏せ罠と同列に召喚すると突撃とAP+1。相手のモンスターと同列に召喚すると貫通1。"},
-{"id":9,"name":"死霊師","kind":"monster","atk":2,"text":"このカードの召喚時、罠は発動しない。召喚時、同列の相手の伏せ罠を奪い、このカードの後ろにセットする。自分の同列の罠があれば墓地へ送って置き換える。"},
+{"id":8,"name":"失笑ライダー","kind":"monster","atk":8,"text":"相手の伏せ罠と同列に場に出すと突撃とAP+1。相手のモンスターと同列に場に出すと貫通1。"},
+{"id":9,"name":"死霊師","kind":"monster","atk":2,"text":"このカードが場に出たとき、自分の墓地のモンスター1枚を選ぶ。そのカードの現在ATK分、このカードのATKを増やす。選んだカードは墓地に残る。"},
 {"id":10,"name":"デスマスク","kind":"monster","atk":4,"text":"場から墓地へ送られた時、場のカードを所有者・種類を問わず1枚、必ず墓地へ送る。"},
-{"id":11,"name":"入れかえ壺","kind":"monster","atk":9,"text":"召喚時、自分の残り手札をすべてデッキへ戻してシャッフルし、戻した枚数だけドローする。"},
-{"id":12,"name":"腐天使","kind":"monster","atk":10,"faith":2,"hatred":2,"text":"信仰2。憎悪：このカード個体を手札から2回目以降召喚するたびATK+2。効果は重複する。"},
-{"id":100,"name":"復活の書","kind":"magic","mode":"instant","text":"即時。墓地のモンスター1体を選び、自分の空いているモンスター枠へ召喚する。","isBook":true},
+{"id":11,"name":"入れかえ壺","kind":"monster","atk":9,"text":"場に出たとき、自分の残り手札をすべてデッキへ戻してシャッフルし、戻した枚数だけドローする。"},
+{"id":12,"name":"腐天使","kind":"monster","atk":10,"faith":2,"hatred":2,"text":"信仰2。憎悪：このカード個体が2回目以降場に出るたびATK+2。手札・墓地など、出てくる場所を問わず重複する。"},
+{"id":100,"name":"復活の書","kind":"magic","mode":"instant","text":"即時。墓地のモンスター1体を選び、自分の空いているモンスター枠へ場に出す。","isBook":true},
 {"id":101,"name":"反攻の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。同列への相手攻撃時、自分の同列モンスターを墓地へ送って発動。攻撃モンスターのコントロールを得て空いた枠へ置き、相手AP+1（最大4）。場を離れる時は処理に応じて元のプレイヤーの手札・デッキ・墓地へ戻る。"},
-{"id":102,"name":"召喚の魔法","kind":"magic","mode":"both","magicFamily":"spell","text":"罠/即時。自分の同列にモンスターがいない場合のみ発動可能。手札のモンスター1体を同列へ召喚。相手ターンに罠発動した場合、相手AP+1（最大4）。"},
+{"id":102,"name":"場に出す魔法","kind":"magic","mode":"both","magicFamily":"spell","text":"罠/即時。自分の同列にモンスターがいない場合のみ発動可能。手札のモンスター1体を同列へ場に出す。相手ターンに罠発動した場合、相手AP+1（最大4）。"},
 {"id":103,"name":"偽造の書","kind":"magic","mode":"instant","isBook":true,"text":"チョイス：①場のモンスター行または罠行を1つ選びLEFT⇔RIGHTを入れ替える。②相手のエンブレム1つを破壊。"},
 {"id":104,"name":"加速の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。自分ターン開始時、または破壊された時に2ドロー。自分ターン中の発動ならAP+1（最大4）。"},
 {"id":105,"name":"脱出の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。同列で相手モンスターが攻撃した時、そのモンスターを手札へ戻し、お互い1ドロー。"},
-{"id":106,"name":"進化の書","kind":"magic","mode":"instant","isBook":true,"text":"チョイス：①自分のデッキからこどもドラゴン1枚を場に出す。②場の激おこドラゴン／こどもドラゴンを選び、反対のカードを場・手札・デッキ・墓地から探して入れ替える。"},
+{"id":106,"name":"進化の書","kind":"magic","mode":"instant","isBook":true,"text":"チョイス：①自分のデッキ・墓地からこどもドラゴン1枚を場に出す。②場の激おこドラゴン／こどもドラゴンを選び、反対のカードを場・手札・デッキ・墓地から探して入れ替える。"},
 {"id":107,"name":"吸血の書","kind":"magic","mode":"instant","isBook":true,"text":"上段から1つ：相手ライフ-1／場のモンスター1体に脱力2。下段から1つ：自分ライフ+1／1ドロー。"},
 {"id":108,"name":"強化の書","kind":"magic","mode":"instant","isBook":true,"text":"場のモンスター1体にATK+3と貫通1を付与。既に貫通を持つ場合、代わりにさらにATK+1。"},
 {"id":109,"name":"守護の儀","kind":"magic","mode":"trap","text":"罠。同列の自分のモンスターが脱力を受ける時、その脱力を無効にして代わりにATK+2。同列の相手モンスターの攻撃時、正面の自分のモンスターにこのターンのみATK+3。いずれかで発動後、墓地へ。","magicFamily":"rite"},
 {"id":110,"name":"破壊の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。セットした次の相手エンドフェイズに、同じ列のカードをすべて墓地へ送る。"},
-{"id":111,"name":"魔導の書","kind":"magic","mode":"instant","isBook":true,"text":"手札1枚を墓地へ送って発動。チョイス：①相手の錆びたゴーレム1体を墓地へ送る。②自分のモンスター1体に突撃を付与し、AP+1（最大4）。"}
+{"id":111,"name":"魔導の書","kind":"magic","mode":"instant","isBook":true,"text":"手札1枚を墓地へ送って発動。チョイス：①相手の現在ATK9以上のモンスター1体を除外する。除外されたカードは蘇生・回収できない。②自分のモンスター1体に突撃を付与し、AP+1（最大4）。"}
 ];
 let uid=1,S,busy=false,choiceResolve=null,fieldPickResolve=null,fieldPickFilter=null,toastQueue=[],toastShowing=false,effectQueue=[],effectShowing=false,decisionPlayer=null;
 let GAME_MODE='2P',CPU_PLAYER=1,cpuThinking=false,cpuDecisionContext=false,cpuCurrentCard=null;
@@ -127,7 +132,8 @@ function graveFor(p){return S.deckMode==='double'?S.graves[p]:S.grave}
 function graveEntries(){return S.deckMode==='double'?S.graves.map((grave,p)=>({grave,p})):[{grave:S.grave,p:null}]}
 function locateGraveCard(test){for(const {grave,p} of graveEntries()){const i=grave.findIndex(test);if(i>=0)return{area:'grave',p,i,card:grave[i]}}return null}
 function leaveControlledField(c,fallback){const p=isPlayerIndex(c.returnTo)?c.returnTo:fallback;if(isPlayerIndex(c.returnTo)){c.controller=c.returnTo;c.returnTo=null}return p}
-function putGrave(c){const p=leaveControlledField(c,isPlayerIndex(c.originalDeck)?c.originalDeck:isPlayerIndex(c.controller)?c.controller:isPlayerIndex(c.owner)?c.owner:S.turn);const grave=graveFor(p);if(!grave.some(x=>x.uid===c.uid))grave.push(c)}
+function isBanished(c){return !!c&&S.banished.some(x=>x.uid===c.uid)}
+function putGrave(c){if(isBanished(c))return;const p=leaveControlledField(c,isPlayerIndex(c.originalDeck)?c.originalDeck:isPlayerIndex(c.controller)?c.controller:isPlayerIndex(c.owner)?c.owner:S.turn);const grave=graveFor(p);if(!grave.some(x=>x.uid===c.uid))grave.push(c)}
 function deckModeName(mode){return mode==='double'?'ダブル戦':'シングル戦'}
 function deckFor(p){return S.deckMode==='double'?S.decks[p]:S.deck}
 function deckEntries(){return S.deckMode==='double'?S.decks.map((deck,p)=>({deck,p})):[{deck:S.deck,p:null}]}
@@ -196,11 +202,11 @@ function newState(){
  const decks=DECK_MODE==='double'?[makeDeck(0),makeDeck(1)]:null;
  const players=[0,1].map(()=>({
   life:4,magicUses:0,hand:[],monster:[null,null],magic:[null,null],snapshot:null,
-  possessionEmblem:false,faithEmblem:false,pierceEmblem:false,faithUsedTurn:null
+  possessionEmblem:false,faithEmblem:false,faithUsedTurn:null
  }));
  players[0].hand=dealOpeningHand(decks?decks[0]:deck);
  players[1].hand=dealOpeningHand(decks?decks[1]:deck);
- return{players,deck,decks,deckMode:DECK_MODE,grave:[],graves:DECK_MODE==='double'?[[],[]]:null,turn:0,turnNo:1,starter:Math.random()<.5?0:1,actions:0,
+ return{players,deck,decks,deckMode:DECK_MODE,grave:[],graves:DECK_MODE==='double'?[[],[]]:null,banished:[],turn:0,turnNo:1,starter:Math.random()<.5?0:1,actions:0,
  firstTurn:true,gameover:false,log:[],pending:[],turnEvents:[],lastTurnEvents:[],lastTurnPlayer:null,mode:GAME_MODE};
 }
 function pName(p){return GAME_MODE==='CPU'&&p===CPU_PLAYER?'CPU':sharedPlayerName(p);}
@@ -236,8 +242,42 @@ function antiUndeadOnField(){return fieldCards().some(c=>c.id===7&&c.zone==='mon
 function cardTypeText(c){const origin=S.deckMode==='double'&&isPlayerIndex(c.originalDeck)?` · 元${c.originalDeck===0?'P1':'P2'}デッキ`:'';if(c.kind==='monster'){let extra=[];if(pierceValue(c)>0)extra.push(`貫通${pierceValue(c)}`);if(c.debilitate)extra.push(`脱力${c.debilitate}`);return `MONSTER · ATK ${cardAtk(c)}${extra.length?' · '+extra.join(' · '):''}${origin}`;}return `MAGIC · ${c.mode==='trap'?'罠':c.mode==='both'?'罠 / 即時':'即時'}${origin}`;}
 function graveOption(c){return{label:c.name,sub:`${cardTypeText(c)} ｜ ${c.text||'効果なし'}`,value:c.uid};}
 function gravePairSub(fieldCard,graveCard){return `${pName(fieldCard.controller)} ${fieldCard.lane===0?'L':'R'} ｜ 墓地：${cardTypeText(graveCard)} ｜ ${graveCard.text||'効果なし'}`;}
-function showCardDetail(c,viewer){if(!c||c.faceDown&&c.controller!==viewer)return;const label=c.faceDown?'伏せカード（自分）':c.name;let state='';if(c.kind==='monster')state=`<br><b>現在値：</b>ATK ${cardAtk(c)} / 貫通 ${pierceValue(c)} / 戦闘回数 ${c.battleCount||0}`;$('modalTitle').textContent='CARD INFO';$('modalOptions').innerHTML=`<div class="detailCard"><h4>${label}</h4><div class="detailType">${cardTypeText(c)}</div><div class="detailEffect">${c.text||'効果なし'}${state}</div></div>`;$('modalCancel').style.display='block';$('modalCancel').textContent='閉じる';$('modal').classList.remove('hidden');$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');$('modalCancel').textContent='キャンセル';};}
-function slotHTML(c,p,l,z){const attrs=`data-p="${p}" data-l="${l}" data-zone="${z}"`;if(!c)return `<div class="slot ${z==='magic'?'magic':''} empty" ${attrs} data-empty="${z==='magic'?'MAGIC / TRAP':'MONSTER'}"></div>`;if(c.faceDown)return `<div class="slot magic" ${attrs}><div class="card trap"><div class="name">伏せカード</div><div class="meta">TRAP</div></div></div>`;const sick=c.kind==='monster'&&c.summonedTurn===S.turnNo&&!c.hasCharge;return `<div class="slot ${z==='magic'?'magic':''}" ${attrs}><div class="card ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="meta">${c.kind==='monster'?'MONSTER':'MAGIC'}</div>${c.kind==='monster'?`<span class="atk">ATK ${cardAtk(c)}${pierceValue(c)?` / 貫${pierceValue(c)}`:''}</span>${sick?'<span class="sick">召喚酔い</span>':''}`:''}</div></div>`;}
+let reviewReturnFocus=null;
+function reviewEscape(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function syncDecisionReviewTools(){
+ $('modalReviewTools').classList.toggle('hidden',!choiceResolve);
+ $('fieldReviewTools').classList.toggle('hidden',!fieldPickResolve);
+}
+function closeDecisionReview(){
+ $('decisionReview').classList.add('hidden');
+ $('modal').inert=false;document.querySelector('.app').inert=false;$('fieldReviewTools').inert=false;
+ if(reviewReturnFocus?.isConnected)reviewReturnFocus.focus();reviewReturnFocus=null;
+}
+function reviewCardHTML(c,viewer){
+ if(c.faceDown&&c.controller!==viewer)return '<div class="reviewCard"><b>伏せカード</b><small>相手の罠の正体は非公開です。</small></div>';
+ const extra=c.kind==='monster'?' / 戦闘回数 '+(c.battleCount||0):'';
+ return '<div class="reviewCard"><b>'+reviewEscape(c.name)+(c.faceDown?'（自分の伏せカード）':'')+'</b><small>'+reviewEscape(cardTypeText(c)+extra)+'</small>'+reviewEscape(c.text||'効果なし')+'</div>';
+}
+function openDecisionReview(zone){
+ if(!choiceResolve&&!fieldPickResolve)return;
+ const viewer=activeDecisionPlayer();if(GAME_MODE==='CPU'&&viewer===CPU_PLAYER)return;
+ if($('decisionReview').classList.contains('hidden'))reviewReturnFocus=document.activeElement;
+ const cards=list=>list.length?'<div class="reviewCards">'+list.map(c=>reviewCardHTML(c,viewer)).join('')+'</div>':'<p class="reviewNote">カードはありません。</p>';
+ let content='';
+ if(zone==='hand')content='<h4>'+reviewEscape(pName(viewer))+' の手札</h4>'+cards(S.players[viewer].hand)+'<p class="reviewNote">相手の手札は非公開です。</p>';
+ else if(zone==='grave')content=graveEntries().map(({grave,p})=>'<h4>'+reviewEscape(S.deckMode==='double'?pName(p)+' の墓地':'共有の墓地')+'</h4>'+cards(grave.slice().reverse())).join('')+(S.banished.length?'<h4>除外（蘇生・回収不可）</h4>'+cards(S.banished):'');
+ else if(zone==='field')for(const p of [1-viewer,viewer]){
+  content+='<h4>'+reviewEscape(pName(p))+' の場</h4>';
+  for(let l=0;l<2;l++)content+='<h4>'+(l===0?'LEFT':'RIGHT')+'</h4>'+cards([S.players[p].monster[l],S.players[p].magic[l]].filter(Boolean));
+ }else return;
+ $('decisionReviewTitle').textContent='選択中の確認：'+({hand:'手札',field:'場',grave:'墓地'})[zone];
+ $('decisionReviewBody').innerHTML=content;$('decisionReviewBody').scrollTop=0;
+ document.querySelectorAll('#decisionReview [data-review]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.review===zone)));
+ $('modal').inert=true;document.querySelector('.app').inert=true;$('fieldReviewTools').inert=true;
+ $('decisionReview').classList.remove('hidden');$('decisionReviewBack').focus?.();
+}
+function showCardDetail(c,viewer){if(!c||c.faceDown&&c.controller!==viewer)return;if(choiceResolve||fieldPickResolve){openDecisionReview(c.zone==='grave'?'grave':c.zone==='monster'||c.zone==='magic'?'field':'hand');return;}const label=c.faceDown?'伏せカード（自分）':c.name;let state='';if(c.kind==='monster')state=`<br><b>現在値：</b>ATK ${cardAtk(c)} / 貫通 ${pierceValue(c)} / 戦闘回数 ${c.battleCount||0}`;$('modalTitle').textContent='CARD INFO';$('modalOptions').innerHTML=`<div class="detailCard"><h4>${label}</h4><div class="detailType">${cardTypeText(c)}</div><div class="detailEffect">${c.text||'効果なし'}${state}</div></div>`;$('modalCancel').style.display='block';$('modalCancel').textContent='閉じる';$('modal').classList.remove('hidden');$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');$('modalCancel').textContent='キャンセル';};}
+function slotHTML(c,p,l,z){const attrs=`data-p="${p}" data-l="${l}" data-zone="${z}"`;if(!c)return `<div class="slot ${z==='magic'?'magic':''} empty" ${attrs} data-empty="${z==='magic'?'MAGIC / TRAP':'MONSTER'}"></div>`;if(c.faceDown)return `<div class="slot magic" ${attrs}><div class="card trap"><div class="name">伏せカード</div><div class="meta">TRAP</div></div></div>`;const sick=c.kind==='monster'&&c.summonedTurn===S.turnNo&&!c.hasCharge;return `<div class="slot ${z==='magic'?'magic':''}" ${attrs}><div class="card ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="meta">${c.kind==='monster'?'MONSTER':'MAGIC'}</div>${c.kind==='monster'?`<span class="atk">ATK ${cardAtk(c)}${pierceValue(c)?` / 貫${pierceValue(c)}`:''}</span>${sick?'<span class="sick">出たターンは攻撃不可</span>':''}`:''}</div></div>`;}
 function renderField(p){let h='';for(let l=0;l<2;l++)h+=`<div class="lane">${p===1?slotHTML(S.players[p].magic[l],p,l,'magic')+slotHTML(S.players[p].monster[l],p,l,'monster'):slotHTML(S.players[p].monster[l],p,l,'monster')+slotHTML(S.players[p].magic[l],p,l,'magic')}</div>`;return h;}
 function render(){
  $('p1field').innerHTML=renderField(0);$('p2field').innerHTML=renderField(1);
@@ -249,16 +289,16 @@ function render(){
  renderHand();renderLog();setupFieldInteractions();const cpuTurn=GAME_MODE==='CPU'&&S.turn===CPU_PLAYER;$('attackBtn').disabled=cpuTurn||S.gameover||S.actions<=0||!S.players[S.turn].monster.some((c,l)=>c&&canAttack(c,S.turn,l));$('magicBtn').disabled=cpuTurn||S.gameover||S.players[S.turn].magicUses>=2;$('endBtn').disabled=cpuTurn||S.gameover;
 }
 function renderHand(){const p=S.turn;if(GAME_MODE==='CPU'&&p===CPU_PLAYER){$('handTitle').textContent='CPU HAND';$('hand').innerHTML='<div class="tiny">CPUの手札は非公開です。思考中の行動だけが公開されます。</div>';return;}$('hand').innerHTML=S.players[p].hand.map(c=>`<div class="handCard ${c.kind==='monster'?'monster':'magiccard'}"><div class="name">${c.name}</div><div class="type">${cardTypeText(c)}</div><div class="effect">${c.text}</div><button class="play" data-uid="${c.uid}" ${S.actions<=0?'disabled':''}>PLAY</button></div>`).join('')||'<div class="tiny">手札なし</div>';document.querySelectorAll('.play').forEach(b=>b.onclick=e=>{e.stopPropagation();playFromHand(Number(b.dataset.uid));});document.querySelectorAll('.handCard').forEach((el,i)=>el.onclick=()=>showCardDetail(S.players[p].hand[i],p));}
-function setupFieldInteractions(){document.querySelectorAll('.slot[data-p]').forEach(el=>{const p=+el.dataset.p,l=+el.dataset.l,z=el.dataset.zone,c=z==='monster'?S.players[p].monster[l]:S.players[p].magic[l];if(fieldPickResolve&&fieldPickFilter&&fieldPickFilter(p,l,z,c)){el.classList.add('pickable');el.onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r({p,l,zone:z});};}else if(c&&!(c.faceDown&&c.controller!==S.turn)){el.classList.add('inspectable');el.onclick=()=>showCardDetail(c,S.turn);}});}
+function setupFieldInteractions(){document.querySelectorAll('.slot[data-p]').forEach(el=>{const p=+el.dataset.p,l=+el.dataset.l,z=el.dataset.zone,c=z==='monster'?S.players[p].monster[l]:S.players[p].magic[l];if(fieldPickResolve&&fieldPickFilter&&fieldPickFilter(p,l,z,c)){el.classList.add('pickable');el.onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');closeDecisionReview();syncDecisionReviewTools();render();r({p,l,zone:z});};}else if(c&&!(c.faceDown&&c.controller!==S.turn)){el.classList.add('inspectable');el.onclick=()=>showCardDetail(c,S.turn);}});}
 function activeDecisionPlayer(){return decisionPlayer===null||decisionPlayer===undefined?S.turn:decisionPlayer;}
 function cpuShouldAuto(title){const dp=activeDecisionPlayer();if(GAME_MODE!=='CPU'||dp!==CPU_PLAYER)return false;if(!(cpuDecisionContext||decisionPlayer===CPU_PLAYER))return false;if(title&&title.indexOf('P1')>=0&&dp!==0)return false;return true;}
 function waitDecisionHandoff(player,title,msg){return new Promise(res=>{setHandPrivate(true);clearTransientEffects();$('handoffTitle').textContent=title||`${pName(player)} の選択です`;$('handoffMsg').textContent=msg||'選択するプレイヤーに端末を渡してください。手札は表示されません。';$('handoff').classList.remove('hidden');$('readyBtn').onclick=()=>{$('handoff').classList.add('hidden');setHandPrivate(true);render();res();};});}
 async function withDecisionPlayer(player,label,fn){const old=decisionPlayer;if(old===player){return await fn();}const turnOwner=S.turn;decisionPlayer=player;let oldCpu=cpuDecisionContext;try{if(GAME_MODE==='CPU'&&player===CPU_PLAYER){cpuDecisionContext=true;return await fn();}if(player!==turnOwner){await waitDecisionHandoff(player,`${pName(player)} REACTION`,label||'効果の選択権があります。端末を渡してください。');const result=await fn();if(GAME_MODE==='2P'){await waitDecisionHandoff(turnOwner,`${pName(turnOwner)} のターンへ戻ります`,'選択処理が完了しました。元のターンプレイヤーに端末を戻してください。');setHandPrivate(false);render();}else if(GAME_MODE==='CPU'&&turnOwner===CPU_PLAYER){setHandPrivate(false);render();}return result;}return await fn();}finally{cpuDecisionContext=oldCpu;decisionPlayer=old;}}
-function cpuPickOption(title,opts){if(!opts||!opts.length)return null;let scored=opts.map((o,i)=>({i:i,s:0.15*Math.random(),o:o}));for(const x of scored){const label=(x.o.label||'')+' '+(x.o.sub||'');if(title.startsWith('MAGIC /')&&x.o.value==='destroy')x.s+=10;if(/相手ライフ|直接攻撃/.test(label))x.s+=4;if(/コントロール/.test(label))x.s+=3;if(/手札をランダム1枚奪/.test(label))x.s+=2.4;if(/墓地.*手札/.test(label))x.s+=2;if(/召喚|復活/.test(label))x.s+=1.8;if(/即時発動/.test(label))x.s+=1.2;if(/罠としてセット/.test(label))x.s+=1.5;if(/デッキの底へ/.test(label))x.s+=0.4;if(/LEFT|RIGHT/.test(label))x.s+=0.2;if(/場のモンスター.*破壊/.test(label)&&S.players[1-CPU_PLAYER].monster.some(c=>c&&c.id===3))x.s+=20;if(/エンブレム.*破壊/.test(label))x.s+=3;if(/1ドロー/.test(label))x.s+=1;if(/突撃/.test(label))x.s+=2;if(/相手の錆びたゴーレム.*墓地/.test(label))x.s+=6;const m=label.match(/ATK\s*(\d+)/);if(m)x.s+=Number(m[1])*.12;}
+function cpuPickOption(title,opts){if(!opts||!opts.length)return null;let scored=opts.map((o,i)=>({i:i,s:0.15*Math.random(),o:o}));for(const x of scored){const label=(x.o.label||'')+' '+(x.o.sub||'');if(title.startsWith('MAGIC /')&&x.o.value==='destroy')x.s+=10;if(/相手ライフ|直接攻撃/.test(label))x.s+=4;if(/コントロール/.test(label))x.s+=3;if(/手札をランダム1枚奪/.test(label))x.s+=2.4;if(/墓地.*手札/.test(label))x.s+=2;if(/場に出す|復活/.test(label))x.s+=1.8;if(/即時発動/.test(label))x.s+=1.2;if(/罠としてセット/.test(label))x.s+=1.5;if(/デッキの底へ/.test(label))x.s+=0.4;if(/LEFT|RIGHT/.test(label))x.s+=0.2;if(/場のモンスター.*破壊/.test(label)&&S.players[1-CPU_PLAYER].monster.some(c=>c&&c.id===3))x.s+=20;if(/エンブレム.*破壊/.test(label))x.s+=3;if(/1ドロー/.test(label))x.s+=1;if(/突撃/.test(label))x.s+=2;if(/相手.*ATK9以上.*除外/.test(label))x.s+=6;const m=label.match(/ATK\s*(\d+)/);if(m)x.s+=Number(m[1])*.12;}
 scored.sort((a,b)=>b.s-a.s);return scored[0].i;}
-function cpuPickField(title,filter){const cand=[];for(let p=0;p<2;p++)for(let l=0;l<2;l++)for(const z of ['monster','magic']){const c=S.players[p][z][l];if(filter(p,l,z,c))cand.push({p:p,l:l,zone:z,c:c});}if(!cand.length)return null;let best=cand[0],bestS=-999;for(const x of cand){let sc=Math.random()*.4;if(/攻撃するモンスター/.test(title)){sc+=cpuAttackScore(x.l)*2;}if(/召喚先|復活先|MONSTER/.test(title)){if(x.p===CPU_PLAYER)sc+=2;if(!S.players[1-CPU_PLAYER].monster[x.l])sc+=1.2;else sc+=0.5;}if(/強化/.test(title)){if(x.p===CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.15;}if(/脱力/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/コントロール/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/入れ替える場/.test(title)){if(x.p!==CPU_PLAYER)sc+=1.5;}if(/墓地へ|破壊|半減/.test(title)){if(x.p!==CPU_PLAYER)sc+=6;else sc-=8;if(x.p!==CPU_PLAYER&&x.c?.id===3)sc+=12;}if(/コストにする/.test(title)&&x.p===CPU_PLAYER)sc-=x.c?cardAtk(x.c):0;if(/突撃/.test(title)&&x.p===CPU_PLAYER)sc+=4;if(/配置先/.test(title)&&x.p===CPU_PLAYER)sc+=2;if(sc>bestS){bestS=sc;best=x;}}return{p:best.p,l:best.l,zone:best.zone};}
-function chooseFieldSlot(msg,filter){if(cpuShouldAuto(msg)){return new Promise(res=>setTimeout(()=>res(cpuPickField(msg,filter)),260));}return new Promise(res=>{fieldPickResolve=res;fieldPickFilter=filter;$('pickHint').textContent=msg+' ｜ ここをタップでキャンセル';$('pickHint').classList.remove('hidden');$('pickHint').onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');render();r(null);};render();});}
-function choose(title,opts,cancel=true){if(cpuShouldAuto(title)){return new Promise(res=>setTimeout(()=>{const ix=cpuPickOption(title,opts);res(ix===null?null:opts[ix].value);},240));}return new Promise(res=>{choiceResolve=res;$('modalTitle').textContent=title;$('modalOptions').innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}">${o.label}${o.sub?`<small>${o.sub}</small>`:''}</button>`).join('');$('modalCancel').style.display=cancel?'block':'none';$('modalCancel').textContent='キャンセル';$('modal').classList.remove('hidden');document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const v=opts[+b.dataset.i].value;$('modal').classList.add('hidden');choiceResolve=null;res(v);});$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');choiceResolve=null;res(null);};});}
+function cpuPickField(title,filter){const cand=[];for(let p=0;p<2;p++)for(let l=0;l<2;l++)for(const z of ['monster','magic']){const c=S.players[p][z][l];if(filter(p,l,z,c))cand.push({p:p,l:l,zone:z,c:c});}if(!cand.length)return null;let best=cand[0],bestS=-999;for(const x of cand){let sc=Math.random()*.4;if(/攻撃するモンスター/.test(title)){sc+=cpuAttackScore(x.l)*2;}if(/出す場所|復活先|MONSTER/.test(title)){if(x.p===CPU_PLAYER)sc+=2;if(!S.players[1-CPU_PLAYER].monster[x.l])sc+=1.2;else sc+=0.5;}if(/強化/.test(title)){if(x.p===CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.15;}if(/脱力/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/コントロール/.test(title)){if(x.p!==CPU_PLAYER)sc+=3;sc+=(x.c?cardAtk(x.c):0)*.2;}if(/入れ替える場/.test(title)){if(x.p!==CPU_PLAYER)sc+=1.5;}if(/墓地へ|破壊|半減|除外/.test(title)){if(x.p!==CPU_PLAYER)sc+=6;else sc-=8;if(x.p!==CPU_PLAYER&&x.c?.id===3)sc+=12;}if(/コストにする/.test(title)&&x.p===CPU_PLAYER)sc-=x.c?cardAtk(x.c):0;if(/突撃/.test(title)&&x.p===CPU_PLAYER)sc+=4;if(/配置先/.test(title)&&x.p===CPU_PLAYER)sc+=2;if(sc>bestS){bestS=sc;best=x;}}return{p:best.p,l:best.l,zone:best.zone};}
+function chooseFieldSlot(msg,filter){if(cpuShouldAuto(msg)){return new Promise(res=>setTimeout(()=>res(cpuPickField(msg,filter)),260));}return new Promise(res=>{fieldPickResolve=res;fieldPickFilter=filter;$('pickHint').textContent=msg+' ｜ ここをタップでキャンセル';$('pickHint').classList.remove('hidden');$('pickHint').onclick=()=>{const r=fieldPickResolve;fieldPickResolve=null;fieldPickFilter=null;$('pickHint').classList.add('hidden');closeDecisionReview();syncDecisionReviewTools();render();r(null);};syncDecisionReviewTools();render();});}
+function choose(title,opts,cancel=true){if(cpuShouldAuto(title)){return new Promise(res=>setTimeout(()=>{const ix=cpuPickOption(title,opts);res(ix===null?null:opts[ix].value);},240));}return new Promise(res=>{choiceResolve=res;syncDecisionReviewTools();$('modalTitle').textContent=title;$('modalOptions').innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}">${o.label}${o.sub?`<small>${o.sub}</small>`:''}</button>`).join('');$('modalCancel').style.display=cancel?'block':'none';$('modalCancel').textContent='キャンセル';$('modal').classList.remove('hidden');document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const v=opts[+b.dataset.i].value;$('modal').classList.add('hidden');choiceResolve=null;closeDecisionReview();syncDecisionReviewTools();res(v);});$('modalCancel').onclick=()=>{$('modal').classList.add('hidden');choiceResolve=null;closeDecisionReview();syncDecisionReviewTools();res(null);};});}
 function showHandoff(next,msg='相手に画面を見せないように端末を渡してください。'){
  setHandPrivate(true);clearTransientEffects();showDigestBanners(S.lastTurnEvents);
  if(GAME_MODE==='CPU'&&next===CPU_PLAYER){setTimeout(()=>{setHandPrivate(false);runCpuTurn();},420);return;}
@@ -272,67 +312,33 @@ function showHandoff(next,msg='相手に画面を見せないように端末を�
 function draw(p,n=1,publicEvent=true){const deck=deckFor(p);let got=0;for(let i=0;i<n;i++){if(!deck.length)break;S.players[p].hand.push(deck.pop());got++;}if(got)log(`${pName(p)} が ${got}枚ドロー`,publicEvent);return got;}
 async function faithStartOption(p){
  if(S.gameover||!S.players[p].faithEmblem||S.players[p].faithUsedTurn===S.turnNo)return;
- const empty=[0,1].filter(l=>!S.players[p].monster[l]);
- if(!empty.length)return;
- const candidates=graveFor(p).filter(c=>c.kind==='monster'&&c.faith&&c.faith>0&&c.faith<=S.players[p].hand.length);
+ const candidates=graveFor(p).filter(c=>c.kind==='monster'&&c.faith>0&&c.faith<=S.players[p].hand.length);
  if(!candidates.length)return;
- // CPUは「復活する戦力」と「捨てる手札の価値」を比較して信仰を使う。
+ let id,selected=[];
  if(GAME_MODE==='CPU'&&p===CPU_PLAYER){
-  const handRank=S.players[p].hand.map(c=>({c,s:Math.max(0,cpuCardScore(c))})).sort((a,b)=>a.s-b.s);
-  let best=null;
-  for(const c of candidates){
-   const cost=c.faith||0;
-   if(handRank.length<cost)continue;
-   const discardValue=handRank.slice(0,cost).reduce((a,x)=>a+x.s,0);
-   let summonValue=cardAtk(c)*0.65;
-   if(c.id===12)summonValue+=4;
-   if(c.id===7)summonValue+=3;
-   if(c.id===4)summonValue+=2.5;
-   if(c.id===6)summonValue+=1.5;
-   if(c.id===9)summonValue+=1.2;
-   const score=summonValue-discardValue*0.75+(S.players[p].monster.filter(Boolean).length===0?2:0);
-   if(!best||score>best.score)best={c,score,cost};
+  const rank=S.players[p].hand.map(c=>({c,s:c.kind==='monster'?cardAtk(c)*.45+(c.id===12?2.8:0):Math.max(0,cpuCardScore(c))})).sort((a,b)=>a.s-b.s);
+  const ranked=candidates.map(c=>({c,score:cardAtk(c)*.45+(c.id===12?2.8:c.id===6?1.7:0)-rank.slice(0,c.faith).reduce((n,x)=>n+x.s,0)*.65})).sort((a,b)=>b.score-a.score);
+  if(!ranked.length||ranked[0].score<2.2){log('CPU：信仰は温存');return;}
+  id=ranked[0].c.uid;selected=rank.slice(0,ranked[0].c.faith).map(x=>x.c.uid);
+ }else{
+  await waitDecisionHandoff(p,pName(p)+' のターン開始','信仰の選択があります。本人だけが画面を見て操作してください。');
+  const opts=candidates.map(c=>({label:c.name+' を信仰で手札に戻す',sub:'手札'+c.faith+'枚を墓地へ / AP消費なし / '+cardTypeText(c),value:c.uid}));
+  id=await choose(pName(p)+'：信仰エンブレム（任意・1ターン1回）',opts,true);if(!id)return;
+  const target=candidates.find(c=>c.uid===id);if(!target)return;
+  for(let n=0;n<target.faith;n++){
+   const available=S.players[p].hand.filter(c=>!selected.includes(c.uid));
+   const cid=await choose('信仰'+target.faith+'：墓地へ送る手札 '+(n+1)+'/'+target.faith,available.map(c=>({label:c.name,sub:cardTypeText(c),value:c.uid})),true);
+   if(!available.some(c=>c.uid===cid))return;selected.push(cid);
   }
-  if(!best||best.score<2.2){log('CPU：信仰は温存');return;}
-  S.players[p].faithUsedTurn=S.turnNo;
-  for(let n=0;n<best.cost;n++){
-   const current=S.players[p].hand.map(c=>({c,s:Math.max(0,cpuCardScore(c))})).sort((a,b)=>a.s-b.s)[0];
-   if(!current)break;
-   const i=S.players[p].hand.findIndex(x=>x.uid===current.c.uid);
-   const dc=S.players[p].hand.splice(i,1)[0];
-   await sendGrave(dc,'faith-cost',true,false,p);
-  }
-  const graveCard=takeGrave(best.c.uid,p);if(!graveCard)return;
-  let lane=empty[0];
-  if(empty.length>1){
-   const laneScores=empty.map(l=>({l,s:(!S.players[1-p].monster[l]?1.5:0)+(S.players[1-p].magic[l]?-.4:0)})).sort((a,b)=>b.s-a.s);
-   lane=laneScores[0].l;
-  }
-  log(`CPU が信仰${best.cost}を使用（評価 ${best.score.toFixed(1)}）`);
-  await summon(graveCard,p,lane,false,false);
-  await resolvePending();return;
  }
- const opts=candidates.map(c=>({label:`${c.name} を信仰で召喚`,sub:`手札${c.faith}枚を墓地へ / ${cardTypeText(c)}`,value:c.uid}));
- const id=await choose(`${pName(p)}：信仰エンブレム（任意・1ターン1回）`,opts,true);
- if(!id)return;
- const target=graveFor(p).find(c=>c.uid===id);if(!target)return;
- const cost=target.faith||0;if(S.players[p].hand.length<cost)return;
- const selected=[];
- for(let n=0;n<cost;n++){
-  const available=S.players[p].hand.filter(c=>!selected.includes(c.uid));
-  const cid=await choose(`信仰${cost}：墓地へ送る手札 ${n+1}/${cost}`,available.map(c=>({label:c.name,sub:cardTypeText(c),value:c.uid})),true);
-  if(!cid)return; selected.push(cid);
- }
- let lane=empty[0];
- if(empty.length>1){
-  const pick=await chooseFieldSlot(`${pName(p)}：信仰召喚先をタップ`,(pp,ll,z,cc)=>pp===p&&z==='monster'&&!cc);
-  if(!pick)return; lane=pick.l;
- }
+ const target=graveFor(p).find(c=>c.uid===id);
+ if(!target||selected.length!==target.faith||new Set(selected).size!==selected.length||selected.some(cid=>!S.players[p].hand.some(c=>c.uid===cid)))return;
  S.players[p].faithUsedTurn=S.turnNo;
- for(const cid of selected){const i=S.players[p].hand.findIndex(c=>c.uid===cid);if(i>=0){const dc=S.players[p].hand.splice(i,1)[0];await sendGrave(dc,'faith-cost',true,false,p);}}
- const graveCard=takeGrave(id,p);if(!graveCard)return;
- log(`${pName(p)} が信仰${cost}を使用`);
- await summon(graveCard,p,lane,false,false);await resolvePending();
+ for(const cid of selected){const i=S.players[p].hand.findIndex(c=>c.uid===cid);const dc=S.players[p].hand.splice(i,1)[0];await sendGrave(dc,'faith-cost',true,false,p);}
+ const recovered=takeGrave(id,p);if(!recovered)return;
+ recovered.zone=null;recovered.lane=null;recovered.faceDown=false;recovered.controller=p;S.players[p].hand.push(recovered);
+ log(pName(p)+' が信仰'+target.faith+'を使用：'+recovered.name+' を手札に戻した（AP消費なし）');
+ await resolvePending();
 }
 async function startTurn(p,initial=false){
  if(S.gameover)return;
@@ -395,17 +401,17 @@ async function playFromHand(uidv){
  await resolvePending();await evaluateAutoTraps();busy=false;render();
 }
 async function specialSummonDragon(c,p){
- if(!S.players[p].monster.some(Boolean)){await choose('特殊召喚できません',[{label:'自分の場のモンスター1体が必要です',value:1}],false);return}
- const pick=await chooseFieldSlot('特殊召喚のコストにする自分のモンスターをタップ',(pp,ll,z,cc)=>pp===p&&z==='monster'&&!!cc);if(!pick)return;
+ if(!S.players[p].monster.some(Boolean)){await choose('特別な方法で場に出せません',[{label:'自分の場のモンスター1体が必要です',value:1}],false);return}
+ const pick=await chooseFieldSlot('場に出すためのコストにする自分のモンスターをタップ',(pp,ll,z,cc)=>pp===p&&z==='monster'&&!!cc);if(!pick)return;
  if(!S.players[p].monster[pick.l]||!S.players[p].hand.some(x=>x.uid===c.uid))return;
  busy=true;S.actions--;await sendMonsterFromField(p,pick.l,'dragon-summon-cost');
  const index=S.players[p].hand.findIndex(x=>x.uid===c.uid);if(index>=0){S.players[p].hand.splice(index,1);await summon(c,p,pick.l,false,true)}
  await resolvePending();await evaluateAutoTraps();busy=false;render();
 }
-function grantPierce(c,label){if(pierceValue(c)>0){c.atkMod=(c.atkMod||0)+1;log(label+'：'+c.name+' ATK+1')}else{c.pierceGranted=true;log(label+'：'+c.name+'に貫通1を付与')}}
-function gainPierceEmblem(p){if(S.players[p].pierceEmblem)return;S.players[p].pierceEmblem=true;log(pName(p)+'が貫通エンブレムを獲得')}
-function emblemOptions(p){return [['possessionEmblem','憑依'],['faithEmblem','信仰'],['pierceEmblem','貫通']].filter(([key])=>S.players[p][key]).map(([key,name])=>({label:name+'エンブレム',value:key}))}
+
+function emblemOptions(p){return [['possessionEmblem','憑依'],['faithEmblem','信仰']].filter(([key])=>S.players[p][key]).map(([key,name])=>({label:name+'エンブレム',value:key}))}
 async function summon(c,p,l,normal=false,fromHand=false){
+ if(isBanished(c))return false;
  if(c.owner===null||c.owner===undefined)c.owner=p;
  c.controller=p;c.zone='monster';c.lane=l;c.faceDown=false;c.playedTurn=S.turnNo;c.summonedTurn=S.turnNo;
  const firstSummon=(c.originalSummoner===null||c.originalSummoner===undefined);
@@ -414,17 +420,16 @@ async function summon(c,p,l,normal=false,fromHand=false){
  if(fromHand)c.handSummonCount=(c.handSummonCount||0)+1;
  if(c.possession&&firstSummon){S.players[p].possessionEmblem=true;log(`${pName(p)} が「憑依」エンブレムを獲得`);}
  if(c.faith&&firstSummon){S.players[p].faithEmblem=true;log(`${pName(p)} が「信仰」エンブレムを獲得`);}
- if(c.hatred&&fromHand&&c.handSummonCount>=2){c.atkMod+=(c.hatred||0);log(`${c.name}：憎悪が発動。ATK+${c.hatred}（手札からの召喚${c.handSummonCount}回目）`);}
+ if(c.hatred&&c.summonCount>=2){c.atkMod+=(c.hatred||0);log(`${c.name}：憎悪が発動。ATK+${c.hatred}（場に出た回数 ${c.summonCount}回目）`);}
  const riderBonus=(c.id===8&&!!(S.players[1-p].magic[l]&&S.players[1-p].magic[l].faceDown));
  c.hasCharge=riderBonus;S.players[p].monster[l]=c;
  if(c.id===8&&S.players[1-p].monster[l]){c.pierceGranted=true;log(c.name+'：同列に相手モンスターがいるため貫通1')}
- if(S.players[p].pierceEmblem)grantPierce(c,'貫通エンブレム');
- log(`${pName(p)} が ${c.name} を${l===0?'左':'右'}列に召喚`);
+ log(`${pName(p)} が ${c.name} を${l===0?'左':'右'}列の場に出した`);
  if(riderBonus){addAP(p,1);log(`${c.name}：突撃 / AP+1`);}
  if(c.id===1&&!S.gameover)S.pending.push({type:'dragonSummon',owner:p,source:c});
  if(c.id===9&&!S.gameover)S.pending.push({type:'necromancerSummon',owner:p,source:c});
  if(c.id===11&&!S.gameover)S.pending.push({type:'swapPot',owner:p,source:c});
- if(c.id!==9)await triggerTrapOnSummon(p,l,c);
+ await triggerTrapOnSummon(p,l,c);
 }
 
 async function activateInstant(c,p,handIdx){
@@ -462,15 +467,15 @@ async function resolveMagicEffect(c,ctrl,originalP){
 async function revivalEffect(ctrl,lane){
  const mons=graveFor(ctrl).filter(x=>x.kind==='monster');if(!mons.length){log('復活の書：墓地にモンスターなし');return false;}
  let l=lane;if(l===null){const s=await chooseFieldSlot('復活先の MONSTER 枠をタップ',(pp,ll,z,cc)=>pp===ctrl&&z==='monster'&&!cc);if(!s)return false;l=s.l;}
- if(S.players[ctrl].monster[l]){log('召喚の魔法：同列に自分のモンスターがいるため発動できません');return false;}
+ if(S.players[ctrl].monster[l]){log('場に出す魔法：同列に自分のモンスターがいるため発動できません');return false;}
  const id=await choose('墓地から復活',mons.map(graveOption),true);if(!id)return false;
  const m=takeGrave(id,ctrl);if(!m)return false;await summon(m,ctrl,l,false,false);return true;
 }
 async function summonSpellEffect(ctrl,lane){
- const mons=S.players[ctrl].hand.filter(x=>x.kind==='monster');if(!mons.length){log('召喚の魔法：手札にモンスターなし');return false;}
- let l=lane;if(l===null){const s=await chooseFieldSlot('召喚先の MONSTER 枠をタップ',(pp,ll,z,cc)=>pp===ctrl&&z==='monster'&&!cc);if(!s)return false;l=s.l;}
+ const mons=S.players[ctrl].hand.filter(x=>x.kind==='monster');if(!mons.length){log('場に出す魔法：手札にモンスターなし');return false;}
+ let l=lane;if(l===null){const s=await chooseFieldSlot('出す場所の MONSTER 枠をタップ',(pp,ll,z,cc)=>pp===ctrl&&z==='monster'&&!cc);if(!s)return false;l=s.l;}
  if(S.players[ctrl].monster[l])return false;
- const id=await choose('手札から召喚',mons.map(graveOption),true);if(!id)return false;
+ const id=await choose('手札から場に出す',mons.map(graveOption),true);if(!id)return false;
  const i=S.players[ctrl].hand.findIndex(x=>x.uid===id);if(i<0)return false;
  const m=S.players[ctrl].hand.splice(i,1)[0];await summon(m,ctrl,l,false,true);return true;
 }
@@ -502,25 +507,40 @@ async function vampireEffect(ctrl,source){
 }
 
 async function magicBookEffect(ctrl,c){
+ const canBanish=(p,l,z,m)=>p===1-ctrl&&z==='monster'&&!!m&&m.id!==7&&cardAtk(m)>=9;
  const opts=[];
- if(S.players[1-ctrl].monster.some(m=>m&&m.id===2))opts.push({label:'相手の錆びたゴーレム1体を墓地へ送る',value:'golem'});
+ if(S.players[1-ctrl].monster.some((m,l)=>canBanish(1-ctrl,l,'monster',m)))opts.push({label:'相手の現在ATK9以上のモンスター1体を除外する',value:'banish'});
  if(S.players[ctrl].monster.some(m=>m&&m.id!==7))opts.push({label:'自分のモンスターに突撃を付与しAP+1',value:'charge'});
  if(!opts.length){log('魔導の書：有効な効果なし');return false;}
- const pick=await choose(pName(ctrl)+'：魔導の書 チョイス',opts,true);if(!pick)return false;
- const s=await chooseFieldSlot(pick==='golem'?'墓地へ送る相手の錆びたゴーレムをタップ':'突撃を付与する自分のモンスターをタップ',(p,l,z,m)=>z==='monster'&&!!m&&(pick==='golem'?p===1-ctrl&&m.id===2:p===ctrl&&m.id!==7));if(!s)return false;
- const m=S.players[s.p].monster[s.l];if(!m)return false;
+ const pick=await choose(pName(ctrl)+'：魔導の書 チョイス',opts,true);if(!opts.some(x=>x.value===pick))return false;
+ const filter=pick==='banish'?canBanish:(p,l,z,m)=>p===ctrl&&z==='monster'&&!!m&&m.id!==7;
+ const slot=await chooseFieldSlot(pick==='banish'?'除外する相手の現在ATK9以上のモンスターをタップ':'突撃を付与する自分のモンスターをタップ',filter);if(!slot)return false;
+ const m=S.players[slot.p]?.monster[slot.l];if(!filter(slot.p,slot.l,slot.zone,m))return false;
  const costOpts=S.players[ctrl].hand.filter(x=>x.uid!==c.uid);if(!costOpts.length)return false;
- const id=await choose('魔導の書：墓地へ送る手札1枚',costOpts.map(x=>({label:x.name,sub:cardTypeText(x),value:x.uid})),true);if(!id)return false;
- const i=S.players[ctrl].hand.findIndex(x=>x.uid===id);if(i<0)return false;
+ const id=await choose('魔導の書：墓地へ送る手札1枚',costOpts.map(x=>({label:x.name,sub:cardTypeText(x),value:x.uid})),true);
+ const i=S.players[ctrl].hand.findIndex(x=>x.uid===id&&x.uid!==c.uid);if(i<0)return false;
  await sendGrave(S.players[ctrl].hand.splice(i,1)[0],'magic-book-cost',true,false,ctrl);
- if(pick==='golem'){await sendMonsterFromField(s.p,s.l,'magic-book-golem');log('魔導の書：相手の錆びたゴーレムを墓地へ');}
+ if(pick==='banish')banishMonsterFromField(slot.p,slot.l,'魔導の書');
  else{m.hasCharge=true;addAP(ctrl,1);log('魔導の書：'+m.name+'に突撃を付与');}return true;
 }
+function banishMonsterFromField(p,l,reason){
+ const c=S.players[p].monster[l];if(!c||isBanished(c))return false;
+ S.players[p].monster[l]=null;leaveControlledField(c,p);c.zone='banished';c.lane=null;c.faceDown=false;
+ S.banished.push(c);log(reason+'：'+c.name+' を除外（蘇生・回収不可）');return true;
+}
 async function transformEffect(ctrl){
- const opts=[];if(S.players[ctrl].monster.some(m=>!m)&&deckFor(ctrl).some(c=>c.id===3))opts.push({label:'デッキからこどもドラゴンを召喚',value:'search'});
+ const sources=()=>[...deckFor(ctrl).filter(c=>c.id===3).map(c=>({area:'deck',p:ctrl,card:c})),...graveFor(ctrl).filter(c=>c.id===3).map(c=>({area:'grave',p:ctrl,card:c}))];
+ const opts=[];if(S.players[ctrl].monster.some(m=>!m)&&sources().length)opts.push({label:'自分のデッキ・墓地からこどもドラゴンを場に出す',value:'search'});
  if(fieldCards().some(c=>(c.id===1||c.id===3)&&findAnywhere(c.id===1?3:1,c.uid,c.originalDeck)))opts.push({label:'場のドラゴンを反対のカードと入れ替える',value:'transform'});
  if(!opts.length)return false;const mode=opts.length===1?opts[0].value:await choose('進化の書：チョイス',opts,true);if(!mode)return false;
- if(mode==='search'){const s=await chooseFieldSlot('進化の書：召喚先のMONSTER枠をタップ',(p,l,z,c)=>p===ctrl&&z==='monster'&&!c);if(!s)return false;const deck=deckFor(ctrl),i=deck.findIndex(c=>c.id===3);if(i<0||S.players[ctrl].monster[s.l])return false;const c=deck.splice(i,1)[0];await summon(c,ctrl,s.l,false,false);log('進化の書：デッキからこどもドラゴンを召喚');return true}
+ if(mode==='search'){
+  const candidates=sources();if(!candidates.length)return false;
+  const id=candidates.length===1?candidates[0].card.uid:await choose('進化の書：場に出すこどもドラゴン',candidates.map(x=>({label:(x.area==='deck'?'デッキ':'墓地')+'：'+x.card.name,sub:cardTypeText(x.card),value:x.card.uid})),true);if(!id)return false;
+  const slot=await chooseFieldSlot('進化の書：場に出すMONSTER枠をタップ',(p,l,z,c)=>p===ctrl&&z==='monster'&&!c);if(!slot||slot.p!==ctrl||slot.zone!=='monster'||S.players[ctrl].monster[slot.l])return false;
+  const found=sources().find(x=>x.card.uid===id);if(!found)return false;
+  const list=found.area==='deck'?deckFor(ctrl):graveFor(ctrl),index=list.findIndex(c=>c.uid===id);const c=list.splice(index,1)[0];
+  await summon(c,ctrl,slot.l,false,false);log('進化の書：'+(found.area==='deck'?'デッキ':'墓地')+'からこどもドラゴンを場に出した');return true;
+ }
  const targets=fieldCards().filter(x=>(x.id===1||x.id===3)&&x.id!==7);if(!targets.length){log('進化の書：場に対象なし');return false;}
  const pick=await chooseFieldSlot('変身させるモンスターをフィールドからタップ',(pp,ll,z,cc)=>z==='monster'&&!!cc&&(cc.id===1||cc.id===3));if(!pick)return false;
  const target=S.players[pick.p].monster[pick.l];if(!target)return false;
@@ -540,8 +560,8 @@ function findAnywhere(id,excludeUid,preferredDeck=null){
  };
  return (S.deckMode==='double'&&isPlayerIndex(preferredDeck)?find(true):null)||find(false);
 }
-function extractLocation(loc){const c=loc.card;if(loc.area==='hand')S.players[loc.p].hand.splice(loc.i,1);else if(loc.area==='monster')S.players[loc.p].monster[loc.l]=null;else if(loc.area==='grave')graveFor(loc.p).splice(loc.i,1);else if(loc.area==='deck')deckFor(loc.p).splice(loc.i,1);return c;}
-function placeAtLocation(c,loc){if(['hand','deck','grave'].includes(loc.area)&&isPlayerIndex(c.returnTo))loc={...loc,p:leaveControlledField(c,loc.p)};c.zone=null;c.lane=null;if(loc.area==='hand')S.players[loc.p].hand.splice(Math.min(loc.i,S.players[loc.p].hand.length),0,c);else if(loc.area==='monster'){c.controller=loc.p;c.zone='monster';c.lane=loc.l;S.players[loc.p].monster[loc.l]=c;}else if(loc.area==='grave'){const grave=graveFor(loc.p);grave.splice(Math.min(loc.i,grave.length),0,c);}else if(loc.area==='deck'){const deck=deckFor(loc.p);deck.splice(Math.min(loc.i,deck.length),0,c);}}
+function extractLocation(loc){const c=loc.card;if(isBanished(c))return null;if(loc.area==='hand')S.players[loc.p].hand.splice(loc.i,1);else if(loc.area==='monster')S.players[loc.p].monster[loc.l]=null;else if(loc.area==='grave')graveFor(loc.p).splice(loc.i,1);else if(loc.area==='deck')deckFor(loc.p).splice(loc.i,1);return c;}
+function placeAtLocation(c,loc){if(isBanished(c))return;if(['hand','deck','grave'].includes(loc.area)&&isPlayerIndex(c.returnTo))loc={...loc,p:leaveControlledField(c,loc.p)};c.zone=null;c.lane=null;if(loc.area==='hand')S.players[loc.p].hand.splice(Math.min(loc.i,S.players[loc.p].hand.length),0,c);else if(loc.area==='monster'){c.controller=loc.p;c.zone='monster';c.lane=loc.l;S.players[loc.p].monster[loc.l]=c;}else if(loc.area==='grave'){const grave=graveFor(loc.p);grave.splice(Math.min(loc.i,grave.length),0,c);}else if(loc.area==='deck'){const deck=deckFor(loc.p);deck.splice(Math.min(loc.i,deck.length),0,c);}}
 async function triggerTrapOnSummon(summoner,lane,monster){
  if(S.gameover)return;
  await evaluateAutoTraps();
@@ -633,7 +653,7 @@ async function triggerAttackTraps(attackerP,lane,attacker,direct){
   if(!S.players[defender].monster[lane]||attacker.id===7)return false;
   const yes=await withDecisionPlayer(defender,'罠の発動を選択してください。',()=>choose('反攻の儀を発動しますか？',[{label:'同列の自分のモンスターを墓地へ送り、コントロールを得る',value:'yes'},{label:'発動しない',value:'no'}],false));if(yes!=='yes')return false;
  }
- if(trap.id===102&&S.players[defender].monster[lane]){log('召喚の魔法：同列に自分のモンスターがいるため発動条件を満たさない');return false;}
+ if(trap.id===102&&S.players[defender].monster[lane]){log('場に出す魔法：同列に自分のモンスターがいるため発動条件を満たさない');return false;}
  S.players[defender].magic[lane]=null;trap.faceDown=false;
  log(`${pName(defender)} の ${trap.name} が発動`);
  let cancel=false;
@@ -696,11 +716,11 @@ async function monsterBattle(p,l){
  // 踏破: 自分が墓地へ行かず、相手を墓地へ送った時。
  const aAlive=!!findMonsterUid(a.uid),dAlive=!!findMonsterUid(d.uid);
  if(!S.gameover&&aAlive&&deadD){
-  if(a.id===4)gainPierceEmblem(p);
+  if(a.id===4){a.atkMod=(a.atkMod||0)+1;log('ドリルドリ：踏破 → ATK+1');}
   if(a.id===7){draw(p,1);log('反魔の死人：踏破 → 1ドロー');}
  }
  if(!S.gameover&&dAlive&&deadA){
-  if(d.id===4)gainPierceEmblem(1-p);
+  if(d.id===4){d.atkMod=(d.atkMod||0)+1;log('ドリルドリ：踏破 → ATK+1');}
   if(d.id===7){draw(1-p,1);log('反魔の死人：踏破 → 1ドロー');}
  }
  // 脱力は戦闘後に永続適用。守護の儀は場に残っている同列の対象を守る。
@@ -740,6 +760,7 @@ function triggerEventsFor(c,reason,fromField,effectOwner=null){
  return ev;
 }
 async function sendGrave(c,reason,trigger=true,fromField=false,effectOwner=null){
+ if(isBanished(c))return;
  const events=triggerEventsFor(c,reason,fromField,effectOwner);
  if(c.kind==='monster')c.halfCount=0;
  c.zone='grave';c.lane=null;c.faceDown=false;
@@ -765,19 +786,19 @@ async function resolvePending(){
   }
   if(e.type==='ghostCheck'){
    if(!isPlayerIndex(e.owner)||!S.players[e.owner].possessionEmblem||antiUndeadOnField())continue;
-   await withDecisionPlayer(e.owner,`憑依：${pName(e.owner)} が墓地からの召喚を選択します。`,async()=>{
+   await withDecisionPlayer(e.owner,`憑依：${pName(e.owner)} が墓地から場に出す処理を選択します。`,async()=>{
     const ghosts=graveFor(e.owner).filter(c=>c.possession&&c.originalSummoner===e.owner);
     for(const g of ghosts){
      const empty=[0,1].filter(l=>!S.players[e.owner].monster[l]);
      if(!empty.length)break;
      const yes=await choose(`${g.name} / 憑依`,[
-      {label:'墓地から召喚する',value:'yes'},
-      {label:'今回は召喚しない',value:'no'}
+      {label:'墓地から場に出す',value:'yes'},
+      {label:'今回は場に出すしない',value:'no'}
      ],false);
      if(yes!=='yes')continue;
      let lane=empty[0];
      if(empty.length>1){
-      const s=await chooseFieldSlot(`${pName(e.owner)}：憑依の召喚先をタップ`,(pp,ll,z,cc)=>pp===e.owner&&z==='monster'&&!cc);
+      const s=await chooseFieldSlot(`${pName(e.owner)}：憑依の出す場所をタップ`,(pp,ll,z,cc)=>pp===e.owner&&z==='monster'&&!cc);
       if(!s)continue;lane=s.l;
      }
      const gg=takeGrave(g.uid,e.owner);
@@ -815,11 +836,12 @@ async function resolvePending(){
 }
 async function necromancerEffect(owner,source){
  const loc=source&&findMonsterUid(source.uid);if(!loc||loc.p!==owner)return;
- const lane=loc.l,trap=S.players[1-owner].magic[lane];
- if(!trap||!trap.faceDown){log('死霊師：同列に相手の伏せ罠なし');return;}
- if(S.players[owner].magic[lane])await sendMagicFromField(owner,lane,'necromancer-replace');
- S.players[1-owner].magic[lane]=null;trap.controller=owner;trap.zone='magic';trap.lane=lane;trap.faceDown=true;trap.playedTurn=S.turnNo;
- S.players[owner].magic[lane]=trap;log('死霊師：同列の相手の伏せ罠を奪い、自分の後ろへセット');
+ const candidates=graveFor(owner).filter(c=>c.kind==='monster');if(!candidates.length){log('死霊師：自分の墓地にモンスターなし');return;}
+ await withDecisionPlayer(owner,'死霊師：ATKを参照する自分の墓地のモンスターを選びます。',async()=>{
+  const id=await choose(pName(owner)+'：死霊師のATKに加える墓地モンスター',candidates.map(graveOption),false);
+  const target=graveFor(owner).find(c=>c.uid===id&&c.kind==='monster'),current=findMonsterUid(source.uid);if(!target||!current||current.p!==owner)return;
+  const value=cardAtk(target);source.atkMod=(source.atkMod||0)+value;log('死霊師：'+target.name+'の現在ATKを参照してATK+'+value+'（参照カードは墓地に残る）');
+ });
 }
 async function swapPotEffect(owner,source){
  const count=S.players[owner].hand.length;
@@ -890,15 +912,16 @@ function cardState(c){
 }
 function saveSnapshot(p){const slots={monster:[null,null],magic:[null,null]};for(let l=0;l<2;l++){for(const z of ['monster','magic']){const c=S.players[p][z][l];if(c)slots[z][l]={uid:c.uid,state:cardState(c),wasSick:c.summonedTurn===S.turnNo&&!c.hasCharge};}}S.players[p].snapshot={turnNo:S.turnNo,slots,locations:captureLocations()};}
 function removeLocated(loc){const c=loc.card;if(loc.area==='hand')S.players[loc.p].hand.splice(loc.i,1);else if(loc.area==='monster')S.players[loc.p].monster[loc.l]=null;else if(loc.area==='magic')S.players[loc.p].magic[loc.l]=null;else if(loc.area==='grave')graveFor(loc.p).splice(loc.i,1);else if(loc.area==='deck')deckFor(loc.p).splice(loc.i,1);return c;}
-function placeByDescriptor(c,d){if(d&&['hand','deck','grave'].includes(d.area)&&isPlayerIndex(c.returnTo))d={...d,p:leaveControlledField(c,d.p)};if(!d){putGrave(c);c.zone='grave';c.lane=null;return;}if(d.area==='hand'){S.players[d.p].hand.splice(Math.min(d.i,S.players[d.p].hand.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='grave'){const grave=graveFor(d.p);grave.splice(Math.min(d.i,grave.length),0,c);c.zone='grave';c.lane=null;}else if(d.area==='deck'){const deck=deckFor(d.p);deck.splice(Math.min(d.i,deck.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='monster'){if(!S.players[d.p].monster[d.l]){S.players[d.p].monster[d.l]=c;c.controller=d.p;c.zone='monster';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}else if(d.area==='magic'){if(!S.players[d.p].magic[d.l]){S.players[d.p].magic[d.l]=c;c.controller=d.p;c.zone='magic';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}}
+function placeByDescriptor(c,d){if(isBanished(c))return;if(d&&['hand','deck','grave'].includes(d.area)&&isPlayerIndex(c.returnTo))d={...d,p:leaveControlledField(c,d.p)};if(!d){putGrave(c);c.zone='grave';c.lane=null;return;}if(d.area==='hand'){S.players[d.p].hand.splice(Math.min(d.i,S.players[d.p].hand.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='grave'){const grave=graveFor(d.p);grave.splice(Math.min(d.i,grave.length),0,c);c.zone='grave';c.lane=null;}else if(d.area==='deck'){const deck=deckFor(d.p);deck.splice(Math.min(d.i,deck.length),0,c);c.zone=null;c.lane=null;}else if(d.area==='monster'){if(!S.players[d.p].monster[d.l]){S.players[d.p].monster[d.l]=c;c.controller=d.p;c.zone='monster';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}else if(d.area==='magic'){if(!S.players[d.p].magic[d.l]){S.players[d.p].magic[d.l]=c;c.controller=d.p;c.zone='magic';c.lane=d.l;}else{putGrave(c);c.zone='grave';c.lane=null;}}}
 function restoreState(c,s,wasSick){Object.assign(c,s);if(wasSick)c.summonedTurn=S.turnNo;else if(c.summonedTurn===S.turnNo)c.summonedTurn=S.turnNo-1;}
 function rewindOwnField(p){const snap=S.players[p].snapshot;if(!snap)return false;const snapUids=new Set();for(const z of ['monster','magic'])for(let l=0;l<2;l++)if(snap.slots[z][l])snapUids.add(snap.slots[z][l].uid);const current=[];for(const z of ['monster','magic'])for(let l=0;l<2;l++){const c=S.players[p][z][l];if(c)current.push(c.uid);}const relevant=[...new Set([...current,...snapUids])],cards={};for(const id of relevant){const loc=locateCard(id);if(loc)cards[id]=removeLocated(loc);}for(const id of current){if(!snapUids.has(id)&&cards[id])placeByDescriptor(cards[id],snap.locations[id]);}for(const z of ['monster','magic'])for(let l=0;l<2;l++){const x=snap.slots[z][l];if(!x)continue;let c=cards[x.uid];if(!c){const loc=locateCard(x.uid);if(loc)c=removeLocated(loc);}if(!c)continue;restoreState(c,x.state,x.wasSick);c.controller=p;c.zone=z;c.lane=l;c.faceDown=z==='magic'?x.state.faceDown:false;S.players[p][z][l]=c;}log(`${pName(p)} の場を前回ターン終了時へ巻き戻した`);return true;}
 async function useMagic(){
  if(busy||S.gameover)return;
- const p=S.turn;if(S.players[p].magicUses>=2)return;
+ const p=S.turn;if(S.players[p].magicUses>=2||S.players[p].life<=0)return;
+ const costText=S.players[p].life===1?'ライフ消費なし（現在1） / AP消費なし':'ライフ−1（ライフ1なら消費なし） / AP消費なし';
  const options=[];
- if(S.players[1-p].monster.some(Boolean))options.push({label:'相手の場のモンスター1体を墓地へ送る',sub:'ライフ−1 / AP消費なし',value:'destroy'});
- if(deckFor(p).length>=2)options.push({label:'デッキから2枚引き、手札1枚をデッキの底へ戻す',sub:'ライフ−1 / AP消費なし',value:'draw'});
+ if(S.players[1-p].monster.some(Boolean))options.push({label:'相手の場のモンスター1体を墓地へ送る',sub:costText,value:'destroy'});
+ if(deckFor(p).length>=2)options.push({label:'デッキから2枚引き、手札1枚をデッキの底へ戻す',sub:costText,value:'draw'});
  if(!options.length)return;
  busy=true;
  try{
@@ -908,7 +931,7 @@ async function useMagic(){
    const pick=await chooseFieldSlot('墓地へ送る相手のモンスターをタップ',(pp,l,z,c)=>pp===1-p&&z==='monster'&&!!c);if(!pick)return;
    target=S.players[pick.p].monster[pick.l];if(pick.p!==1-p||!target)return;
   }else if(mode!=='draw'||deckFor(p).length<2)return;
-  S.players[p].magicUses++;log(pName(p)+' がMAGICを使用（残り'+(2-S.players[p].magicUses)+'回）');damage(p,1,'MAGICのコスト');
+  S.players[p].magicUses++;log(pName(p)+' がMAGICを使用（残り'+(2-S.players[p].magicUses)+'回）');if(S.players[p].life>1)damage(p,1,'MAGICのコスト');else log(pName(p)+'：ライフ1のためMAGICのライフ消費なし');
   if(S.gameover)return;
   if(mode==='destroy')await removeFieldByUid(target.uid,'magic-remove');
   else{
@@ -957,10 +980,10 @@ function cpuCardScore(c){
   if(c.id===107)s+=S.players[opp].life<=1?8:3;
   if(c.id===108&&fieldCards().some(x=>x.kind==='monster'&&x.id!==7))s+=3;
 
-  if(c.id===111&&S.players[p].hand.length>=2&&(S.players[opp].monster.some(x=>x&&x.id===2)||S.players[p].monster.some(x=>x&&x.id!==7)))s+=3;
+  if(c.id===111&&S.players[p].hand.length>=2&&(S.players[opp].monster.some(x=>x&&x.id!==7&&cardAtk(x)>=9)||S.players[p].monster.some(x=>x&&x.id!==7)))s+=3;
   if(c.id===100&&graveFor(p).some(x=>x.kind==='monster')&&S.players[p].monster.some(x=>!x))s+=3;
   if(c.id===102&&S.players[p].hand.some(x=>x.kind==='monster')&&S.players[p].monster.some(x=>!x))s+=2.5;
-  if(c.id===106)s+=1.6;
+  if(c.id===106)s+=1.6+(S.players[p].monster.some(x=>!x)&&[...deckFor(p),...graveFor(p)].some(x=>x.id===3)?2:0);
  }
  return s;
 }
@@ -968,7 +991,7 @@ async function cpuPlayBestCard(){const hand=S.players[CPU_PLAYER].hand;if(!hand.
 async function cpuAttackBest(){const choices=[0,1].map(l=>({l:l,s:cpuAttackScore(l)})).filter(x=>x.s>-90).sort((a,b)=>b.s-a.s);if(!choices.length||choices[0].s<0.5)return false;cpuDecisionContext=true;await attackFlow();cpuDecisionContext=false;return true;}
 async function cpuMaybeMagic(){return cpuUseMagic()}
 async function cpuUseMagic(){
- const p=CPU_PLAYER;if(S.players[p].magicUses>=2||S.players[p].life<=1)return false;
+ const p=CPU_PLAYER;if(S.players[p].magicUses>=2||S.players[p].life<=0)return false;
  const enemy=S.players[1-p].monster.filter(Boolean),diff=cpuBoardValue(p)-cpuBoardValue(1-p);
  if(!enemy.length&&!(S.players[p].hand.length<=2&&deckFor(p).length>=2))return false;
  if(enemy.length&&!(diff<0||enemy.some(m=>m.id===3||cardAtk(m)>=7)))return false;
@@ -978,13 +1001,14 @@ async function runCpuTurn(){if(GAME_MODE!=='CPU'||S.turn!==CPU_PLAYER||S.gameove
 function checkStalemate(){if(S.gameover||deckEntries().some(({deck})=>deck.length>0))return;const mons=S.players[0].monster.filter(Boolean).length+S.players[1].monster.filter(Boolean).length;if(mons>0)return;const l0=S.players[0].life,l1=S.players[1].life;if(l0!==l1)return finish(l0>l1?0:1,'山札0・場にモンスターなし：ライフ判定');const f0=S.players[0].monster.filter(Boolean).length+S.players[0].magic.filter(Boolean).length,f1=S.players[1].monster.filter(Boolean).length+S.players[1].magic.filter(Boolean).length;if(f0!==f1)return finish(f0<f1?0:1,'ライフ同点：場のカードが少ない方の勝利');finish(null,'ライフ・場のカード数とも同じため引き分け');}
 function finish(winner,msg){if(S.gameover)return;S.gameover=true;S.pending=[];recordStats(winner);$('gameoverTitle').textContent=winner===null?'DRAW':`${pName(winner)} WIN`;$('gameoverMsg').textContent=msg;$('gameover').classList.remove('hidden');render();}
 function showGrave(){
+ if(choiceResolve||fieldPickResolve){openDecisionReview('grave');return;}
  const section=(grave,p)=>{
   const heading=S.deckMode==='double'?`<h4>${pName(p)} の墓地 / ${grave.length}枚</h4>`:'';
   const cards=grave.slice().reverse();
   return heading+(cards.length?`<div class="graveGrid">${cards.map(c=>`<button class="graveItem" data-gid="${c.uid}"><b>${c.name}</b><small>${cardTypeText(c)}</small><small>${c.text||'効果なし'}</small></button>`).join('')}</div>`:'<div class="detailCard">墓地にカードはありません。</div>');
  };
  $('modalTitle').textContent=S.deckMode==='double'?'GRAVE / 個別墓地':`GRAVE / 墓地 ${S.grave.length}枚`;
- $('modalOptions').innerHTML=graveEntries().map(({grave,p})=>section(grave,p)).join('');
+ $('modalOptions').innerHTML=graveEntries().map(({grave,p})=>section(grave,p)).join('')+(S.banished.length?'<h4>除外（蘇生・回収不可）</h4><div class="reviewCards">'+S.banished.map(c=>reviewCardHTML(c,S.turn)).join('')+'</div>':'');
  $('modalCancel').style.display='block';$('modalCancel').textContent='閉じる';$('modal').classList.remove('hidden');
  document.querySelectorAll('[data-gid]').forEach(b=>b.onclick=()=>{const loc=locateGraveCard(x=>x.uid===Number(b.dataset.gid));if(loc)showCardDetail(loc.card,S.turn)});
  $('modalCancel').onclick=()=>{$('modal').classList.add('hidden');$('modalCancel').textContent='キャンセル'};
@@ -992,32 +1016,34 @@ function showGrave(){
 function showRules(){
  const txt=[
  deckModeName(S.deckMode)+' / '+(S.deckMode==='double'?'各自24枚の同じ構成・山札の順番は別々 / 墓地も個別':'共有24枚デッキ')+' / 初期ライフ4 / 初手4枚。P1・P2とも初期手札には必ずモンスター1枚以上を含む。先攻1ターン目はタイトルでAP1/AP2、ドローあり/なしを設定。その後はAP2。',
- '召喚・即時カード・罠セット・攻撃は各AP1。ATTACKはモンスター1体につき1ターン1回。召喚ターンは原則攻撃不可。失笑ライダーは相手の伏せ罠と同列に召喚すると突撃＋AP+1。',
+ 'モンスターを手札から場に出す・即時カード・罠セット・攻撃は各AP1。ATTACKはモンスター1体につき1ターン1回。場に出たターンは原則攻撃不可。失笑ライダーは相手の伏せ罠と同列に場に出すと突撃＋AP+1。',
  '貫通X：戦闘で相手よりATKが高く勝利した場合のみ相手ライフ-X。脱力X：戦闘した相手のATKを永久に-X。錆びたゴーレムは脱力による減少量が2倍。',
- '踏破：戦闘で自分が墓地へ行かず、相手を墓地へ送った時に発動。ドリルドリは貫通エンブレム（重複なし）、反魔の死人は1ドロー。貫通エンブレムは以後の召喚に貫通1を付与し、既に貫通があればATK+1。',
- '憑依：最初に召喚したプレイヤーがエンブレムを取得。そのプレイヤーの罠発動成功時、墓地の憑依モンスターを任意で召喚できる。',
- '信仰X：最初に召喚したプレイヤーがエンブレムを取得。自分ターン開始時、任意で1ターン1回、手札X枚を墓地へ送って墓地の信仰Xモンスターを召喚できる。',
- '憎悪：カード個体UIDごとに『手札からの召喚回数』を記録。腐天使は手札から2回目以降召喚するたびATK+2され、重複する。',
- '激おこドラゴン：通常召喚不可。AP1と自分の場のモンスター1体をコストに手札から特殊召喚。場に出た時、相手の場のカード1枚を墓地へ送る。貫通1。直接攻撃は通常どおり1ダメージ。',
+ '場に出たときの効果は、手札・墓地・デッキのどこから出た場合も発動する。墓地から手札へ回収するだけでは発動しない。',
+ '踏破：戦闘で自分が墓地へ行かず、相手を墓地へ送った時に発動。ドリルドリは自身のATK+1（踏破するたびに重複、貫通1はそのまま）、反魔の死人は1ドロー。',
+ '憑依：最初に場に出したプレイヤーがエンブレムを取得。そのプレイヤーの罠発動成功時、墓地の憑依モンスターを任意で場に出せる。',
+ '信仰X：最初に場に出したプレイヤーがエンブレムを取得。自分ターン開始時、任意で1ターン1回、手札X枚を墓地へ送って墓地の信仰Xモンスターを手札に戻せる。AP消費なし。',
+ '憎悪：カード個体UIDごとに『場に出た回数』を記録。腐天使は2回目以降場に出るたびATK+2され、重複する。手札・墓地・デッキなど出てくる場所は問わない。',
+ '激おこドラゴン：通常の方法では場に出せない。AP1と自分の場のモンスター1体をコストに手札から特別な方法で場に出す。場に出た時、相手の場のカード1枚を墓地へ送る。貫通1。直接攻撃は通常どおり1ダメージ。',
  '錆びたゴーレム：最初の2回はATKで負けても同値でも戦闘では破壊されない。3回目の戦闘後に墓地へ。カード効果では通常どおり墓地へ送られる。',
  '反攻の儀：同列の自分のモンスターを墓地へ送ることを選んで発動し、攻撃モンスターをその枠へ移す。攻撃を中断し相手AP+1。反魔の死人はコントロールを奪えない。奪ったカードが場を離れるときは、処理に応じて元のプレイヤーの手札・山札・墓地へ戻す。',
  '偽造の書で相手のエンブレムを破壊できる。破壊前に適用されたATK・貫通などは取り消さない。',
  '復活の書は即時発動専用で、罠としてセットできない。加速の儀：自分ターン開始時または破壊時に2ドロー。自分ターン中に発動した場合AP+1（最大4）。脱出の儀は同列への攻撃時に発動し、攻撃モンスターを手札へ戻して両者1ドロー。',
  '守護の儀：同列の自分のモンスターへの脱力を無効化してATK+2、または同列の相手の攻撃時に正面の自分のモンスターにこのターンのみATK+3。どちらかの発動後に墓地へ。反魔の死人には適用しない。',
- '死霊師：召喚時に同列の相手の伏せ罠を奪って後ろにセット。自分の同列の罠は墓地へ送り置き換える。手札以外からの召喚でも発動する。',
- 'デッドアイズ：墓地へ送られた時、相手の現在ATK7以上のモンスターすべてに脱力5。反魔の死人が場にいると墓地効果は無効。',
- '進化の書：自分の山札のこどもドラゴンを空き枠へ召喚するか、従来のドラゴン交換のどちらかを選ぶ。召喚酔いは通常どおり適用。',
- '魔導の書：別の手札1枚を捨て、相手の錆びたゴーレム1体を墓地へ送るか、自分のモンスター1体に突撃を付与してAP+1（最大4）。',
+ '死霊師：場に出たとき、自分の墓地のモンスター1枚を選び、その現在ATK分だけ自身のATKを増やす。参照カードは墓地に残る。',
+ 'デッドアイズ：信仰2。墓地へ送られた時、相手の現在ATK7以上のモンスターすべてに脱力5。反魔の死人が場にいると墓地効果は無効。',
+ '進化の書：自分のデッキまたは墓地のこどもドラゴンを空き枠へ場に出すか、従来のドラゴン交換のどちらかを選ぶ。場に出たターンは通常どおり攻撃不可。',
+ '魔導の書：別の手札1枚を捨て、相手の現在ATK9以上のモンスター1体を除外するか、自分のモンスター1体に突撃を付与してAP+1（最大4）。反魔の死人には適用しない。除外カードは墓地に行かず、蘇生・回収・進化の書の交換・場の巻き戻しで戻らない。',
  '山札切れだけでは敗北せず、両者の山札が0枚・場にモンスターなしでライフ判定を行う。',
  '破壊の儀：罠専用。セットした次の相手エンドフェイズに同じ列のカードをすべて墓地へ送る。',
- 'MAGIC：各プレイヤー1ゲーム2回、自分のターン中にAP消費なしで使用。ライフ1を払い、①相手の場のモンスター1体を墓地へ送る、または②自分の山札から2ドローし手札1枚を山札の底へ戻す。ライフが0になれば敗北。対象選択のキャンセルでは消費しない。山札が2枚未満なら②は使用不可。',
+ 'MAGIC：各プレイヤー1ゲーム2回、自分のターン中にAP消費なしで使用。ライフ1を払い、①相手の場のモンスター1体を墓地へ送る、または②自分の山札から2ドローし手札1枚を山札の底へ戻す。発動時のライフが1ならライフを減らさずに発動する。対象選択のキャンセルでは消費しない。山札が2枚未満なら②は使用不可。',
+ '効果の対象選択中は「手札を確認」「場を確認」「墓地を確認」から確認でき、「選択に戻る」で元の処理を続けられる。相手の手札と伏せ罠の正体は非公開。',
  'ターン交代時：直前のターンの公開された出来事を1つのメッセージで確認してからREADYで引き継ぐ。確認後もPREVIOUS TURNに同じ記録が残る。',
  '手札上限5。ターン終了時に超過分を選びデッキ下へ。V1.3試作デッキはモンスター12種＋マジック12種を各1枚。',
- 'ダブル戦：ドロー・進化の書の山札からの召喚は自分の山札から。手札をデッキへ戻す効果は、その手札を持っているプレイヤーの山札へ戻す。変身などで取得した相手由来のカードも同様。墓地は各自で分かれ、カードは元デッキの持ち主の墓地へ送る。復活・憑依・信仰は自分の墓地のみが対象。',
+ 'ダブル戦：ドロー・進化の書の山札から場に出す処理は自分の山札から。手札をデッキへ戻す効果は、その手札を持っているプレイヤーの山札へ戻す。変身などで取得した相手由来のカードも同様。墓地は各自で分かれ、カードは元デッキの持ち主の墓地へ送る。復活・憑依・信仰は自分の墓地のみが対象。',
  'ダブル戦の進化の書：交換先が複数ある場合、対象と同じ元デッキ由来の個体を優先し、両者の墓地も検索対象。憑依・信仰のエンブレム取得と憎悪の回数は個体ごとに判定する（信仰の使用は従来どおり1ターン1回）。',
  '場を対象にする効果は原則フィールドから直接タップ。VS CPUではP2をNORMAL CPUが担当し、CPUは相手の非公開手札や伏せ罠の正体を判断材料にしない。'
  ];
- choose('RULES / v0.6.7 / V1.3',txt.map((x,i)=>({label:`${i+1}. ${x}`,value:i})),true);
+ choose('RULES / v0.6.9 / V1.3',txt.map((x,i)=>({label:`${i+1}. ${x}`,value:i})),true);
 }
 async function startNewGame(){
  const choice=await window.wgChooseStarter(2,{cpu:GAME_MODE==='CPU'});if(!choice)return;
@@ -1029,6 +1055,10 @@ async function startNewGame(){
  else showHandoff(S.starter,GAME_MODE==='CPU'?'初手4枚（モンスター1枚以上保証）を確認してREADYを押してください。':'初手4枚（両プレイヤーともモンスター1枚以上保証）は相手に見せず、READYを押してください。');
 }
 function boot(){if(!S){uid=1;S=newState();render();}showTitle();}
+document.querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>openDecisionReview(b.dataset.review));
+$('decisionReviewBack').onclick=closeDecisionReview;
+$('decisionReview').onclick=e=>{if(e.target===$('decisionReview'))closeDecisionReview();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('decisionReview').classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();closeDecisionReview();}});
 $('attackBtn').onclick=attackFlow;$('magicBtn').onclick=useMagic;$('endBtn').onclick=endTurn;$('rulesBtn').onclick=showRules;$('graveBtn').onclick=showGrave;$('resetBtn').onclick=()=>{if(confirm('ゲームを終了してタイトルへ戻りますか？')){['handoff','modal','gameover','digest'].forEach(id=>$(id).classList.add('hidden'));showTitle();}};$('againBtn').onclick=()=>{$('gameover').classList.add('hidden');showTitle();};
 $('cardListBtn').onclick=showCardList;$('closeCardListBtn').onclick=closeCardList;
 $('singleDeckBtn').onclick=()=>{DECK_MODE='single';refreshTitleControls();};$('doubleDeckBtn').onclick=()=>{DECK_MODE='double';refreshTitleControls();};

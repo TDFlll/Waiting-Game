@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.17-text-review",
-  "generatedAt": "2026-11-17",
+  "version": "2026.11.23-cards-entry",
+  "generatedAt": "2026-11-23",
   "core": [
     "./",
     "index.html",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.7 v13",
+      "version": "v0.6.9 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"

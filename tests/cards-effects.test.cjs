@@ -56,16 +56,15 @@ test('golems survive ties in their first two battles and both leave after the th
  await api.monsterBattle(0,0);assert.ok(api.graveFor(0).includes(a));assert.ok(api.graveFor(1).includes(b));
 });
 
-test('drill breakthrough awards one emblem without growing its own piercing damage',async()=>{
+test('drill breakthrough increases its own attack while piercing remains one',async()=>{
  const {api}=setup();const a=api.card(4,0),b=api.card(9,1);putOnField(api,a);putOnField(api,b,1);
- await api.monsterBattle(0,0);assert.equal(api.state.players[0].pierceEmblem,true);assert.equal(api.pierceValue(a),1);
- assert.equal(api.state.players[1].life,3);api.gainPierceEmblem(0);assert.equal(api.state.players[0].pierceEmblem,true);
+ await api.monsterBattle(0,0);assert.equal(api.cardAtk(a),8);assert.equal(api.pierceValue(a),1);assert.equal(api.state.players[1].life,3);assert.ok(!api.state.players[0].pierceEmblem);
 });
 
-test('emblem affects only later summons, grants piercing or one attack point, and does not stack',async()=>{
- const {api}=setup();const old=api.card(3,0);putOnField(api,old);api.gainPierceEmblem(0);api.gainPierceEmblem(0);
- assert.equal(api.pierceValue(old),0);const n=api.card(3,0);await api.summon(n,0,1);assert.equal(api.pierceValue(n),1);assert.equal(api.cardAtk(n),1);
- const p=api.card(4,0);await api.summon(p,0,1);assert.equal(api.pierceValue(p),1);assert.equal(api.cardAtk(p),8);
+test('drill attack growth stacks and never grants piercing to later monsters',async()=>{
+ const {api}=setup();const drill=api.card(4,0);putOnField(api,drill);
+ for(let i=0;i<2;i++){putOnField(api,api.card(9,1),1);await api.monsterBattle(0,0)}
+ assert.equal(api.cardAtk(drill),9);assert.equal(api.pierceValue(drill),1);const child=api.card(3,0);await api.summon(child,0,1);assert.equal(api.pierceValue(child),0);assert.equal(api.cardAtk(child),1);
 });
 
 test('dead eyes no longer weakens on battle or deals piercing damage and never peeks at traps',async()=>{
@@ -107,11 +106,9 @@ test('stolen monsters return to their prior player hand, deck, or grave when lea
  }
 });
 
-test('forgery destroys a chosen opposing emblem without stripping earlier monster buffs',async()=>{
- const {api}=setup();api.gainPierceEmblem(1);const m=api.card(3,1);await api.summon(m,1,0);
- api.choices('emblem','pierceEmblem');assert.equal(await api.forgeryEffect(0),true);
- assert.equal(api.state.players[1].pierceEmblem,false);assert.equal(api.pierceValue(m),1);
- const n=api.card(3,1);await api.summon(n,1,1);assert.equal(api.pierceValue(n),0);
+test('forgery destroys a chosen faith emblem without stripping earlier monster buffs',async()=>{
+ const {api}=setup();api.state.players[1].faithEmblem=true;const m=api.card(4,1);m.atkMod=2;putOnField(api,m,1);
+ api.choices('emblem','faithEmblem');assert.equal(await api.forgeryEffect(0),true);assert.equal(api.state.players[1].faithEmblem,false);assert.equal(api.cardAtk(m),9);assert.equal(api.pierceValue(m),1);
 });
 
 test('forgery swap remains a field selection and anti-undead rows remain immune',async()=>{
@@ -172,9 +169,9 @@ test('CPU refuses high-attack futile child-dragon battles and prioritizes actual
 
 test('snapshot restores stolen-control return destination and does not restore a destroyed emblem',async()=>{
  const {api}=setup();const {a}=await steal(api);api.saveSnapshot(1);
- api.state.players[1].monster[0]=null;await api.sendGrave(a,'test',false,true);api.state.players[1].pierceEmblem=false;
+ api.state.players[1].monster[0]=null;await api.sendGrave(a,'test',false,true);api.state.players[1].faithEmblem=false;
  api.rewindOwnField(1);assert.equal(api.state.players[1].monster[0],a);assert.equal(a.controller,1);assert.equal(a.returnTo,0);
- assert.equal(api.state.players[1].pierceEmblem,false);
+ assert.equal(api.state.players[1].faithEmblem,false);
 });
 
 test('AP bonuses are applied after paying a card cost, including at the four AP cap',async()=>{
