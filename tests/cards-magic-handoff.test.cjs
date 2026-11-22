@@ -21,8 +21,8 @@ test('insufficient deck omits draw; no target or usable mode does not spend anyt
  const {api:a}=setup();a.deckFor(0).length=1;await a.useMagic();assert.equal(a.choiceHistory.length,0);assert.equal(a.state.players[0].magicUses,0);
  putOnField(a,a.card(8,1),1);a.choices(null);await a.useMagic();assert.deepEqual(Array.from(a.choiceHistory[0].options,o=>o.value),['destroy']);
 });
-test('paying last life loses immediately before the MAGIC effect',async()=>{
- const {api:a}=setup();a.state.players[0].life=1;const count=a.deckFor(0).length;a.choices('draw');await a.useMagic();assert.equal(a.state.players[0].life,0);assert.equal(a.state.gameover,true);assert.equal(a.state.players[0].magicUses,1);assert.equal(a.deckFor(0).length,count);
+test('MAGIC at one life executes without life loss and still consumes one use',async()=>{
+ const {api:a}=setup();a.state.players[0].life=1;const count=a.deckFor(0).length;a.choices('draw',opts=>opts[0].value);await a.useMagic();assert.equal(a.state.players[0].life,1);assert.equal(a.state.gameover,false);assert.equal(a.state.players[0].magicUses,1);assert.equal(a.deckFor(0).length,count-1);assert.equal(a.state.players[0].hand.length,1);
 });
 test('turn summary retains the whole turn, groups repeats, and never uses transient popup queues',()=>{
  const {api:a,node}=setup();a.state.lastTurnPlayer=0;a.state.lastTurnEvents=['P1 のターン開始',...Array.from({length:14},(_,i)=>'公開イベント'+i),'P1 が罠をセット','P1 が罠をセット'];a.state.turnEvents=[];
@@ -33,9 +33,9 @@ test('turn summary retains the whole turn, groups repeats, and never uses transi
 test('handoff separates preceding turn events from current turn start effects',async()=>{
  const {api:a,node}=setup();a.state.firstTurn=false;a.state.turnEvents=['P1 が罠をセット'];await a.endTurn();assert.equal(a.state.lastTurnPlayer,0);a.realShowHandoff(1);assert.match(node('handoffMsg').textContent,/P1 が罠をセット/);assert.match(node('handoffMsg').textContent,/ターン開始時/);assert.match(node('handoffMsg').textContent,/P2 が 1枚ドロー/);
 });
-test('CPU can choose draw MAGIC and never spends its last life',async()=>{
+test('CPU can choose draw MAGIC at one life without spending its last life',async()=>{
  const {api:a}=setup();a.setCpu();a.state.turn=1;a.choices('draw',opts=>opts[0].value);assert.equal(await a.cpuMaybeMagic(),true);assert.equal(a.state.players[1].hand.length,1);assert.equal(a.state.players[1].magicUses,1);
- a.state.players[1].life=1;assert.equal(await a.cpuMaybeMagic(),false);assert.equal(a.state.players[1].magicUses,1);
+ a.state.players[1].life=1;a.choices('draw',opts=>opts[0].value);assert.equal(await a.cpuMaybeMagic(),true);assert.equal(a.state.players[1].magicUses,2);assert.equal(a.state.players[1].life,1);
 });
 test('CPU prioritizes enemy removal when choosing between the two MAGIC modes',()=>{
  const {api:a}=setup();a.setCpu();assert.equal(a.cpuPickOption('MAGIC / 残り2回',[{label:'相手の場のモンスター1体を墓地へ送る',value:'destroy'},{label:'デッキから2枚引き、手札1枚をデッキの底へ戻す',value:'draw'}]),0);

@@ -132,11 +132,12 @@ test('revival and recovery cannot take monsters from the opposing grave',async()
  assert.equal(api.state.players[0].monster[0],own);
 });
 
-test('faith cannot summon an opposing grave copy, including for CPU',async()=>{
+test('faith cannot recover an opposing grave copy, including for CPU',async()=>{
  for(const cpu of [false,true]){
   const {api}=game();const p=cpu?1:0;if(cpu)api.setCpu();api.state.turn=p;
   api.state.players[p].faithEmblem=true;const other=api.card(12,1-p);api.putGrave(other);
   await api.faithStartOption(p);assert.equal(api.state.players[p].monster[0],null);
+  assert.equal(api.state.players[p].hand.includes(other),false);
   assert.equal(api.graveFor(1-p)[0],other);assert.equal(api.state.players[p].faithUsedTurn,null);
  }
 });
