@@ -46,7 +46,7 @@ waiting-games/
 - `games/derby.html` v0.13 (WAITING DERBY; Free Open / Randm Open, opening-player selection, final board/results, public reveal cards at handoff)
 - `games/memory-line.html` from `Waiting_Memory_Line_v0.5.html` (shared player names and launcher return links)
 - `games/shift.html` v0.10.0 (two-player or imperfect CPU opponent, wall/free and master support, human-turn undo, shared player names and confirmed launcher return)
-- `games/words.html` from `Waiting_Words_v1.1.html` (embedded word dictionary, category selection, history and offline topic generation)
+- `games/words.html` v1.2 (eight expanded 50-entry categories, embedded word dictionary, category selection, history and offline topic generation)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
 ## Offline Use
@@ -67,7 +67,7 @@ The launcher includes a PWA/offline manager for GitHub Pages.
 - The launcher `PLAY` buttons open the fixed game paths above.
 - Each game has a `← GAMES` link back to `../index.html`. Waiting Draw keeps this link in its left main menu so it does not cover the canvas, and waits for pending saves before returning.
 - Games include launcher return links and shared player-name integration.
-- WAITING WORDS is a topic-generation tool with 30 categories and 960 dictionary entries (954 distinct words). It draws 1–5 words, avoids repeated words across categories and saved draw history, and keeps its original `waiting-words-v1` settings/history key. The supplied dictionary is unchanged; only duplicate sampling is corrected alongside common navigation/display integration.
+- WAITING WORDS is a topic-generation tool with 30 categories and 1,104 dictionary entries (1,098 distinct words). It draws 1–5 words, avoids repeated words across categories and saved draw history, and keeps its original `waiting-words-v1` settings/history key. Country, food, hobby, animal, fruit, play, tool and drink categories each contain 50 entries. The 144 additions do not duplicate any existing entry; other categories retain their original 32 entries.
 - All launcher return links require a YES/NO confirmation, including on game title screens. NO or Escape keeps the current screen; DRAW still saves pending edits before leaving after YES.
 - Each game's top-right オプション button contains the display-size controls, usable during a match. TOP has no display-size controls but still reflects the shared preference. Automatic mode uses 100% on phones and 125–150% on tablet-sized screens; manual mode supports 75–175% and a 100% reset. The preference persists locally. DRAW keeps drawing coordinates and data unchanged. DERBY automatic reveals and the SHAPES turn timer pause while these options are open.
 - CARDS, SHAPES, DICE, ROBOTS, LINE, MEMORY LINE, SHIFT and DERBY ask for a manually selected or randomly drawn opening player at game start. CPU can go first in supported games; ROBOTS selects the first command-input player. DERBY result screens retain the final board and all six horses' scores and placings, including disqualifications.

@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.23-shift-cpu",
-  "generatedAt": "2026-11-23",
+  "version": "2026.11.24-shift-cpu-words",
+  "generatedAt": "2026-11-24",
   "core": [
     "./",
     "index.html",
@@ -135,7 +135,7 @@
       "id": "words",
       "title": "WAITING WORDS",
       "type": "tool",
-      "version": "v1.1",
+      "version": "v1.2",
       "url": "games/words.html",
       "files": [
         "games/words.html"
