@@ -3,17 +3,17 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 function game(mode='double',seed=1){
- const nodes=new Map();
+ const nodes=new Map(),timers=new Map();let clock=0,timerId=0;
  function node(id){
   if(nodes.has(id))return nodes.get(id);
   const classes=new Set();
   const e={innerHTML:'',textContent:'',style:{},children:[],disabled:false,
    classList:{add(c){classes.add(c)},remove(c){classes.delete(c)},contains(c){return classes.has(c)},toggle(c,on){if(on===undefined)on=!classes.has(c);on?classes.add(c):classes.delete(c)}},
-   appendChild(c){this.children.push(c)},append(c){this.children.push(c)},querySelectorAll(){return []},setAttribute(){}};
+   appendChild(c){this.children.push(c)},append(c){this.children.push(c)},replaceChildren(...children){this.children=children;this.innerHTML='';this.textContent=''},querySelectorAll(){return []},setAttribute(){}};
   nodes.set(id,e);return e;
  }
  const math=Object.create(Math);math.random=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
- const context=vm.createContext({Math:math,document:{readyState:'loading',addEventListener(){},getElementById:node,querySelector:node,querySelectorAll:()=>[],createElement:()=>node('new'+nodes.size),createTextNode:t=>({textContent:t})},window:{addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},setTimeout(){},clearTimeout(){},console});
+ const context=vm.createContext({Math:math,document:{readyState:'loading',addEventListener(){},getElementById:node,querySelector:node,querySelectorAll:()=>[],createElement:()=>node('new'+nodes.size),createTextNode:t=>({textContent:t})},window:{addEventListener(){}},localStorage:{getItem(){return null},setItem(){}},setTimeout(fn,delay){const id=++timerId;timers.set(id,{fn,at:clock+delay});return id},clearTimeout(id){timers.delete(id)},console});
  const code=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
  vm.runInContext(code+`
  const realRender=render,realShowHandoff=showHandoff,realLog=log,realChoose=choose,realChooseFieldSlot=chooseFieldSlot;
@@ -28,12 +28,13 @@ function game(mode='double',seed=1){
  get uid(){return uid},get choiceHistory(){return choiceHistory},playFromHand,specialSummonDragon,resolveMagicEffect,activateInstant,forgeryEffect,vampireEffect,attackFlow,triggerAttackTraps,cpuAttackScore,cpuCardScore,cpuPickField,cpuPickOption,cpuMaybeMagic,canAttack,cardAtk,pierceValue,emblemOptions,graveFor,graveEntries,putGrave,sendGrave,sendMonsterFromField,destroyWholeLane,monsterBattle,revivalEffect,magicBookEffect,faithStartOption,resolvePending,showGrave,banishMonsterFromField,isBanished,
  deckFor,deckEntries,draw,handLimit,applyDebilitate,necromancerEffect,swapPotEffect,transformEffect,findAnywhere,locateCard,captureLocations,removeLocated,placeByDescriptor,saveSnapshot,rewindOwnField,checkStalemate,summon,takeGrave,cloneCard,useMagic,startTurn,endTurn,showRules,realRender,realShowHandoff,realLog,summarizeTurn,showDigestBanners,
  realChoose,realChooseFieldSlot,openDecisionReview,closeDecisionReview,reviewCardHTML,setDecisionPlayer(p){decisionPlayer=p},get selectionPending(){return !!(choiceResolve||fieldPickResolve)},
+ damage,finish,formatLifeEvent,startBattleLogReplay,stopBattleLogReplay,showTitle,
  choices(...v){scriptedChoices=v},pick(v){fieldChoice=v},picks(...v){fieldChoices=v},setCpu(){GAME_MODE='CPU'},
  card(id,p){const c=cloneCard(BASE_CARDS.find(b=>b.id===id));c.originalDeck=p;return c}
  };
  `,context);
  const api=context.window.api;api.init(mode);
- return {api,node,all(){return [...api.state.players.flatMap(p=>[...p.hand,...p.monster.filter(Boolean),...p.magic.filter(Boolean)]),...api.graveEntries().flatMap(e=>e.grave),...api.deckEntries().flatMap(e=>e.deck)]}};
+ return {api,node,advance(ms){const until=clock+ms;let guard=0;while(true){const due=[...timers].filter(([,t])=>t.at<=until).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;if(++guard>10000)throw Error('Timer loop');const [id,t]=due;clock=t.at;timers.delete(id);t.fn()}clock=until},get timerCount(){return timers.size},all(){return [...api.state.players.flatMap(p=>[...p.hand,...p.monster.filter(Boolean),...p.magic.filter(Boolean)]),...api.graveEntries().flatMap(e=>e.grave),...api.deckEntries().flatMap(e=>e.deck)]}};
 }
 
 function putOnField(api,card,p=0,l=0){card.controller=p;card.zone='monster';card.lane=l;api.state.players[p].monster[l]=card}
