@@ -53,6 +53,6 @@ test('banished cards are listed separately in the grave inspector and the public
  const {api:a,node}=setup(),c=a.card(12,1);putOnField(a,c,1);a.banishMonsterFromField(1,0,'test');a.showGrave();assert.match(node('modalOptions').innerHTML,/除外（蘇生・回収不可）/);assert.match(node('modalOptions').innerHTML,/腐天使/);
  const waiting=a.realChoose('対象',[{label:'対象',value:1}]);a.openDecisionReview('grave');assert.match(node('decisionReviewBody').innerHTML,/除外（蘇生・回収不可）/);a.closeDecisionReview();node('modalCancel').onclick();await waiting;
 });
-test('all user-facing summon terminology is replaced, including the spell name and rule catalog',()=>{
- const html=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8');assert.ok(!html.includes('召喚'));const {api:a}=setup();assert.equal(a.bases.find(c=>c.id===102).name,'場に出す魔法');assert.ok(!html.includes('貫通エンブレム'));assert.match(a.bases.find(c=>c.id===106).text,/デッキ・墓地/);
+test('effect terminology uses field entry while the original spell name is preserved',()=>{
+ const html=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8');assert.ok(!html.replaceAll('召喚の魔法','').includes('召喚'));const {api:a}=setup();assert.equal(a.bases.find(c=>c.id===102).name,'召喚の魔法');assert.match(a.bases.find(c=>c.id===102).text,/場に出す/);assert.ok(!html.includes('貫通エンブレム'));assert.match(a.bases.find(c=>c.id===106).text,/デッキ・墓地/);
 });

@@ -36,7 +36,7 @@ waiting-games/
 
 - `games/shapes.html` from `waiting_shapes_v0_8_1_c1.html`
 - `games/dice.html` from `waiting_dice_v0_3_2.html`
-- `games/cards.html` v0.6.9 / V1.3 (unified field-entry effects, permanent banishing, graveyard evolution and necromancer ATK boost, faith recovery to hand, free MAGIC at one life, hand/field/grave inspection during choices, persistent turn handoff summary, individual decks and graves, card catalog)
+- `games/cards.html` v0.6.10 / V1.3 (unified field-entry effects, permanent banishing, graveyard evolution and necromancer ATK boost, faith recovery to hand, free MAGIC at one life, hand/field/grave inspection during choices, persistent turn handoff summary, individual decks and graves, card catalog)
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
 - `games/robots.html` from `waiting_robots_v4.7.html`
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
