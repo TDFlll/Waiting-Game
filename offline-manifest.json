@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.23-cards-escape",
+  "version": "2026.11.23-cards-field-reset",
   "generatedAt": "2026-11-23",
   "core": [
     "./",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.12 v13",
+      "version": "v0.6.13 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"
