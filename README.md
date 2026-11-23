@@ -38,7 +38,7 @@ waiting-games/
 - `games/dice.html` from `waiting_dice_v0_3_2.html`
 - `games/cards.html` v0.6.14 / V1.3 (unified field-entry effects, permanent banishing, graveyard evolution and necromancer ATK boost, faith recovery to hand, free MAGIC at one life, hand/field/grave inspection during choices, field-exit ATK and golem counter resets, escape ritual returning both lane monsters with conditional draws, reserved damage-hit feedback, timed life-loss result log, persistent turn handoff summary, individual decks and graves, card catalog)
 - `games/auction.html` from `waiting_auction_v0.1_UI16.html`
-- `games/robots.html` from `waiting_robots_v4.7.html`
+- `games/robots.html` v4.9 (shared player-count-plus-two ability offers, duplicate abilities with stacked effects and charges, final-result title return with retained settings)
 - `games/escape.html` from `waiting_escape_prototype_v0_20.html`
 - `games/line.html` v2.3.1 from `Waiting_Line_DEMO_v2.2.html` (launcher and CPU integration)
 - `games/helper.html` from `Board_Game_Helper_v1.03.html`

@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.23-cards-damage-feedback",
+  "version": "2026.11.23-robots-shared-abilities",
   "generatedAt": "2026-11-23",
   "core": [
     "./",
@@ -55,7 +55,7 @@
       "id": "robots",
       "title": "WAITING ROBOTS",
       "type": "game",
-      "version": "v4.8",
+      "version": "v4.9",
       "url": "games/robots.html",
       "files": [
         "games/robots.html"
