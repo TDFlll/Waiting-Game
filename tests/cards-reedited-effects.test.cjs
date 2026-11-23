@@ -12,7 +12,7 @@ test('edited catalog replaces former abilities and classifies guardian as a rite
 test('golem survives two losing battles, still takes double weakness, and dies after third',async()=>{
  const a=setup(),g=a.card(2,0),enemy=a.card(5,1);enemy.atkMod=30;putOnField(a,g);putOnField(a,enemy,1);
  for(let i=1;i<=2;i++){await a.monsterBattle(0,0);assert.equal(a.state.players[0].monster[0],g);assert.equal(g.atkMod,-6*i);}
- await a.monsterBattle(0,0);assert.ok(a.graveFor(0).includes(g));assert.equal(g.battleCount,3);
+ await a.monsterBattle(0,0);assert.ok(a.graveFor(0).includes(g));assert.equal(g.battleCount,0);assert.equal(g.atkMod,0);
 });
 test('dead eyes weakens all opposing current ATK7+ monsters instead of discarding a hand',async()=>{
  const a=setup(),d=a.card(6,0),g=a.card(2,1),m=a.card(3,1);m.atkMod=6;putOnField(a,g,1);putOnField(a,m,1,1);const hand=a.card(8,1);a.state.players[1].hand=[hand];

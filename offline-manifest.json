@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.23-cards-entry",
+  "version": "2026.11.23-cards-damage-feedback",
   "generatedAt": "2026-11-23",
   "core": [
     "./",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.9 v13",
+      "version": "v0.6.14 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"

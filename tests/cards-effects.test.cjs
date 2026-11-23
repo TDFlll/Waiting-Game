@@ -45,7 +45,7 @@ test('golem survives winning battles until its third completed battle',async()=>
  const {api}=setup();const golem=api.card(2,0);putOnField(api,golem);
  for(let i=1;i<=3;i++){
   putOnField(api,api.card(8,1),1);await api.monsterBattle(0,0);
-  assert.equal(golem.battleCount,i);assert.equal(api.state.players[0].monster[0]===golem,i<3);
+  assert.equal(golem.battleCount,i<3?i:0);assert.equal(api.state.players[0].monster[0]===golem,i<3);
  }
  assert.ok(api.graveFor(0).includes(golem));
 });

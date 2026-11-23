@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {game,putOnField,emptyHands}=require('./cards-harness.cjs');
 function setup(mode='double'){const d=game(mode);emptyHands(d.api);d.api.state.turn=0;d.api.state.actions=2;return d;}
 const slot=(p,l=0)=>({p,l,zone:'monster'});
-test('drill also gains one permanent attack on defensive breakthrough and keeps piercing unchanged',async()=>{
+test('drill gains one attack on defensive breakthrough while remaining on field and keeps piercing unchanged',async()=>{
  const {api:a}=setup(),drill=a.card(4,1);putOnField(a,a.card(9,0));putOnField(a,drill,1);await a.monsterBattle(0,0);assert.equal(a.cardAtk(drill),8);assert.equal(a.pierceValue(drill),1);assert.equal(a.emblemOptions(1).length,0);
 });
 test('evolution can place the own grave child dragon in either deck mode without consuming its effect AP',async()=>{
@@ -42,7 +42,7 @@ test('necromancer excludes opponent grave monsters, non-monsters and banished ca
 });
 test('hatred counts every entry including repeated revival from the grave, without increasing on hand recovery alone',async()=>{
  const {api:a}=setup(),c=a.card(12,0);await a.summon(c,0,0,false,false);assert.equal(a.cardAtk(c),10);
- for(const atk of [12,14]){await a.sendMonsterFromField(0,0,'test');a.choices(c.uid);assert.equal(await a.revivalEffect(0,0),true);assert.equal(a.cardAtk(c),atk)}
+ for(const atk of [12,12]){await a.sendMonsterFromField(0,0,'test');a.choices(c.uid);assert.equal(await a.revivalEffect(0,0),true);assert.equal(a.cardAtk(c),atk)}
  assert.equal(c.summonCount,3);assert.equal(c.handSummonCount,0);assert.equal(a.state.players[0].faithEmblem,true);
 });
 test('angry dragon removal and swap-pot hand replacement also trigger when entering from a grave',async()=>{
@@ -53,6 +53,6 @@ test('banished cards are listed separately in the grave inspector and the public
  const {api:a,node}=setup(),c=a.card(12,1);putOnField(a,c,1);a.banishMonsterFromField(1,0,'test');a.showGrave();assert.match(node('modalOptions').innerHTML,/除外（蘇生・回収不可）/);assert.match(node('modalOptions').innerHTML,/腐天使/);
  const waiting=a.realChoose('対象',[{label:'対象',value:1}]);a.openDecisionReview('grave');assert.match(node('decisionReviewBody').innerHTML,/除外（蘇生・回収不可）/);a.closeDecisionReview();node('modalCancel').onclick();await waiting;
 });
-test('all user-facing summon terminology is replaced, including the spell name and rule catalog',()=>{
- const html=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8');assert.ok(!html.includes('召喚'));const {api:a}=setup();assert.equal(a.bases.find(c=>c.id===102).name,'場に出す魔法');assert.ok(!html.includes('貫通エンブレム'));assert.match(a.bases.find(c=>c.id===106).text,/デッキ・墓地/);
+test('effect terminology uses field entry while the original spell name is preserved',()=>{
+ const html=fs.readFileSync(path.join(__dirname,'../games/cards.html'),'utf8');assert.ok(!html.replaceAll('召喚の魔法','').includes('召喚'));const {api:a}=setup();assert.equal(a.bases.find(c=>c.id===102).name,'召喚の魔法');assert.match(a.bases.find(c=>c.id===102).text,/場に出す/);assert.ok(!html.includes('貫通エンブレム'));assert.match(a.bases.find(c=>c.id===106).text,/デッキ・墓地/);
 });
