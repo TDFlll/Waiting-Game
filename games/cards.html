@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
 <meta name="theme-color" content="#f4eedf" />
-<title>WAITING CARDS v0.6.11 / V1.3</title>
+<title>WAITING CARDS v0.6.12 / V1.3</title>
 <style>
 :root{--bg:#f4eedf;--ink:#292823;--muted:#726e63;--line:#b8ae98;--p1:#235f59;--p2:#9b4f45;--paper:#fffaf0;--gold:#aa7e2c;--danger:#a23b31;--shadow:0 5px 18px #2a241a18}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;min-height:100%;overscroll-behavior:none}button{font:inherit;color:inherit}.app{min-height:100dvh;display:flex;flex-direction:column;padding:max(8px,env(safe-area-inset-top)) 8px max(10px,env(safe-area-inset-bottom));gap:7px;max-width:620px;margin:auto}.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}.brand{text-align:center;font-weight:900;letter-spacing:.08em;font-size:clamp(12px,3.3vw,15px)}.brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:.15em}.score{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:6px 8px;box-shadow:var(--shadow);font-size:11px;line-height:1.25}.score.p2{text-align:right}.score b{font-size:18px}.p1c{color:var(--p1)}.p2c{color:var(--p2)}.status{background:#272720;color:#f6f0e3;border-radius:11px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;font-size:11px;gap:6px}.status strong{font-size:13px}.board{display:grid;grid-template-rows:auto auto auto;gap:5px}.sideLabel{text-align:center;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--muted)}.field{display:grid;grid-template-columns:1fr 1fr;gap:6px}.lane{display:grid;grid-template-rows:auto auto;gap:4px;background:#e8dfcd;border:1px solid var(--line);border-radius:12px;padding:5px}.slot{position:relative;min-height:clamp(70px,18vw,98px);border:1.5px dashed #a69a83;border-radius:9px;background:#f9f3e6;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;overflow:hidden}.slot.magic{min-height:clamp(45px,11vw,60px)}.slot.empty::after{content:attr(data-empty);color:#aaa18f;font-size:9px}.card{width:100%;height:100%;min-height:inherit;border:1px solid #8e856f;border-radius:8px;background:#fffdf7;padding:5px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 6px #2a241a14;text-align:left}.card.monster{border-top:4px solid var(--gold)}.card.magiccard{border-top:4px solid #586b87}.card.trap{background:repeating-linear-gradient(135deg,#363630 0 8px,#44443c 8px 16px);color:#fff;border-color:#23231f;justify-content:center;align-items:center;text-align:center}.card .name{font-weight:900;font-size:clamp(9px,2.8vw,12px);line-height:1.1}.card .meta{font-size:9px;color:var(--muted)}.card.trap .meta{color:#ddd}.atk{position:absolute;right:5px;bottom:4px;background:#292823;color:#fff;padding:2px 5px;border-radius:99px;font-size:10px;font-weight:900}.sick{position:absolute;left:4px;bottom:4px;background:#d7c8a7;color:#55482f;padding:2px 4px;border-radius:99px;font-size:8px;font-weight:800}.activeOutline{outline:3px solid #d59b32;outline-offset:1px}.midline{height:1px;background:var(--line);position:relative;margin:1px 14px}.midline::after{content:"BATTLE LINE";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);padding:0 7px;font-size:8px;color:var(--muted);letter-spacing:.12em}.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.btn{border:1px solid #958b76;background:var(--paper);border-radius:10px;padding:9px 6px;font-weight:800;font-size:11px;box-shadow:0 2px 5px #2a241a0d}.btn.primary{background:#282821;color:white;border-color:#282821}.btn.time{background:#5b5476;color:#fff;border-color:#4a4462}.btn:disabled{opacity:.35}.handWrap{background:#e9e0cf;border-radius:13px;padding:6px;border:1px solid var(--line)}.handHead{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;margin:0 2px 5px}.hand{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:2px}.handCard{flex:0 0 min(42vw,180px);min-height:104px;background:#fffaf0;border:1px solid #948a74;border-radius:10px;padding:7px;scroll-snap-align:start;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:3px}.handCard.monster{border-top:5px solid var(--gold)}.handCard.magiccard{border-top:5px solid #586b87}.handCard .name{font-weight:900;font-size:12px}.handCard .type{font-size:9px;color:var(--muted)}.handCard .effect{font-size:9px;line-height:1.3;flex:1}.handCard .play{border:0;border-radius:8px;background:#292823;color:#fff;padding:6px;font-size:10px;font-weight:900}.foot{display:flex;gap:6px}.foot .btn{flex:1;padding:7px}.log{background:#fff8eb;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:9px;color:#5d594f;max-height:54px;overflow:auto}.overlay{position:fixed;inset:0;background:#1e1e1bdc;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}.overlay.hidden{display:none}.handoff{background:var(--paper);border-radius:18px;padding:24px 18px;width:min(92vw,420px);text-align:center;box-shadow:0 20px 50px #0006}.handoff h2{margin:0 0 8px;font-size:26px}.handoff p{font-size:12px;color:var(--muted);line-height:1.6}.bigReady{width:100%;border:0;background:#292823;color:#fff;border-radius:12px;padding:14px;font-weight:900;margin-top:10px}.modal{background:var(--paper);border-radius:17px;padding:16px;width:min(94vw,460px);max-height:82dvh;overflow:auto}.modal h3{margin:0 0 10px}.options{display:grid;gap:7px}.opt{border:1px solid var(--line);background:#fffdf7;border-radius:10px;padding:10px;text-align:left;font-size:12px}.opt small{display:block;color:var(--muted);margin-top:3px}.cancel{margin-top:10px;width:100%;border:0;background:#ddd4c4;border-radius:9px;padding:9px}.gameover h2{font-size:28px}.tag{display:inline-block;padding:2px 5px;border-radius:5px;background:#e2d8c5;font-size:8px;font-weight:800;margin-right:3px}.tiny{font-size:8px;color:var(--muted)}
@@ -49,7 +49,7 @@
 <div class="app">
   <div class="topbar">
     <div class="score p1score" id="score1"></div>
-    <div class="brand">WAITING CARDS<small>PROTOTYPE v0.6.11 / V1.3</small></div>
+    <div class="brand">WAITING CARDS<small>PROTOTYPE v0.6.12 / V1.3</small></div>
     <div class="score p2 p2score" id="score2"></div>
   </div>
   <div class="status"><span id="turnText"></span><strong id="actionText"></strong><span id="deckText"></span></div>
@@ -72,7 +72,7 @@
   <div class="foot"><button class="btn" id="rulesBtn">RULES</button><button class="btn" id="graveBtn">GRAVE</button><button class="btn" id="resetBtn">RESET</button></div>
 </div>
 <div class="overlay" id="titleScreen"><div class="titlePanel">
-  <div class="titleLogo">WAITING CARDS</div><div class="titleVer">PROTOTYPE v0.6.11 / V1.3</div>
+  <div class="titleLogo">WAITING CARDS</div><div class="titleVer">PROTOTYPE v0.6.12 / V1.3</div>
   <button class="ghostBtn" id="cardListBtn">カードリスト</button>
   <div class="titleSection"><h3>GAME MODE</h3><div class="seg"><button id="mode2p">2 PLAYER</button><button id="modeCpu">VS CPU</button></div></div>
   <div class="titleSection"><h3>デッキ方式</h3><div class="seg"><button id="singleDeckBtn">シングル戦</button><button id="doubleDeckBtn">ダブル戦</button></div><p class="tiny" id="deckModeHelp"></p></div>
@@ -118,7 +118,7 @@ const BASE_CARDS=[
 {"id":102,"name":"召喚の魔法","kind":"magic","mode":"both","magicFamily":"spell","text":"罠/即時。自分の同列にモンスターがいない場合のみ発動可能。手札のモンスター1体を同列へ場に出す。相手ターンに罠発動した場合、相手AP+1（最大4）。"},
 {"id":103,"name":"偽造の書","kind":"magic","mode":"instant","isBook":true,"text":"チョイス：①場のモンスター行または罠行を1つ選びLEFT⇔RIGHTを入れ替える。②相手のエンブレム1つを破壊。"},
 {"id":104,"name":"加速の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。自分ターン開始時、または破壊された時に2ドロー。自分ターン中の発動ならAP+1（最大4）。"},
-{"id":105,"name":"脱出の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。同列で相手モンスターが攻撃した時、そのモンスターを手札へ戻し、お互い1ドロー。"},
+{"id":105,"name":"脱出の儀","kind":"magic","mode":"trap","magicFamily":"rite","text":"罠。同列の相手モンスターが攻撃した時、同列の相手と自分のモンスターをそれぞれの手札に戻す。その後、モンスターが手札に戻ったプレイヤーは1枚ドロー。"},
 {"id":106,"name":"進化の書","kind":"magic","mode":"instant","isBook":true,"text":"チョイス：①自分のデッキ・墓地からこどもドラゴン1枚を場に出す。②場の激おこドラゴン／こどもドラゴンを選び、反対のカードを場・手札・デッキ・墓地から探して入れ替える。"},
 {"id":107,"name":"吸血の書","kind":"magic","mode":"instant","isBook":true,"text":"上段から1つ：相手ライフ-1／場のモンスター1体に脱力2。下段から1つ：自分ライフ+1／1ドロー。"},
 {"id":108,"name":"強化の書","kind":"magic","mode":"instant","isBook":true,"text":"場のモンスター1体にATK+3と貫通1を付与。既に貫通を持つ場合、代わりにさらにATK+1。"},
@@ -668,16 +668,17 @@ async function triggerAttackTraps(attackerP,lane,attacker,direct){
 
  if(!S.gameover&&trap.id===102){await summonSpellEffect(defender,lane);addAP(attackerP,1);await resolvePending();}
  if(!S.gameover&&trap.id===105){
-  draw(0,1);draw(1,1);
-  const loc=findMonsterUid(attacker.uid);
-  if(attacker.id===7){log('反魔の死人：脱出の儀による手札戻しを無効');}
-  else if(loc){
-   S.players[loc.p].monster[loc.l]=null;
-   const returnPlayer=leaveControlledField(attacker,attackerP);attacker.zone=null;attacker.lane=null;attacker.faceDown=false;
-   S.players[returnPlayer].hand.push(attacker);
-   log(`脱出の儀：${attacker.name} を ${pName(attackerP)} の手札へ戻す`);
-   cancel=true;
+  const returnedPlayers=new Set();
+  for(const p of [attackerP,defender]){
+   const monster=S.players[p].monster[lane];if(!monster)continue;
+   if(monster.id===7){log('反魔の死人：脱出の儀による手札戻しを無効');continue;}
+   S.players[p].monster[lane]=null;
+   const returnPlayer=leaveControlledField(monster,p);monster.zone=null;monster.lane=null;monster.faceDown=false;
+   S.players[returnPlayer].hand.push(monster);returnedPlayers.add(returnPlayer);
+   log('脱出の儀：'+monster.name+' を '+pName(returnPlayer)+' の手札へ戻す');
+   if(monster.uid===attacker.uid)cancel=true;
   }
+  for(const p of returnedPlayers)draw(p,1);
  }
  await sendGrave(trap,'trap-resolve',false,true);
  await trapSucceeded(defender,lane);
@@ -1055,7 +1056,7 @@ function showRules(){
  '錆びたゴーレム：最初の2回はATKで負けても同値でも戦闘では破壊されない。3回目の戦闘後に墓地へ。カード効果では通常どおり墓地へ送られる。',
  '反攻の儀：同列の自分のモンスターを墓地へ送ることを選んで発動し、攻撃モンスターをその枠へ移す。攻撃を中断し相手AP+1。反魔の死人はコントロールを奪えない。奪ったカードが場を離れるときは、処理に応じて元のプレイヤーの手札・山札・墓地へ戻す。',
  '偽造の書で相手のエンブレムを破壊できる。破壊前に適用されたATK・貫通などは取り消さない。',
- '復活の書は即時発動専用で、罠としてセットできない。加速の儀：自分ターン開始時または破壊時に2ドロー。自分ターン中に発動した場合AP+1（最大4）。脱出の儀は同列への攻撃時に発動し、攻撃モンスターを手札へ戻して両者1ドロー。',
+ '復活の書は即時発動専用で、罠としてセットできない。加速の儀：自分ターン開始時または破壊時に2ドロー。自分ターン中に発動した場合AP+1（最大4）。脱出の儀は同列の相手モンスターの攻撃時に発動。同列の相手と自分のモンスターをそれぞれの手札へ戻し、その後、実際にモンスターが手札に戻ったプレイヤーだけ1枚ドローする。反魔の死人は手札へ戻らない。',
  '守護の儀：同列の自分のモンスターへの脱力を無効化してATK+2、または同列の相手の攻撃時に正面の自分のモンスターにこのターンのみATK+3。どちらかの発動後に墓地へ。反魔の死人には適用しない。',
  '死霊師：場に出たとき、自分の墓地のモンスター1枚を選び、その現在ATK分だけ自身のATKを増やす。参照カードは墓地に残る。',
  'デッドアイズ：信仰2。墓地へ送られた時、相手の現在ATK7以上のモンスターすべてに脱力5。反魔の死人が場にいると墓地効果は無効。',
@@ -1072,7 +1073,7 @@ function showRules(){
  'ダブル戦の進化の書：交換先が複数ある場合、対象と同じ元デッキ由来の個体を優先し、両者の墓地も検索対象。憑依・信仰のエンブレム取得と憎悪の回数は個体ごとに判定する（信仰の使用は従来どおり1ターン1回）。',
  '場を対象にする効果は原則フィールドから直接タップ。VS CPUではP2をNORMAL CPUが担当し、CPUは相手の非公開手札や伏せ罠の正体を判断材料にしない。'
  ];
- choose('RULES / v0.6.11 / V1.3',txt.map((x,i)=>({label:`${i+1}. ${x}`,value:i})),true);
+ choose('RULES / v0.6.12 / V1.3',txt.map((x,i)=>({label:`${i+1}. ${x}`,value:i})),true);
 }
 async function startNewGame(){
  const choice=await window.wgChooseStarter(2,{cpu:GAME_MODE==='CPU'});if(!choice)return;

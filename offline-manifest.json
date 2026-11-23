@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.23-cards-battle-log",
+  "version": "2026.11.23-cards-escape",
   "generatedAt": "2026-11-23",
   "core": [
     "./",
@@ -35,7 +35,7 @@
       "id": "cards",
       "title": "WAITING CARDS",
       "type": "game",
-      "version": "v0.6.11 v13",
+      "version": "v0.6.12 v13",
       "url": "games/cards.html",
       "files": [
         "games/cards.html"
