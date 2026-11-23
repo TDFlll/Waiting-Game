@@ -24,11 +24,12 @@ function game(mode='double',seed=1){
  waitDecisionHandoff=async()=>{};
  render=renderLog=showCardEffect=showEventToast=clearDigestBanners=showHandoff=function(){};
  log=function(t){S.log.push(t);S.turnEvents.push(t)};
- window.api={get state(){return S},get bases(){return BASE_CARDS},init(mode){uid=1;DECK_MODE=mode;S=newState();busy=false;scriptedChoices=[];fieldChoice=null;fieldChoices=[];choiceHistory=[]},
+ window.api={get state(){return S},get bases(){return BASE_CARDS},init(mode){cancelPendingGameover();clearDamageFeedback();stopBattleLogReplay();uid=1;DECK_MODE=mode;S=newState();busy=false;scriptedChoices=[];fieldChoice=null;fieldChoices=[];choiceHistory=[]},
  get uid(){return uid},get choiceHistory(){return choiceHistory},playFromHand,specialSummonDragon,resolveMagicEffect,activateInstant,forgeryEffect,vampireEffect,attackFlow,triggerAttackTraps,cpuAttackScore,cpuCardScore,cpuPickField,cpuPickOption,cpuMaybeMagic,canAttack,cardAtk,pierceValue,emblemOptions,graveFor,graveEntries,putGrave,sendGrave,sendMonsterFromField,destroyWholeLane,monsterBattle,revivalEffect,magicBookEffect,faithStartOption,resolvePending,showGrave,banishMonsterFromField,isBanished,
  deckFor,deckEntries,draw,handLimit,applyDebilitate,necromancerEffect,swapPotEffect,transformEffect,findAnywhere,locateCard,captureLocations,removeLocated,placeByDescriptor,saveSnapshot,rewindOwnField,checkStalemate,summon,takeGrave,cloneCard,useMagic,startTurn,endTurn,showRules,realRender,realShowHandoff,realLog,summarizeTurn,showDigestBanners,
  realChoose,realChooseFieldSlot,openDecisionReview,closeDecisionReview,reviewCardHTML,setDecisionPlayer(p){decisionPlayer=p},get selectionPending(){return !!(choiceResolve||fieldPickResolve)},
  damage,finish,formatLifeEvent,startBattleLogReplay,stopBattleLogReplay,showTitle,
+ showDamageFeedback,clearDamageFeedback,cancelPendingGameover,
  choices(...v){scriptedChoices=v},pick(v){fieldChoice=v},picks(...v){fieldChoices=v},setCpu(){GAME_MODE='CPU'},
  card(id,p){const c=cloneCard(BASE_CARDS.find(b=>b.id===id));c.originalDeck=p;return c}
  };

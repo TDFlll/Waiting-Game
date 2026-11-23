@@ -4,7 +4,7 @@ function setup(){const g=game('double');emptyHands(g.api);g.api.state.turn=0;g.a
 test('result log records both players chronological life losses and reveals exactly one per second including the lethal hit',()=>{
  const g=setup(),a=g.api;a.state.turnNo=2;a.damage(1,1,'直接攻撃',{player:0,name:'失笑ライダー'});a.state.turnNo=3;a.damage(0,1,'直接攻撃',{player:1,name:'こどもドラゴン'});a.state.turnNo=4;a.damage(1,3,'直接攻撃',{player:0,name:'失笑ライダー'});
  assert.equal(a.state.lifeEvents.length,3);assert.equal(a.state.gameover,true);assert.match(g.node('gameoverTitle').textContent,/P1 WIN/);assert.equal(g.node('battleLogList').children.length,0);
- g.advance(999);assert.equal(g.node('battleLogList').children.length,0);g.advance(1);assert.equal(g.node('battleLogList').children.length,1);assert.equal(g.node('battleLogList').children[0].textContent,'2ターン P1 失笑ライダー → P2 −1');
+ g.advance(899);assert.equal(g.node('gameover').classList.contains('hidden'),true);g.advance(1);assert.equal(g.node('gameover').classList.contains('hidden'),false);g.advance(999);assert.equal(g.node('battleLogList').children.length,0);g.advance(1);assert.equal(g.node('battleLogList').children.length,1);assert.equal(g.node('battleLogList').children[0].textContent,'2ターン P1 失笑ライダー → P2 −1');
  g.advance(1000);assert.equal(g.node('battleLogList').children[1].textContent,'3ターン P2 こどもドラゴン → P1 −1');g.advance(1000);assert.equal(g.node('battleLogList').children.length,3);assert.match(g.node('battleLogList').children[2].textContent,/4ターン.*P2 −3/);assert.equal(g.node('battleLogStatus').textContent,'全3件');assert.equal(g.timerCount,0);
  a.damage(0,1,'after finish');assert.equal(a.state.lifeEvents.length,3);
 });
@@ -26,11 +26,11 @@ test('a draw with no life damage shows an empty-log message and creates no repla
  const g=setup();g.api.finish(null,'引き分け');assert.equal(g.node('gameoverTitle').textContent,'DRAW');assert.equal(g.node('battleLogStatus').textContent,'ライフ減少の記録はありません。');assert.equal(g.timerCount,0);
 });
 test('leaving results cancels replay and a fresh game does not inherit the prior log',()=>{
- const g=setup(),a=g.api;a.damage(1,1,'test');a.finish(0,'test');assert.equal(g.timerCount,1);a.showTitle();assert.equal(g.timerCount,0);g.advance(3000);assert.equal(g.node('battleLogList').children.length,0);
+ const g=setup(),a=g.api;a.damage(1,1,'test');a.finish(0,'test');assert.equal(g.timerCount,2);a.showTitle();assert.equal(g.timerCount,0);g.advance(3000);assert.equal(g.node('battleLogList').children.length,0);
  a.init('double');assert.equal(a.state.lifeEvents.length,0);a.finish(null,'new');g.advance(5000);assert.equal(g.node('battleLogList').children.length,0);
 });
 test('restarting a result replay never duplicates a scheduled row and ignores a replaced game state',()=>{
- const g=setup(),a=g.api;a.damage(1,1,'test');a.finish(0,'test');a.startBattleLogReplay();assert.equal(g.timerCount,1);g.advance(1000);assert.equal(g.node('battleLogList').children.length,1);
+ const g=setup(),a=g.api;a.damage(1,1,'test');a.finish(0,'test');a.startBattleLogReplay();assert.equal(g.timerCount,2);g.advance(1000);assert.equal(g.node('battleLogList').children.length,1);
  a.startBattleLogReplay();a.init('double');g.advance(1000);assert.equal(g.node('battleLogList').children.length,0);
 });
 test('unrelated turn logs and non-damage changes never become life-loss events',()=>{
