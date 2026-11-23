@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.23-robots-shared-abilities",
+  "version": "2026.11.23-shift-cpu",
   "generatedAt": "2026-11-23",
   "core": [
     "./",
@@ -125,7 +125,7 @@
       "id": "shift",
       "title": "WAITING SHIFT",
       "type": "game",
-      "version": "v0.9.2",
+      "version": "v0.10.0",
       "url": "games/shift.html",
       "files": [
         "games/shift.html"

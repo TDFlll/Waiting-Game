@@ -45,7 +45,7 @@ waiting-games/
 - `games/draw.html` from `Waiting_Draw_v0.2.5_import_export.html`
 - `games/derby.html` v0.13 (WAITING DERBY; Free Open / Randm Open, opening-player selection, final board/results, public reveal cards at handoff)
 - `games/memory-line.html` from `Waiting_Memory_Line_v0.5.html` (shared player names and launcher return links)
-- `games/shift.html` from `Waiting_Shift_v0.9.1.html` (shared player names and confirmed launcher return)
+- `games/shift.html` v0.10.0 (two-player or imperfect CPU opponent, wall/free and master support, human-turn undo, shared player names and confirmed launcher return)
 - `games/words.html` from `Waiting_Words_v1.1.html` (embedded word dictionary, category selection, history and offline topic generation)
 - `index.html` from `waiting_games_launcher_demo_v0_1.html`
 
